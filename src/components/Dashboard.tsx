@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -209,7 +210,7 @@ export function Dashboard() {
             />
           </ScrollArea>
           <div className="p-4 bg-transparent w-full flex justify-center">
-            <div className="w-full">
+            <div className="w-3/4">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
             </div>
           </div>
