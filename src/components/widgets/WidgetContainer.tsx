@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef } from 'react';
+import { useRef, createRef } from 'react';
 import Draggable from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
@@ -29,24 +29,24 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     )
   }
   
-  // Use a map to store refs for each widget
-  const nodeRefs = new Map<string, React.RefObject<HTMLDivElement>>();
+  const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
   widgets.forEach(widget => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    nodeRefs.set(widget.id, useRef(null));
+    if (!nodeRefs.current.has(widget.id)) {
+      nodeRefs.current.set(widget.id, createRef<HTMLDivElement>());
+    }
   });
 
   return (
     <div className="relative w-full h-full">
       {widgets.map((widget, index) => {
-        const nodeRef = nodeRefs.get(widget.id)!;
+        const nodeRef = nodeRefs.current.get(widget.id)!;
         return (
           <Draggable
               key={widget.id}
               nodeRef={nodeRef}
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
-              defaultPosition={{x: (index % 4) * 20, y: Math.floor(index / 4) * 20}}
+              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
           >
               <div className="absolute" ref={nodeRef}>
                   <BaseWidget 
@@ -62,4 +62,3 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     </div>
   );
 }
-
