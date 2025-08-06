@@ -33,13 +33,21 @@ export function Dashboard() {
     if (!query.trim()) return;
     setLoading(true);
 
-    // Mock data for the problem widget
     const problemData: Problem[] = [
-      { number: 'PRB00012354', short_description: 'Problem Short Description' },
-      { number: 'PRB00012354', short_description: 'Problem Short Description' },
-      { number: 'PRB00012354', short_description: 'Problem Short Description' },
-      { number: 'PRB00012354', short_description: 'Problem Short Description' },
-      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+      {
+        number: 'PRB00012354',
+        short_description: 'Problem Short Description',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.',
+        workaround: 'Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.',
+        cause: 'Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.',
+      },
+      {
+        number: 'PRB00012355',
+        short_description: 'Another Problem Short Description',
+        description: 'Another problem detailed description.',
+        workaround: 'Another problem workaround.',
+        cause: 'Another problem cause.',
+       },
     ];
 
     const newWidget: Widget = {
@@ -85,6 +93,22 @@ export function Dashboard() {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
   };
   
+  const updateProblem = (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => {
+    setWidgets(prevWidgets => 
+      prevWidgets.map(widget => {
+        if (widget.id === widgetId && widget.type === 'problem') {
+          return {
+            ...widget,
+            data: widget.data.map((problem: Problem) =>
+              problem.number === problemNumber ? { ...problem, ...updatedData } : problem
+            ),
+          };
+        }
+        return widget;
+      })
+    );
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
@@ -93,7 +117,7 @@ export function Dashboard() {
       <SidebarInset className={cn("flex h-screen", widgets.length > 0 ? "flex-col" : "")}>
         <div className={cn("flex-1 flex flex-col min-h-0", widgets.length === 0 && "justify-center")}>
           <ScrollArea className="flex-grow p-4 md:p-8">
-            <WidgetContainer widgets={widgets} removeWidget={removeWidget} />
+            <WidgetContainer widgets={widgets} removeWidget={removeWidget} updateProblem={updateProblem}/>
           </ScrollArea>
           <div className="p-4 bg-transparent">
             <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />

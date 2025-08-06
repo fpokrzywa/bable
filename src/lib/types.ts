@@ -9,6 +9,9 @@ export interface Incident {
 export interface Problem {
   number: string;
   short_description: string;
+  description: string;
+  workaround: string;
+  cause: string;
 }
 
 export interface Agent {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import type { Widget } from '@/lib/types';
+import type { Widget, Problem } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,9 +17,10 @@ import { ScrollArea } from '../ui/scroll-area';
 interface BaseWidgetProps {
   widget: Widget;
   removeWidget: (id: string) => void;
+  updateProblem?: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
 }
 
-export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateProblem }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +55,7 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
       case 'incident':
         return <IncidentWidget incidents={widget.data} />;
       case 'problem':
-        return <ProblemWidget problems={widget.data} onTextSelect={handleTextSelection} />;
+        return <ProblemWidget widgetId={widget.id} problems={widget.data} onTextSelect={handleTextSelection} updateProblem={updateProblem!} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;

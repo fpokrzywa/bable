@@ -6,14 +6,19 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
+import { ProblemEditForm } from './ProblemEditForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 interface ProblemWidgetProps {
+  widgetId: string;
   problems: Problem[];
   onTextSelect: (text: string) => void;
+  updateProblem: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
 }
 
-export function ProblemWidget({ problems, onTextSelect }: ProblemWidgetProps) {
+export function ProblemWidget({ widgetId, problems, onTextSelect, updateProblem }: ProblemWidgetProps) {
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+  const [editingProblem, setEditingProblem] = useState<Problem | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,6 +45,17 @@ export function ProblemWidget({ problems, onTextSelect }: ProblemWidgetProps) {
     setSelectedProblem(null);
   };
   
+  const handleProblemUpdate = (values: Partial<Problem>) => {
+    if (editingProblem) {
+      updateProblem(widgetId, editingProblem.number, values);
+      setEditingProblem(null);
+      // Also update the selected problem if it's the one being edited
+      if(selectedProblem && selectedProblem.number === editingProblem.number) {
+        setSelectedProblem({...selectedProblem, ...values});
+      }
+    }
+  };
+
   return (
     <div ref={containerRef} className="relative h-full overflow-hidden">
       {/* Problems List */}
@@ -49,11 +65,31 @@ export function ProblemWidget({ problems, onTextSelect }: ProblemWidgetProps) {
         {problems.map((problem, index) => (
           <div 
             key={index} 
-            className="mb-4 p-2 rounded-md hover:bg-accent/50 cursor-pointer"
-            onClick={() => handleSelectProblem(problem)}
+            className="mb-4 p-2 rounded-md hover:bg-accent/50"
           >
-            <p className="font-medium">{problem.number}</p>
-            <p className="text-sm text-muted-foreground">{problem.short_description}</p>
+            <Dialog onOpenChange={(open) => !open && setEditingProblem(null)}>
+              <DialogTrigger asChild>
+                <p 
+                  className="font-medium cursor-pointer"
+                  onClick={() => setEditingProblem(problem)}
+                >
+                  {problem.number}
+                </p>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Problem {editingProblem?.number}</DialogTitle>
+                </DialogHeader>
+                {editingProblem && <ProblemEditForm problem={editingProblem} onSubmit={handleProblemUpdate} />}
+              </DialogContent>
+            </Dialog>
+
+            <p 
+              className="text-sm text-muted-foreground cursor-pointer"
+              onClick={() => handleSelectProblem(problem)}
+            >
+              {problem.short_description}
+            </p>
           </div>
         ))}
       </div>
@@ -81,21 +117,15 @@ export function ProblemWidget({ problems, onTextSelect }: ProblemWidgetProps) {
                 </div>
                 <div>
                   <h4 className="font-medium text-muted-foreground">Description</h4>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
-                  </p>
+                  <p>{selectedProblem.description}</p>
                 </div>
                 <div>
                   <h4 className="font-medium text-muted-foreground">Workaround</h4>
-                  <p>
-                    Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.
-                  </p>
+                  <p>{selectedProblem.workaround}</p>
                 </div>
                  <div>
                   <h4 className="font-medium text-muted-foreground">Cause</h4>
-                  <p>
-                    Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.
-                  </p>
+                  <p>{selectedProblem.cause}</p>
                 </div>
             </div>
            </ScrollArea>

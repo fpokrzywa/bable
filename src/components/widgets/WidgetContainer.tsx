@@ -1,14 +1,15 @@
 'use client';
 
-import type { Widget } from '@/lib/types';
+import type { Widget, Problem } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
 
 interface WidgetContainerProps {
   widgets: Widget[];
   removeWidget: (id: string) => void;
+  updateProblem: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
 }
 
-export function WidgetContainer({ widgets, removeWidget }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateProblem }: WidgetContainerProps) {
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -27,7 +28,7 @@ export function WidgetContainer({ widgets, removeWidget }: WidgetContainerProps)
     <div className="flex flex-wrap gap-4">
       {widgets.map((widget) => (
         <div key={widget.id} className="animate-in fade-in zoom-in-95">
-          <BaseWidget widget={widget} removeWidget={removeWidget} />
+          <BaseWidget widget={widget} removeWidget={removeWidget} updateProblem={updateProblem} />
         </div>
       ))}
     </div>
