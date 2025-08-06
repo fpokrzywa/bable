@@ -71,11 +71,11 @@ export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident
     <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden">
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex-1">
-          <CardTitle className="text-lg">{widget.query}</CardTitle>
+          <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <CardDescription className="flex items-center gap-1.5 cursor-help mt-1">
+                <CardDescription className="flex items-center gap-1.5 cursor-help mt-1 text-xs @[400px]:text-sm">
                   <Bot size={14} className="text-primary" />
                   {widget.agent.agentType}
                 </CardDescription>
@@ -102,7 +102,7 @@ export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident
         {suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {suggestions.map((s, i) => (
-              <Badge key={i} variant="outline" className="cursor-pointer hover:bg-accent" onClick={() => setChatQuery(s)}>
+              <Badge key={i} variant="outline" className="cursor-pointer hover:bg-accent text-xs @[400px]:text-sm" onClick={() => setChatQuery(s)}>
                 {s}
               </Badge>
             ))}
@@ -114,6 +114,7 @@ export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident
             value={chatQuery}
             onChange={(e) => setChatQuery(e.target.value)}
             disabled={loading}
+            className='text-xs @[400px]:text-sm'
           />
           <Button type="submit" size="icon" disabled={loading || !chatQuery.trim()}>
             {loading ? <Loader2 className="animate-spin" /> : <Send size={16} />}

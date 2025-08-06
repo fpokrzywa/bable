@@ -57,7 +57,7 @@ export function ChangeWidget({ widgetId, changes, onTextSelect, updateChange }: 
   };
 
   return (
-    <div ref={containerRef} className="relative h-full overflow-hidden">
+    <div ref={containerRef} className="relative h-full overflow-hidden text-sm @[400px]:text-base">
       {/* Changes List */}
       <div className={cn("transition-transform duration-300 ease-in-out", {
         '-translate-x-full': selectedChange
@@ -85,7 +85,7 @@ export function ChangeWidget({ widgetId, changes, onTextSelect, updateChange }: 
             </Dialog>
 
             <p 
-              className="text-sm text-muted-foreground cursor-pointer"
+              className="text-muted-foreground cursor-pointer text-xs @[400px]:text-sm"
               onClick={() => handleSelectChange(change)}
             >
               {change.short_description}
@@ -110,7 +110,7 @@ export function ChangeWidget({ widgetId, changes, onTextSelect, updateChange }: 
                <div className="w-7"/>
             </div>
 
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4">
                 <div>
                   <h4 className="font-medium text-muted-foreground">Short Description</h4>
                   <p>{selectedChange.short_description}</p>

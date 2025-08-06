@@ -93,5 +93,6 @@ body {
     overflow: auto;
     min-width: 350px;
     min-height: 250px;
+    container-type: inline-size;
   }
 }

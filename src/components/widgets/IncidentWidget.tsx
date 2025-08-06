@@ -57,7 +57,7 @@ export function IncidentWidget({ widgetId, incidents, onTextSelect, updateIncide
   };
 
   return (
-    <div ref={containerRef} className="relative h-full overflow-hidden">
+    <div ref={containerRef} className="relative h-full overflow-hidden text-sm @[400px]:text-base">
       {/* Incidents List */}
       <div className={cn("transition-transform duration-300 ease-in-out", {
         '-translate-x-full': selectedIncident
@@ -85,7 +85,7 @@ export function IncidentWidget({ widgetId, incidents, onTextSelect, updateIncide
             </Dialog>
 
             <p 
-              className="text-sm text-muted-foreground cursor-pointer"
+              className="text-muted-foreground cursor-pointer text-xs @[400px]:text-sm"
               onClick={() => handleSelectIncident(incident)}
             >
               {incident.short_description}
@@ -110,7 +110,7 @@ export function IncidentWidget({ widgetId, incidents, onTextSelect, updateIncide
                <div className="w-7"/>
             </div>
 
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4">
                 <div>
                   <h4 className="font-medium text-muted-foreground">Short Description</h4>
                   <p>{selectedIncident.short_description}</p>

@@ -57,7 +57,7 @@ export function ProblemWidget({ widgetId, problems, onTextSelect, updateProblem 
   };
 
   return (
-    <div ref={containerRef} className="relative h-full overflow-hidden">
+    <div ref={containerRef} className="relative h-full overflow-hidden text-sm @[400px]:text-base">
       {/* Problems List */}
       <div className={cn("transition-transform duration-300 ease-in-out", {
         '-translate-x-full': selectedProblem
@@ -85,7 +85,7 @@ export function ProblemWidget({ widgetId, problems, onTextSelect, updateProblem 
             </Dialog>
 
             <p 
-              className="text-sm text-muted-foreground cursor-pointer"
+              className="text-muted-foreground cursor-pointer text-xs @[400px]:text-sm"
               onClick={() => handleSelectProblem(problem)}
             >
               {problem.short_description}
@@ -110,7 +110,7 @@ export function ProblemWidget({ widgetId, problems, onTextSelect, updateProblem 
                <div className="w-7"/>
             </div>
 
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4">
                 <div>
                   <h4 className="font-medium text-muted-foreground">Short Description</h4>
                   <p>{selectedProblem.short_description}</p>
