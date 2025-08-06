@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2 } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Label } from './ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -81,52 +81,18 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Type a command or ask a question..."
-        className="flex-1"
+        placeholder="Please type your message here"
+        className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
         disabled={loading}
       />
-      <Button type="button" size="icon" variant="ghost" onClick={handleListen} disabled={loading}>
-        <Mic className={isListening ? 'text-destructive' : ''} />
-        <span className="sr-only">Use voice</span>
-      </Button>
-      <Button type="submit" size="icon" disabled={loading}>
-        {loading ? <Loader2 className="animate-spin" /> : <Send />}
+      <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
+        {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
         <span className="sr-only">Send</span>
       </Button>
-
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button type="button" size="icon" variant="outline" disabled={!query.trim() || loading}>
-            <Bookmark />
-            <span className="sr-only">Save query</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80">
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <h4 className="font-medium leading-none">Save Query</h4>
-              <p className="text-sm text-muted-foreground">
-                Save this query for future use.
-              </p>
-            </div>
-            <div className="grid gap-2">
-              <div className="grid grid-cols-3 items-center gap-4">
-                <Label htmlFor="query">Query</Label>
-                <Input id="query" defaultValue={query} className="col-span-2 h-8" readOnly />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-4">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" value={saveName} onChange={e => setSaveName(e.target.value)} className="col-span-2 h-8" placeholder="e.g., Open Incidents" />
-              </div>
-               <Button onClick={handleSave} disabled={!saveName.trim()}>Save</Button>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
     </form>
   );
 }

@@ -43,7 +43,7 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
   };
 
   return (
-    <Card className="resizable-widget w-[450px] h-[400px] flex flex-col">
+    <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex-1">
           <CardTitle className="text-lg">{widget.query}</CardTitle>

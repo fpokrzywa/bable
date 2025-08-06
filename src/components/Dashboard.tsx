@@ -6,7 +6,7 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 
-import { Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
@@ -103,18 +103,15 @@ export function Dashboard() {
   
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar side="left" collapsible="icon">
-        <AppSidebar savedQueries={savedQueries} onQuerySelect={handleCreateWidget} />
+      <Sidebar side="left" collapsible="icon" variant="floating">
+        <AppSidebar />
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen">
         <div className="flex-1 flex flex-col min-h-0">
-          <header className="p-2 md:hidden">
-            <SidebarTrigger />
-          </header>
-          <ScrollArea className="flex-grow p-4">
+          <ScrollArea className="flex-grow p-4 md:p-8">
             <WidgetContainer widgets={widgets} removeWidget={removeWidget} />
           </ScrollArea>
-          <div className="p-4 border-t border-border/60 bg-background/80 backdrop-blur-sm">
+          <div className="p-4 bg-transparent">
             <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
           </div>
         </div>
