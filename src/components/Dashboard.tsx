@@ -199,7 +199,7 @@ export function Dashboard() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen items-center">
-        <div className={cn("flex flex-col min-h-0 w-full max-w-[700px]", widgets.length > 0 ? "flex-1" : "h-full justify-center")}>
+        <div className={cn("flex flex-col min-h-0 w-full", widgets.length > 0 ? "flex-1" : "h-full justify-center")}>
           <ScrollArea className="flex-grow p-4 md:p-8">
             <WidgetContainer 
               widgets={widgets} 
