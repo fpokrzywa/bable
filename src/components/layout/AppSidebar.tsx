@@ -34,7 +34,7 @@ export function AppSidebar() {
         </Button>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow justify-center">
+      <SidebarContent className="p-2 flex-grow flex flex-col items-center justify-center">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
