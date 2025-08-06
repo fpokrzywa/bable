@@ -43,7 +43,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
   return (
     <div className="relative w-full h-full">
        {minimizedWidgets.length > 0 && (
-        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+        <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
           {minimizedWidgets.map(widget => (
             <BaseWidget 
               key={widget.id}

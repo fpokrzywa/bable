@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, Minus } from 'lucide-react';
+import { X, Bot, Send, Loader2, Minus, Plus } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -66,21 +66,26 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
   if (widget.isMinimized) {
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() => toggleMinimizeWidget(widget.id)}
-              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
-            >
-              {widget.query.charAt(0).toUpperCase()}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Restore: {widget.query}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Card 
+        className="w-[350px] bg-card/80 backdrop-blur-sm cursor-pointer"
+        onClick={() => toggleMinimizeWidget(widget.id)}
+      >
+        <CardHeader className="flex flex-row items-center justify-between p-3">
+          <CardTitle className="text-base">{widget.query}</CardTitle>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                <div>
+                    <Plus size={18} />
+                    <span className="sr-only">Restore widget</span>
+                </div>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); removeWidget(widget.id); }}>
+                <X size={18} />
+                <span className="sr-only">Close widget</span>
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
     );
   }
 
