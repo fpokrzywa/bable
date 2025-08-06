@@ -209,8 +209,8 @@ export function Dashboard() {
               updateChange={updateChange}
             />
           </ScrollArea>
-          <div className="p-4 bg-transparent w-full flex justify-center">
-            <div className="w-full">
+          <div className="p-4 bg-transparent w-full flex justify-end">
+            <div className="w-full max-w-4xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
             </div>
           </div>
