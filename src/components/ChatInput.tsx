@@ -81,7 +81,7 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="relative mx-auto">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}

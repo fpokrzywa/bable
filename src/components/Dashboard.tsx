@@ -197,8 +197,8 @@ export function Dashboard() {
       <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
         <AppSidebar />
       </Sidebar>
-      <SidebarInset className={cn("flex h-screen", widgets.length > 0 ? "flex-col" : "")}>
-        <div className={cn("flex-1 flex flex-col min-h-0", widgets.length === 0 && "justify-center")}>
+      <SidebarInset className="flex flex-col h-screen">
+        <div className={cn("flex flex-col min-h-0", widgets.length > 0 ? "flex-1" : "h-full justify-center")}>
           <ScrollArea className="flex-grow p-4 md:p-8">
             <WidgetContainer 
               widgets={widgets} 
