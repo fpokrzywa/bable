@@ -6,7 +6,7 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 
-import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { Sidebar, SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
@@ -21,6 +21,11 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { setOpen } = useSidebar();
+
+  useState(() => {
+    setOpen(false);
+  });
 
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
