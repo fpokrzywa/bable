@@ -27,7 +27,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
   }
 
   return (
-    <div className="relative h-full">
+    <>
       {widgets.map((widget, index) => (
         <div 
             key={widget.id} 
@@ -46,6 +46,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
           />
         </div>
       ))}
-    </div>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,7 +13,6 @@ import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 export function Dashboard() {
@@ -190,15 +188,13 @@ export function Dashboard() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen items-center">
-        <div className={cn("flex flex-col min-h-0 w-full", widgets.length > 0 ? "flex-1" : "h-full justify-center")}>
-          <ScrollArea className="flex-grow p-4 md:p-8">
+        <div className={cn("flex flex-col w-full h-full relative", widgets.length > 0 ? "flex-1" : "h-full justify-center items-center")}>
             <WidgetContainer 
               widgets={widgets} 
               removeWidget={removeWidget} 
               updateEntity={updateEntity}
               bringToFront={bringToFront}
             />
-          </ScrollArea>
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
           </div>
