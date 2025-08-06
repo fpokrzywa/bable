@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,6 +13,7 @@ import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -111,8 +113,8 @@ export function Dashboard() {
       <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
         <AppSidebar />
       </Sidebar>
-      <SidebarInset className="flex flex-col h-screen">
-        <div className="flex-1 flex flex-col min-h-0">
+      <SidebarInset className={cn("flex h-screen", widgets.length > 0 ? "flex-col" : "")}>
+        <div className={cn("flex-1 flex flex-col min-h-0", widgets.length === 0 && "justify-center")}>
           <ScrollArea className="flex-grow p-4 md:p-8">
             <WidgetContainer widgets={widgets} removeWidget={removeWidget} />
           </ScrollArea>
