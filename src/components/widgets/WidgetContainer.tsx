@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useRef } from 'react';
 import Draggable from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
@@ -13,6 +14,7 @@ interface WidgetContainerProps {
 }
 
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront }: WidgetContainerProps) {
+
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -26,26 +28,38 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         </div>
     )
   }
+  
+  // Use a map to store refs for each widget
+  const nodeRefs = new Map<string, React.RefObject<HTMLDivElement>>();
+  widgets.forEach(widget => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    nodeRefs.set(widget.id, useRef(null));
+  });
 
   return (
     <div className="relative w-full h-full">
-      {widgets.map((widget, index) => (
-        <Draggable
-            key={widget.id}
-            handle=".drag-handle"
-            onStart={() => bringToFront(widget.id)}
-            defaultPosition={{x: (index % 4) * 20, y: Math.floor(index / 4) * 20}}
-        >
-            <div className="absolute">
-                <BaseWidget 
-                    widget={widget} 
-                    removeWidget={removeWidget} 
-                    updateEntity={updateEntity}
-                    bringToFront={bringToFront}
-                />
-            </div>
-        </Draggable>
-      ))}
+      {widgets.map((widget, index) => {
+        const nodeRef = nodeRefs.get(widget.id)!;
+        return (
+          <Draggable
+              key={widget.id}
+              nodeRef={nodeRef}
+              handle=".drag-handle"
+              onStart={() => bringToFront(widget.id)}
+              defaultPosition={{x: (index % 4) * 20, y: Math.floor(index / 4) * 20}}
+          >
+              <div className="absolute" ref={nodeRef}>
+                  <BaseWidget 
+                      widget={widget} 
+                      removeWidget={removeWidget} 
+                      updateEntity={updateEntity}
+                      bringToFront={bringToFront}
+                  />
+              </div>
+          </Draggable>
+        );
+      })}
     </div>
   );
 }
+
