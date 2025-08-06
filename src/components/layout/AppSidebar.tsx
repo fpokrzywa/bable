@@ -16,7 +16,7 @@ export function AppSidebar() {
     <>
       <SidebarHeader className="h-16" />
 
-      <SidebarContent className="p-2 flex-grow justify-end">
+      <SidebarContent className="p-2 flex-grow justify-center">
         <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
