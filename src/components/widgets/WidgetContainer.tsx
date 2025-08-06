@@ -1,6 +1,7 @@
 
 'use client';
 
+import Draggable from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
 
@@ -27,25 +28,24 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
   }
 
   return (
-    <>
+    <div className="relative w-full h-full">
       {widgets.map((widget, index) => (
-        <div 
-            key={widget.id} 
-            className="animate-in fade-in zoom-in-95 absolute" 
-            style={{ 
-              top: `${Math.floor(index / 4) * 20}px`, 
-              left: `${(index % 4) * 20}px`, 
-              zIndex: widget.zIndex 
-            }}
+        <Draggable
+            key={widget.id}
+            handle=".drag-handle"
+            onStart={() => bringToFront(widget.id)}
+            defaultPosition={{x: (index % 4) * 20, y: Math.floor(index / 4) * 20}}
         >
-          <BaseWidget 
-            widget={widget} 
-            removeWidget={removeWidget} 
-            updateEntity={updateEntity}
-            bringToFront={bringToFront}
-          />
-        </div>
+            <div className="absolute">
+                <BaseWidget 
+                    widget={widget} 
+                    removeWidget={removeWidget} 
+                    updateEntity={updateEntity}
+                    bringToFront={bringToFront}
+                />
+            </div>
+        </Draggable>
       ))}
-    </>
+    </div>
   );
 }

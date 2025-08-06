@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2 } from 'lucide-react';
+import { X, Bot, Send, Loader2, GripVertical } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -67,8 +67,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }:
     <Card 
       className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
       onMouseDown={() => bringToFront(widget.id)}
+      style={{ zIndex: widget.zIndex }}
     >
-      <CardHeader className="flex flex-row items-start justify-between">
+      <CardHeader className="flex flex-row items-start justify-between p-4 drag-handle cursor-move">
         <div className="flex-1">
           <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
           <TooltipProvider>
@@ -85,10 +86,13 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }:
             </Tooltip>
           </TooltipProvider>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeWidget(widget.id)}>
-          <X size={18} />
-          <span className="sr-only">Close widget</span>
-        </Button>
+        <div className="flex items-center gap-2">
+            <GripVertical className="text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeWidget(widget.id)}>
+                <X size={18} />
+                <span className="sr-only">Close widget</span>
+            </Button>
+        </div>
       </CardHeader>
 
       <CardContent className="flex-1 min-h-0 relative">
