@@ -6,12 +6,10 @@ import { BaseWidget } from './BaseWidget';
 interface WidgetContainerProps {
   widgets: Widget[];
   removeWidget: (id: string) => void;
-  updateProblem: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
-  updateIncident: (widgetId: string, incidentNumber: string, updatedData: Partial<Incident>) => void;
-  updateChange: (widgetId: string, changeNumber: string, updatedData: Partial<Change>) => void;
+  updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
 }
 
-export function WidgetContainer({ widgets, removeWidget, updateProblem, updateIncident, updateChange }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity }: WidgetContainerProps) {
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -33,9 +31,7 @@ export function WidgetContainer({ widgets, removeWidget, updateProblem, updateIn
           <BaseWidget 
             widget={widget} 
             removeWidget={removeWidget} 
-            updateProblem={updateProblem} 
-            updateIncident={updateIncident}
-            updateChange={updateChange}
+            updateEntity={updateEntity}
           />
         </div>
       ))}

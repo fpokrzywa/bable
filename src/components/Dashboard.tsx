@@ -144,15 +144,15 @@ export function Dashboard() {
   const removeWidget = (id: string) => {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
   };
-  
-  const updateProblem = (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => {
-    setWidgets(prevWidgets => 
+
+  const updateEntity = (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => {
+    setWidgets(prevWidgets =>
       prevWidgets.map(widget => {
-        if (widget.id === widgetId && widget.type === 'problem') {
+        if (widget.id === widgetId && (widget.type === 'problem' || widget.type === 'incident' || widget.type === 'change')) {
           return {
             ...widget,
-            data: widget.data.map((problem: Problem) =>
-              problem.number === problemNumber ? { ...problem, ...updatedData } : problem
+            data: widget.data.map((entity: any) =>
+              entity.number === entityNumber ? { ...entity, ...updatedData } : entity
             ),
           };
         }
@@ -161,37 +161,6 @@ export function Dashboard() {
     );
   };
 
-  const updateIncident = (widgetId: string, incidentNumber: string, updatedData: Partial<Incident>) => {
-    setWidgets(prevWidgets =>
-      prevWidgets.map(widget => {
-        if (widget.id === widgetId && widget.type === 'incident') {
-          return {
-            ...widget,
-            data: widget.data.map((incident: Incident) =>
-              incident.number === incidentNumber ? { ...incident, ...updatedData } : incident
-            ),
-          };
-        }
-        return widget;
-      })
-    );
-  };
-
-  const updateChange = (widgetId: string, changeNumber: string, updatedData: Partial<Change>) => {
-    setWidgets(prevWidgets =>
-      prevWidgets.map(widget => {
-        if (widget.id === widgetId && widget.type === 'change') {
-          return {
-            ...widget,
-            data: widget.data.map((change: Change) =>
-              change.number === changeNumber ? { ...change, ...updatedData } : change
-            ),
-          };
-        }
-        return widget;
-      })
-    );
-  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -204,9 +173,7 @@ export function Dashboard() {
             <WidgetContainer 
               widgets={widgets} 
               removeWidget={removeWidget} 
-              updateProblem={updateProblem}
-              updateIncident={updateIncident}
-              updateChange={updateChange}
+              updateEntity={updateEntity}
             />
           </ScrollArea>
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">

@@ -8,23 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, Bot, Send, Loader2 } from 'lucide-react';
-import { IncidentWidget } from '../../../archive/IncidentWidget';
 import { GenericWidget } from './GenericWidget';
-import { ProblemWidget } from '../../../archive/ProblemWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
-import { ChangeWidget } from '../../../archive/ChangeWidget';
+import { EntityWidget } from './EntityWidget';
 
 interface BaseWidgetProps {
   widget: Widget;
   removeWidget: (id: string) => void;
-  updateProblem?: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
-  updateIncident?: (widgetId: string, incidentNumber: string, updatedData: Partial<Incident>) => void;
-  updateChange?: (widgetId: string, changeNumber: string, updatedData: Partial<Change>) => void;
+  updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident, updateChange }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,11 +53,9 @@ export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident
   const renderWidgetContent = () => {
     switch (widget.type) {
       case 'incident':
-        return <IncidentWidget widgetId={widget.id} incidents={widget.data} onTextSelect={handleTextSelection} updateIncident={updateIncident!} />;
       case 'problem':
-        return <ProblemWidget widgetId={widget.id} problems={widget.data} onTextSelect={handleTextSelection} updateProblem={updateProblem!} />;
       case 'change':
-        return <ChangeWidget widgetId={widget.id} changes={widget.data} onTextSelect={handleTextSelection} updateChange={updateChange!} />;
+        return <EntityWidget widgetId={widget.id} type={widget.type} entities={widget.data} onTextSelect={handleTextSelection} updateEntity={updateEntity} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
