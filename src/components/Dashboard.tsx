@@ -68,7 +68,7 @@ export function Dashboard() {
       };
       setWidgets((prev) => [...prev, newWidget]);
 
-    } else {
+    } else if (lowerCaseQuery.includes('problem')) {
       const problemData: Problem[] = [
         {
           number: 'PRB00012354',
@@ -95,6 +95,18 @@ export function Dashboard() {
       };
   
       setWidgets((prev) => [...prev, newWidget]);
+    } else {
+        const result = await generateWidgetFromQuery({ query });
+        const agent = await agentSpecificWidget({ widgetData: result.widgetData });
+  
+        const newWidget: Widget = {
+          id: Date.now().toString(),
+          query: query,
+          data: JSON.parse(result.widgetData),
+          agent: agent,
+          type: 'generic',
+        };
+        setWidgets((prev) => [...prev, newWidget]);
     }
     
     setLoading(false);
