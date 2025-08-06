@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { X, Bot, Send, Loader2 } from 'lucide-react';
 import { IncidentWidget } from './IncidentWidget';
 import { GenericWidget } from './GenericWidget';
+import { ProblemWidget } from './ProblemWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
@@ -41,6 +42,18 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
       setChatQuery('');
     }
   };
+  
+  const renderWidgetContent = () => {
+    switch (widget.type) {
+      case 'incident':
+        return <IncidentWidget incidents={widget.data} />;
+      case 'problem':
+        return <ProblemWidget problems={widget.data} />;
+      case 'generic':
+      default:
+        return <GenericWidget data={widget.data} />;
+    }
+  };
 
   return (
     <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm">
@@ -69,11 +82,7 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
 
       <CardContent className="flex-1 min-h-0">
         <ScrollArea className="h-full pr-4">
-          {widget.type === 'incident' ? (
-            <IncidentWidget incidents={widget.data} />
-          ) : (
-            <GenericWidget data={widget.data} />
-          )}
+          {renderWidgetContent()}
         </ScrollArea>
       </CardContent>
 

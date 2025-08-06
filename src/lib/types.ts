@@ -6,6 +6,11 @@ export interface Incident {
   assigned_to: string;
 }
 
+export interface Problem {
+  number: string;
+  short_description: string;
+}
+
 export interface Agent {
   agentType: string;
   agentBehavior: string;
@@ -16,7 +21,7 @@ export interface Widget {
   query: string;
   data: any;
   agent: Agent;
-  type: 'incident' | 'generic';
+  type: 'incident' | 'generic' | 'problem';
 }
 
 export interface SavedQuery {

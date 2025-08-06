@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Widget, SavedQuery } from '@/lib/types';
+import type { Widget, SavedQuery, Problem } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -32,49 +32,26 @@ export function Dashboard() {
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
     setLoading(true);
-    try {
-      const { widgetData } = await generateWidgetFromQuery({ query });
-      let parsedData;
-      try {
-        parsedData = JSON.parse(widgetData);
-      } catch (e) {
-        console.error('Failed to parse widget data JSON:', e);
-        toast({
-          variant: 'destructive',
-          title: 'AI Error',
-          description: 'The AI returned invalid data. Please try a different query.',
-        });
-        setLoading(false);
-        return;
-      }
 
-      const { agentType, agentBehavior } = await agentSpecificWidget({ widgetData });
+    // Mock data for the problem widget
+    const problemData: Problem[] = [
+      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+      { number: 'PRB00012354', short_description: 'Problem Short Description' },
+    ];
 
-      const isIncident =
-        Array.isArray(parsedData) &&
-        parsedData.length > 0 &&
-        parsedData[0].hasOwnProperty('short_description') &&
-        parsedData[0].hasOwnProperty('number');
+    const newWidget: Widget = {
+      id: Date.now().toString(),
+      query: 'Problem',
+      data: problemData,
+      agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
+      type: 'problem',
+    };
 
-      const newWidget: Widget = {
-        id: Date.now().toString(),
-        query,
-        data: parsedData,
-        agent: { agentType, agentBehavior },
-        type: isIncident ? 'incident' : 'generic',
-      };
-
-      setWidgets((prev) => [...prev, newWidget]);
-    } catch (error) {
-      console.error('Failed to generate widget:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not generate the widget. Please try again.',
-      });
-    } finally {
-      setLoading(false);
-    }
+    setWidgets((prev) => [...prev, newWidget]);
+    setLoading(false);
   };
 
   const handleSaveQuery = async (query: string, name: string) => {
