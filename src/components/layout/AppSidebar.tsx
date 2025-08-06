@@ -7,32 +7,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Settings, User, PanelLeft, PanelRight } from 'lucide-react';
-import { Button } from '../ui/button';
-import { cn } from '@/lib/utils';
+import { Settings, User } from 'lucide-react';
 
 export function AppSidebar() {
-  const { state, toggleSidebar } = useSidebar();
+  const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
   return (
     <>
-      <SidebarHeader className="h-16 flex items-center justify-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className={cn(
-            'h-8 w-8 transition-transform',
-            isCollapsed && 'rotate-180'
-          )}
-        >
-          <PanelLeft />
-          <span className="sr-only">Toggle Sidebar</span>
-        </Button>
-      </SidebarHeader>
+      <SidebarHeader className="h-16" />
 
       <SidebarContent className="p-2 flex-grow flex flex-col items-center justify-center">
         <SidebarMenu>
