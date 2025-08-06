@@ -42,13 +42,19 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
       setChatQuery('');
     }
   };
+
+  const handleTextSelection = (text: string) => {
+    if (text) {
+      setChatQuery(text);
+    }
+  };
   
   const renderWidgetContent = () => {
     switch (widget.type) {
       case 'incident':
         return <IncidentWidget incidents={widget.data} />;
       case 'problem':
-        return <ProblemWidget problems={widget.data} />;
+        return <ProblemWidget problems={widget.data} onTextSelect={handleTextSelection} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
@@ -56,7 +62,7 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
   };
 
   return (
-    <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm">
+    <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden">
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex-1">
           <CardTitle className="text-lg">{widget.query}</CardTitle>
@@ -80,7 +86,7 @@ export function BaseWidget({ widget, removeWidget }: BaseWidgetProps) {
         </Button>
       </CardHeader>
 
-      <CardContent className="flex-1 min-h-0">
+      <CardContent className="flex-1 min-h-0 relative">
         <ScrollArea className="h-full pr-4">
           {renderWidgetContent()}
         </ScrollArea>
