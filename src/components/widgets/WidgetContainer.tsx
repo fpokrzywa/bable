@@ -27,9 +27,17 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
   }
 
   return (
-    <div className="relative flex flex-wrap gap-4">
+    <div className="relative h-full">
       {widgets.map((widget, index) => (
-        <div key={widget.id} className="animate-in fade-in zoom-in-95 absolute" style={{ top: `${Math.floor(index / 4) * 20}px`, left: `${(index % 4) * 20}px`}}>
+        <div 
+            key={widget.id} 
+            className="animate-in fade-in zoom-in-95 absolute" 
+            style={{ 
+              top: `${Math.floor(index / 4) * 20}px`, 
+              left: `${(index % 4) * 20}px`, 
+              zIndex: widget.zIndex 
+            }}
+        >
           <BaseWidget 
             widget={widget} 
             removeWidget={removeWidget} 

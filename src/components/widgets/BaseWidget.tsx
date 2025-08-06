@@ -67,7 +67,6 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }:
     <Card 
       className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
       onMouseDown={() => bringToFront(widget.id)}
-      style={{ zIndex: widget.zIndex }}
     >
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex-1">
