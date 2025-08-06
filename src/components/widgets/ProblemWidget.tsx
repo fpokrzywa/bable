@@ -62,9 +62,9 @@ export function ProblemWidget({ widgetId, problems, onTextSelect, updateProblem 
       <div className={cn("transition-transform duration-300 ease-in-out", {
         '-translate-x-full': selectedProblem
       })}>
-        {problems.map((problem, index) => (
+        {problems.map((problem) => (
           <div 
-            key={index} 
+            key={problem.number}
             className="mb-4 p-2 rounded-md hover:bg-accent/50"
           >
             <Dialog onOpenChange={(open) => !open && setEditingProblem(null)}>
