@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Widget, SavedQuery, Problem, Incident } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident, Change } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -32,8 +32,9 @@ export function Dashboard() {
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
     setLoading(true);
+    const lowerCaseQuery = query.toLowerCase();
 
-    if (query.toLowerCase().includes('incident')) {
+    if (lowerCaseQuery.includes('incident')) {
       const incidentData: Incident[] = [
         { number: 'INC00012354', short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe' },
         { number: 'INC00012355', short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith' },
@@ -47,6 +48,23 @@ export function Dashboard() {
         data: incidentData,
         agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
         type: 'incident',
+      };
+      setWidgets((prev) => [...prev, newWidget]);
+
+    } else if (lowerCaseQuery.includes('change')) {
+      const changeData: Change[] = [
+        { number: 'CHG00012354', short_description: 'Upgrade production server firmware' },
+        { number: 'CHG00012355', short_description: 'Deploy new CRM application to production' },
+        { number: 'CHG00012356', short_description: 'Firewall rule change for new service' },
+        { number: 'CHG00012357', short_description: 'Patch database servers for security vulnerability' },
+        { number: 'CHG00012358', short_description: 'Migrate email services to cloud provider' },
+      ];
+      const newWidget: Widget = {
+        id: Date.now().toString(),
+        query: 'Changes',
+        data: changeData,
+        agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
+        type: 'change',
       };
       setWidgets((prev) => [...prev, newWidget]);
 

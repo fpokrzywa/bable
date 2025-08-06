@@ -14,6 +14,11 @@ export interface Problem {
   cause: string;
 }
 
+export interface Change {
+  number: string;
+  short_description: string;
+}
+
 export interface Agent {
   agentType: string;
   agentBehavior: string;
@@ -24,7 +29,7 @@ export interface Widget {
   query: string;
   data: any;
   agent: Agent;
-  type: 'incident' | 'generic' | 'problem';
+  type: 'incident' | 'generic' | 'problem' | 'change';
 }
 
 export interface SavedQuery {

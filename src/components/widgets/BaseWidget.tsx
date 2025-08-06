@@ -13,6 +13,7 @@ import { ProblemWidget } from './ProblemWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
+import { ChangeWidget } from './ChangeWidget';
 
 interface BaseWidgetProps {
   widget: Widget;
@@ -56,6 +57,8 @@ export function BaseWidget({ widget, removeWidget, updateProblem }: BaseWidgetPr
         return <IncidentWidget incidents={widget.data} />;
       case 'problem':
         return <ProblemWidget widgetId={widget.id} problems={widget.data} onTextSelect={handleTextSelection} updateProblem={updateProblem!} />;
+      case 'change':
+        return <ChangeWidget changes={widget.data} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
