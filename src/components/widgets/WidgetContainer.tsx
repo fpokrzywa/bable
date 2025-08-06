@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
@@ -7,9 +8,10 @@ interface WidgetContainerProps {
   widgets: Widget[];
   removeWidget: (id: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
+  bringToFront: (id: string) => void;
 }
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront }: WidgetContainerProps) {
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -25,13 +27,14 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity }: WidgetC
   }
 
   return (
-    <div className="flex flex-wrap gap-4">
-      {widgets.map((widget) => (
-        <div key={widget.id} className="animate-in fade-in zoom-in-95">
+    <div className="relative flex flex-wrap gap-4">
+      {widgets.map((widget, index) => (
+        <div key={widget.id} className="animate-in fade-in zoom-in-95 absolute" style={{ top: `${Math.floor(index / 4) * 20}px`, left: `${(index % 4) * 20}px`}}>
           <BaseWidget 
             widget={widget} 
             removeWidget={removeWidget} 
             updateEntity={updateEntity}
+            bringToFront={bringToFront}
           />
         </div>
       ))}

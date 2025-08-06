@@ -1,3 +1,4 @@
+
 export interface Incident {
   number: string;
   short_description: string;
@@ -36,6 +37,7 @@ export interface Widget {
   data: any;
   agent: Agent;
   type: 'incident' | 'generic' | 'problem' | 'change';
+  zIndex: number;
 }
 
 export interface SavedQuery {

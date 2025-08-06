@@ -18,9 +18,10 @@ interface BaseWidgetProps {
   widget: Widget;
   removeWidget: (id: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
+  bringToFront: (id: string) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,7 +64,11 @@ export function BaseWidget({ widget, removeWidget, updateEntity }: BaseWidgetPro
   };
 
   return (
-    <Card className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden">
+    <Card 
+      className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
+      onMouseDown={() => bringToFront(widget.id)}
+      style={{ zIndex: widget.zIndex }}
+    >
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex-1">
           <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>

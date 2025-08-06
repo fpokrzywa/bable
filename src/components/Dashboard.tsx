@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,16 +26,34 @@ export function Dashboard() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { setOpen, state } = useSidebar();
+  const [nextZIndex, setNextZIndex] = useState(1);
 
   useEffect(() => {
     setOpen(false);
   }, [setOpen]);
+
+  const bringToFront = (id: string) => {
+    setWidgets(prevWidgets => {
+      const widget = prevWidgets.find(w => w.id === id);
+      if (widget && widget.zIndex < nextZIndex - 1) {
+        const newZIndex = nextZIndex;
+        setNextZIndex(newZIndex + 1);
+        return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
+      }
+      return prevWidgets;
+    });
+  };
 
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
     setLoading(true);
     const lowerCaseQuery = query.toLowerCase();
     const widgetId = Date.now().toString();
+    const newZIndex = nextZIndex;
+    setNextZIndex(newZIndex + 1);
+
+
+    let newWidget: Widget | null = null;
 
     if (lowerCaseQuery.includes('incident')) {
       const incidentData: Incident[] = [
@@ -44,14 +63,14 @@ export function Dashboard() {
         { number: `INC${widgetId}-4`, short_description: 'Printer not working', priority: '3 - Moderate', state: 'New', assigned_to: 'Jane Smith', description: 'The printer on the 3rd floor is not printing. It is showing a paper jam error, but there is no paper jam.' },
         { number: `INC${widgetId}-5`, short_description: 'Software installation request', priority: '4 - Low', state: 'Closed', assigned_to: 'John Doe', description: 'Request to install Adobe Photoshop on a new marketing team member\'s laptop.' },
       ];
-      const newWidget: Widget = {
+      newWidget = {
         id: widgetId,
         query: 'Incidents',
         data: incidentData,
         agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
         type: 'incident',
+        zIndex: newZIndex,
       };
-      setWidgets((prev) => [...prev, newWidget]);
 
     } else if (lowerCaseQuery.includes('change')) {
       const changeData: Change[] = [
@@ -61,14 +80,14 @@ export function Dashboard() {
         { number: `CHG${widgetId}-4`, short_description: 'Patch database servers for security vulnerability', type: 'Normal', state: 'Implement', assigned_to: 'DBA Team', justification: 'Address a known SQL injection vulnerability.', implementation_plan: 'Take a snapshot, apply the patch, and run verification tests.' },
         { number: `CHG${widgetId}-5`, short_description: 'Migrate email services to cloud provider', type: 'Standard', state: 'Review', assigned_to: 'Cloud Team', justification: 'Reduce on-premise infrastructure costs and improve reliability.', implementation_plan: 'Migrate mailboxes in batches over the weekend.' },
       ];
-      const newWidget: Widget = {
+      newWidget = {
         id: widgetId,
         query: 'Changes',
         data: changeData,
         agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
         type: 'change',
+        zIndex: newZIndex,
       };
-      setWidgets((prev) => [...prev, newWidget]);
 
     } else if (lowerCaseQuery.includes('problem')) {
       const problemData: Problem[] = [
@@ -88,27 +107,30 @@ export function Dashboard() {
          },
       ];
   
-      const newWidget: Widget = {
+      newWidget = {
         id: widgetId,
         query: 'Problem',
         data: problemData,
         agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
         type: 'problem',
+        zIndex: newZIndex,
       };
-  
-      setWidgets((prev) => [...prev, newWidget]);
     } else {
         const result = await generateWidgetFromQuery({ query });
         const agent = await agentSpecificWidget({ widgetData: result.widgetData });
   
-        const newWidget: Widget = {
+        newWidget = {
           id: widgetId,
           query: query,
           data: JSON.parse(result.widgetData),
           agent: agent,
           type: 'generic',
+          zIndex: newZIndex,
         };
-        setWidgets((prev) => [...prev, newWidget]);
+    }
+
+    if (newWidget) {
+      setWidgets((prev) => [...prev, newWidget]);
     }
     
     setLoading(false);
@@ -174,6 +196,7 @@ export function Dashboard() {
               widgets={widgets} 
               removeWidget={removeWidget} 
               updateEntity={updateEntity}
+              bringToFront={bringToFront}
             />
           </ScrollArea>
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
