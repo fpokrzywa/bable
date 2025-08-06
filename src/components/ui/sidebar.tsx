@@ -23,7 +23,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "300px"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_ICON = "3.5rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -232,9 +232,9 @@ const Sidebar = React.forwardRef<
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === 'sidebar' && "w-[--sidebar-width]",
-            variant === 'floating' && state === 'collapsed' && "w-[calc(var(--sidebar-width)_+_theme(spacing.4))]",
+            variant === 'floating' && state === 'collapsed' && "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
             collapsible === 'icon' && state === 'expanded' && "group-data-[collapsible=icon]:w-[--sidebar-width]",
-            collapsible === 'icon' && state === 'collapsed' && "group-data-[collapsible=icon]:w-0",
+            collapsible === 'icon' && state === 'collapsed' && "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
           )}
         />
         <div
@@ -250,11 +250,12 @@ const Sidebar = React.forwardRef<
 
             "group-data-[variant=floating]:top-1/2 group-data-[variant=floating]:-translate-y-1/2",
             "group-data-[variant=floating]:h-auto",
-            "group-data-[variant=floating]:w-[--sidebar-width]",
+            "group-data-[variant=floating]:w-[--sidebar-width-icon]",
             "group-data-[variant=floating]:p-2",
             "group-data-[variant=floating]:group-data-[state=expanded]:hidden",
 
-            collapsible === "icon" && state === 'collapsed' && "w-0 p-0",
+            collapsible === "icon" && state === 'expanded' && "w-[--sidebar-width]",
+            collapsible === "icon" && state === 'collapsed' && "w-[--sidebar-width-icon] top-1/2 -translate-y-1/2 p-2",
 
             className
           )}
@@ -265,7 +266,8 @@ const Sidebar = React.forwardRef<
             className={cn(
               "flex h-full w-full flex-col bg-sidebar",
               "group-data-[variant=sidebar]:group-data-[side=left]:border-r group-data-[variant=sidebar]:group-data-[side=right]:border-l",
-              "group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+              "group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow",
+              collapsible === 'icon' && state === 'collapsed' && 'rounded-lg border shadow'
             )}
           >
             {children}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Widget, SavedQuery } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
@@ -23,9 +23,9 @@ export function Dashboard() {
   const { toast } = useToast();
   const { setOpen, state } = useSidebar();
 
-  useState(() => {
+  useEffect(() => {
     setOpen(false);
-  });
+  }, [setOpen]);
 
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
