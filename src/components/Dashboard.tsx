@@ -209,7 +209,7 @@ export function Dashboard() {
             />
           </ScrollArea>
           <div className="p-4 bg-transparent w-full flex justify-center">
-            <div className="w-full max-w-4xl">
+            <div className="w-full">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
             </div>
           </div>
