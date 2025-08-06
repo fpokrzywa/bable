@@ -21,7 +21,7 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { setOpen } = useSidebar();
+  const { setOpen, state } = useSidebar();
 
   useState(() => {
     setOpen(false);
@@ -108,7 +108,7 @@ export function Dashboard() {
   
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar side="left" collapsible="icon" variant="floating">
+      <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
         <AppSidebar />
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen">
