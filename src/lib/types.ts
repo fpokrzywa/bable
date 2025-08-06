@@ -4,6 +4,7 @@ export interface Incident {
   priority: string;
   state: string;
   assigned_to: string;
+  description: string;
 }
 
 export interface Problem {
@@ -17,6 +18,11 @@ export interface Problem {
 export interface Change {
   number: string;
   short_description: string;
+  type: string;
+  state: string;
+  assigned_to: string;
+  justification: string;
+  implementation_plan: string;
 }
 
 export interface Agent {

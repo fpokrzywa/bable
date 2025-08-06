@@ -33,17 +33,18 @@ export function Dashboard() {
     if (!query.trim()) return;
     setLoading(true);
     const lowerCaseQuery = query.toLowerCase();
+    const widgetId = Date.now().toString();
 
     if (lowerCaseQuery.includes('incident')) {
       const incidentData: Incident[] = [
-        { number: 'INC00012354', short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe' },
-        { number: 'INC00012355', short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith' },
-        { number: 'INC00012356', short_description: 'Cannot connect to VPN', priority: '2 - High', state: 'On Hold', assigned_to: 'John Doe' },
-        { number: 'INC00012357', short_description: 'Printer not working', priority: '3 - Moderate', state: 'New', assigned_to: 'Jane Smith' },
-        { number: 'INC00012358', short_description: 'Software installation request', priority: '4 - Low', state: 'Closed', assigned_to: 'John Doe' },
+        { number: `INC${widgetId}-1`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
+        { number: `INC${widgetId}-2`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
+        { number: `INC${widgetId}-3`, short_description: 'Cannot connect to VPN', priority: '2 - High', state: 'On Hold', assigned_to: 'John Doe', description: 'Users are reporting that they cannot connect to the corporate VPN. The connection times out.' },
+        { number: `INC${widgetId}-4`, short_description: 'Printer not working', priority: '3 - Moderate', state: 'New', assigned_to: 'Jane Smith', description: 'The printer on the 3rd floor is not printing. It is showing a paper jam error, but there is no paper jam.' },
+        { number: `INC${widgetId}-5`, short_description: 'Software installation request', priority: '4 - Low', state: 'Closed', assigned_to: 'John Doe', description: 'Request to install Adobe Photoshop on a new marketing team member\'s laptop.' },
       ];
       const newWidget: Widget = {
-        id: Date.now().toString(),
+        id: widgetId,
         query: 'Incidents',
         data: incidentData,
         agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
@@ -53,14 +54,14 @@ export function Dashboard() {
 
     } else if (lowerCaseQuery.includes('change')) {
       const changeData: Change[] = [
-        { number: 'CHG00012354', short_description: 'Upgrade production server firmware' },
-        { number: 'CHG00012355', short_description: 'Deploy new CRM application to production' },
-        { number: 'CHG00012356', short_description: 'Firewall rule change for new service' },
-        { number: 'CHG00012357', short_description: 'Patch database servers for security vulnerability' },
-        { number: 'CHG00012358', short_description: 'Migrate email services to cloud provider' },
+        { number: `CHG${widgetId}-1`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
+        { number: `CHG${widgetId}-2`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
+        { number: `CHG${widgetId}-3`, short_description: 'Firewall rule change for new service', type: 'Emergency', state: 'Authorize', assigned_to: 'Network Team', justification: 'A critical vulnerability requires an immediate firewall rule update.', implementation_plan: 'Apply rule immediately and monitor for impact.' },
+        { number: `CHG${widgetId}-4`, short_description: 'Patch database servers for security vulnerability', type: 'Normal', state: 'Implement', assigned_to: 'DBA Team', justification: 'Address a known SQL injection vulnerability.', implementation_plan: 'Take a snapshot, apply the patch, and run verification tests.' },
+        { number: `CHG${widgetId}-5`, short_description: 'Migrate email services to cloud provider', type: 'Standard', state: 'Review', assigned_to: 'Cloud Team', justification: 'Reduce on-premise infrastructure costs and improve reliability.', implementation_plan: 'Migrate mailboxes in batches over the weekend.' },
       ];
       const newWidget: Widget = {
-        id: Date.now().toString(),
+        id: widgetId,
         query: 'Changes',
         data: changeData,
         agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
@@ -71,23 +72,23 @@ export function Dashboard() {
     } else if (lowerCaseQuery.includes('problem')) {
       const problemData: Problem[] = [
         {
-          number: 'PRB00012354',
-          short_description: 'Problem Short Description',
-          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.',
-          workaround: 'Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.',
-          cause: 'Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.',
+          number: `PRB${widgetId}-1`,
+          short_description: 'Recurring network outages in building B',
+          description: 'Users in building B are experiencing intermittent network connectivity loss, typically between 2 PM and 4 PM on weekdays.',
+          workaround: 'Users can switch to the guest Wi-Fi network as a temporary solution, but it has limited access to internal resources.',
+          cause: 'Initial investigation points to a faulty network switch on the 3rd floor of building B. Further diagnostics are needed to confirm.',
         },
         {
-          number: 'PRB00012355',
-          short_description: 'Another Problem Short Description',
-          description: 'Another problem detailed description.',
-          workaround: 'Another problem workaround.',
-          cause: 'Another problem cause.',
+          number: `PRB${widgetId}-2`,
+          short_description: 'CRM application performance degradation',
+          description: 'The CRM application has been running significantly slower than usual, affecting all users. Page load times have increased by over 200%.',
+          workaround: 'Clearing browser cache and restarting the application provides temporary relief, but the issue returns within an hour.',
+          cause: 'The root cause is suspected to be an inefficient database query that is triggered frequently by a new reporting feature.',
          },
       ];
   
       const newWidget: Widget = {
-        id: Date.now().toString(),
+        id: widgetId,
         query: 'Problem',
         data: problemData,
         agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
@@ -100,7 +101,7 @@ export function Dashboard() {
         const agent = await agentSpecificWidget({ widgetData: result.widgetData });
   
         const newWidget: Widget = {
-          id: Date.now().toString(),
+          id: widgetId,
           query: query,
           data: JSON.parse(result.widgetData),
           agent: agent,
@@ -159,6 +160,38 @@ export function Dashboard() {
     );
   };
 
+  const updateIncident = (widgetId: string, incidentNumber: string, updatedData: Partial<Incident>) => {
+    setWidgets(prevWidgets =>
+      prevWidgets.map(widget => {
+        if (widget.id === widgetId && widget.type === 'incident') {
+          return {
+            ...widget,
+            data: widget.data.map((incident: Incident) =>
+              incident.number === incidentNumber ? { ...incident, ...updatedData } : incident
+            ),
+          };
+        }
+        return widget;
+      })
+    );
+  };
+
+  const updateChange = (widgetId: string, changeNumber: string, updatedData: Partial<Change>) => {
+    setWidgets(prevWidgets =>
+      prevWidgets.map(widget => {
+        if (widget.id === widgetId && widget.type === 'change') {
+          return {
+            ...widget,
+            data: widget.data.map((change: Change) =>
+              change.number === changeNumber ? { ...change, ...updatedData } : change
+            ),
+          };
+        }
+        return widget;
+      })
+    );
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
@@ -167,7 +200,13 @@ export function Dashboard() {
       <SidebarInset className={cn("flex h-screen", widgets.length > 0 ? "flex-col" : "")}>
         <div className={cn("flex-1 flex flex-col min-h-0", widgets.length === 0 && "justify-center")}>
           <ScrollArea className="flex-grow p-4 md:p-8">
-            <WidgetContainer widgets={widgets} removeWidget={removeWidget} updateProblem={updateProblem}/>
+            <WidgetContainer 
+              widgets={widgets} 
+              removeWidget={removeWidget} 
+              updateProblem={updateProblem}
+              updateIncident={updateIncident}
+              updateChange={updateChange}
+            />
           </ScrollArea>
           <div className="p-4 bg-transparent">
             <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />

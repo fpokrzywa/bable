@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import type { Widget, Problem } from '@/lib/types';
+import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,9 +19,11 @@ interface BaseWidgetProps {
   widget: Widget;
   removeWidget: (id: string) => void;
   updateProblem?: (widgetId: string, problemNumber: string, updatedData: Partial<Problem>) => void;
+  updateIncident?: (widgetId: string, incidentNumber: string, updatedData: Partial<Incident>) => void;
+  updateChange?: (widgetId: string, changeNumber: string, updatedData: Partial<Change>) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateProblem }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateProblem, updateIncident, updateChange }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,11 +56,11 @@ export function BaseWidget({ widget, removeWidget, updateProblem }: BaseWidgetPr
   const renderWidgetContent = () => {
     switch (widget.type) {
       case 'incident':
-        return <IncidentWidget incidents={widget.data} />;
+        return <IncidentWidget widgetId={widget.id} incidents={widget.data} onTextSelect={handleTextSelection} updateIncident={updateIncident!} />;
       case 'problem':
         return <ProblemWidget widgetId={widget.id} problems={widget.data} onTextSelect={handleTextSelection} updateProblem={updateProblem!} />;
       case 'change':
-        return <ChangeWidget changes={widget.data} />;
+        return <ChangeWidget widgetId={widget.id} changes={widget.data} onTextSelect={handleTextSelection} updateChange={updateChange!} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
