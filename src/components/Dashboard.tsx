@@ -68,6 +68,7 @@ export function Dashboard() {
         agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
         type: 'incident',
         zIndex: newZIndex,
+        isMinimized: false,
       };
 
     } else if (lowerCaseQuery.includes('change')) {
@@ -85,6 +86,7 @@ export function Dashboard() {
         agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
         type: 'change',
         zIndex: newZIndex,
+        isMinimized: false,
       };
 
     } else if (lowerCaseQuery.includes('problem')) {
@@ -112,6 +114,7 @@ export function Dashboard() {
         agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
         type: 'problem',
         zIndex: newZIndex,
+        isMinimized: false,
       };
     } else {
         const result = await generateWidgetFromQuery({ query });
@@ -124,6 +127,7 @@ export function Dashboard() {
           agent: agent,
           type: 'generic',
           zIndex: newZIndex,
+          isMinimized: false,
         };
     }
 
@@ -165,6 +169,14 @@ export function Dashboard() {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
   };
 
+  const toggleMinimizeWidget = (id: string) => {
+    setWidgets(prevWidgets =>
+      prevWidgets.map(widget =>
+        widget.id === id ? { ...widget, isMinimized: !widget.isMinimized } : widget
+      )
+    );
+  };
+
   const updateEntity = (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => {
     setWidgets(prevWidgets =>
       prevWidgets.map(widget => {
@@ -194,6 +206,7 @@ export function Dashboard() {
               removeWidget={removeWidget} 
               updateEntity={updateEntity}
               bringToFront={bringToFront}
+              toggleMinimizeWidget={toggleMinimizeWidget}
             />
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />

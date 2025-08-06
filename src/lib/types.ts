@@ -38,6 +38,7 @@ export interface Widget {
   agent: Agent;
   type: 'incident' | 'generic' | 'problem' | 'change';
   zIndex: number;
+  isMinimized: boolean;
 }
 
 export interface SavedQuery {

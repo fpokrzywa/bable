@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, GripVertical } from 'lucide-react';
+import { X, Bot, Send, Loader2, GripVertical, Minus } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -19,9 +19,10 @@ interface BaseWidgetProps {
   removeWidget: (id: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
   bringToFront: (id: string) => void;
+  toggleMinimizeWidget: (id: string) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,26 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }:
     }
   };
 
+  if (widget.isMinimized) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => toggleMinimizeWidget(widget.id)}
+              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
+            >
+              {widget.query.charAt(0).toUpperCase()}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Restore: {widget.query}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <Card 
       className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
@@ -88,6 +109,10 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront }:
         </div>
         <div className="flex items-center gap-2">
             <GripVertical className="text-muted-foreground" />
+             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
+                <Minus size={18} />
+                <span className="sr-only">Minimize widget</span>
+            </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeWidget(widget.id)}>
                 <X size={18} />
                 <span className="sr-only">Close widget</span>

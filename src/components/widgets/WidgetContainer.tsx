@@ -11,9 +11,20 @@ interface WidgetContainerProps {
   removeWidget: (id: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
   bringToFront: (id: string) => void;
+  toggleMinimizeWidget: (id: string) => void;
 }
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
+
+  const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
+  widgets.forEach(widget => {
+    if (!nodeRefs.current.has(widget.id)) {
+      nodeRefs.current.set(widget.id, createRef<HTMLDivElement>());
+    }
+  });
+
+  const minimizedWidgets = widgets.filter(w => w.isMinimized);
+  const normalWidgets = widgets.filter(w => !w.isMinimized);
 
   if (widgets.length === 0) {
     return (
@@ -28,17 +39,25 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         </div>
     )
   }
-  
-  const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
-  widgets.forEach(widget => {
-    if (!nodeRefs.current.has(widget.id)) {
-      nodeRefs.current.set(widget.id, createRef<HTMLDivElement>());
-    }
-  });
 
   return (
     <div className="relative w-full h-full">
-      {widgets.map((widget, index) => {
+       {minimizedWidgets.length > 0 && (
+        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+          {minimizedWidgets.map(widget => (
+            <BaseWidget 
+              key={widget.id}
+              widget={widget} 
+              removeWidget={removeWidget} 
+              updateEntity={updateEntity}
+              bringToFront={bringToFront}
+              toggleMinimizeWidget={toggleMinimizeWidget}
+            />
+          ))}
+        </div>
+      )}
+
+      {normalWidgets.map((widget, index) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
         return (
           <Draggable
@@ -54,6 +73,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                       removeWidget={removeWidget} 
                       updateEntity={updateEntity}
                       bringToFront={bringToFront}
+                      toggleMinimizeWidget={toggleMinimizeWidget}
                   />
               </div>
           </Draggable>
