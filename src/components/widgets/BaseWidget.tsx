@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent } from 'react';
@@ -7,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, Bot, Send, Loader2 } from 'lucide-react';
-import { IncidentWidget } from './IncidentWidget';
+import { IncidentWidget } from '../../../archive/IncidentWidget';
 import { GenericWidget } from './GenericWidget';
-import { ProblemWidget } from './ProblemWidget';
+import { ProblemWidget } from '../../../archive/ProblemWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
-import { ChangeWidget } from './ChangeWidget';
+import { ChangeWidget } from '../../../archive/ChangeWidget';
 
 interface BaseWidgetProps {
   widget: Widget;

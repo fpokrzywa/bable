@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { DialogClose } from '../ui/dialog';
+import { DialogClose } from '@/components/ui/dialog';
 
 const formSchema = z.object({
   short_description: z.string().min(1, 'Short description is required'),

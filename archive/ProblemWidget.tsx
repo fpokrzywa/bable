@@ -5,9 +5,9 @@ import type { Problem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '../ui/scroll-area';
-import { ProblemEditForm } from './ProblemEditForm';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProblemEditForm } from '@/components/widgets/ProblemEditForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface ProblemWidgetProps {
   widgetId: string;
