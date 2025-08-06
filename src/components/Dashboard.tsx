@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Widget, SavedQuery, Problem } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -33,32 +33,52 @@ export function Dashboard() {
     if (!query.trim()) return;
     setLoading(true);
 
-    const problemData: Problem[] = [
-      {
-        number: 'PRB00012354',
-        short_description: 'Problem Short Description',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.',
-        workaround: 'Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.',
-        cause: 'Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.',
-      },
-      {
-        number: 'PRB00012355',
-        short_description: 'Another Problem Short Description',
-        description: 'Another problem detailed description.',
-        workaround: 'Another problem workaround.',
-        cause: 'Another problem cause.',
-       },
-    ];
+    if (query.toLowerCase().includes('incident')) {
+      const incidentData: Incident[] = [
+        { number: 'INC00012354', short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe' },
+        { number: 'INC00012355', short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith' },
+        { number: 'INC00012356', short_description: 'Cannot connect to VPN', priority: '2 - High', state: 'On Hold', assigned_to: 'John Doe' },
+        { number: 'INC00012357', short_description: 'Printer not working', priority: '3 - Moderate', state: 'New', assigned_to: 'Jane Smith' },
+        { number: 'INC00012358', short_description: 'Software installation request', priority: '4 - Low', state: 'Closed', assigned_to: 'John Doe' },
+      ];
+      const newWidget: Widget = {
+        id: Date.now().toString(),
+        query: 'Incidents',
+        data: incidentData,
+        agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
+        type: 'incident',
+      };
+      setWidgets((prev) => [...prev, newWidget]);
 
-    const newWidget: Widget = {
-      id: Date.now().toString(),
-      query: 'Problem',
-      data: problemData,
-      agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
-      type: 'problem',
-    };
-
-    setWidgets((prev) => [...prev, newWidget]);
+    } else {
+      const problemData: Problem[] = [
+        {
+          number: 'PRB00012354',
+          short_description: 'Problem Short Description',
+          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.',
+          workaround: 'Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.',
+          cause: 'Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.',
+        },
+        {
+          number: 'PRB00012355',
+          short_description: 'Another Problem Short Description',
+          description: 'Another problem detailed description.',
+          workaround: 'Another problem workaround.',
+          cause: 'Another problem cause.',
+         },
+      ];
+  
+      const newWidget: Widget = {
+        id: Date.now().toString(),
+        query: 'Problem',
+        data: problemData,
+        agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
+        type: 'problem',
+      };
+  
+      setWidgets((prev) => [...prev, newWidget]);
+    }
+    
     setLoading(false);
   };
 
