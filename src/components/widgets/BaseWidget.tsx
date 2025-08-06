@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, GripVertical, Minus } from 'lucide-react';
+import { X, Bot, Send, Loader2, Minus } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -108,7 +108,6 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
           </TooltipProvider>
         </div>
         <div className="flex items-center gap-2">
-            <GripVertical className="text-muted-foreground" />
              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
                 <Minus size={18} />
                 <span className="sr-only">Minimize widget</span>
