@@ -68,7 +68,7 @@ export function Dashboard() {
     let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
-      if (lowerCaseQuery.includes('incident')) {
+      if (lowerCaseQuery.includes('@incident')) {
         const incidentData: Incident[] = [
           { number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
           { number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
@@ -81,7 +81,7 @@ export function Dashboard() {
           isFavorited: false,
         };
 
-      } else if (lowerCaseQuery.includes('change')) {
+      } else if (lowerCaseQuery.includes('@change')) {
         const changeData: Change[] = [
           { number: `CHG001`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
           { number: `CHG002`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
@@ -94,7 +94,7 @@ export function Dashboard() {
           isFavorited: false,
         };
 
-      } else if (lowerCaseQuery.includes('problem')) {
+      } else if (lowerCaseQuery.includes('@problem')) {
         const problemData: Problem[] = [
           {
             number: `PRB001`,

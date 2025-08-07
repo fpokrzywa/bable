@@ -16,9 +16,9 @@ interface ChatInputProps {
 }
 
 const commands = [
-  { name: 'Incidents', query: 'show incidents', description: 'View and manage incidents', icon: AlertCircle },
-  { name: 'Changes', query: 'show changes', description: 'View and manage change requests', icon: GitBranch },
-  { name: 'Problems', query: 'show problems', description: 'View and manage problems', icon: FileWarning },
+  { name: 'Incidents', query: '@incident', description: 'View and manage incidents', icon: AlertCircle },
+  { name: 'Changes', query: '@change', description: 'View and manage change requests', icon: GitBranch },
+  { name: 'Problems', query: '@problem', description: 'View and manage problems', icon: FileWarning },
 ];
 
 export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
@@ -118,34 +118,36 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
 
   return (
     <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
-      <form onSubmit={handleSubmit} className="relative w-full">
-        <Popover open={loading}>
-          <PopoverTrigger asChild>
-            <div>
-              <Input
-                ref={inputRef}
-                value={query}
-                onChange={handleInputChange}
-                placeholder="Please type your message here, or type @ for commands"
-                className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
-                disabled={loading}
-              />
-              <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
-                {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                <span className="sr-only">Send</span>
-              </Button>
-            </div>
-          </PopoverTrigger>
-          <PopoverContent 
-            side="top" 
-            align="center" 
-            className="w-auto py-1 px-3 mb-2 text-sm text-muted-foreground"
-            sideOffset={10}
-          >
-            Thinking{thinkingDots}
-          </PopoverContent>
-        </Popover>
-      </form>
+      <PopoverTrigger asChild>
+        <form onSubmit={handleSubmit} className="relative w-full">
+            <Popover open={loading}>
+            <PopoverTrigger asChild>
+                <div>
+                <Input
+                    ref={inputRef}
+                    value={query}
+                    onChange={handleInputChange}
+                    placeholder="Please type your message here, or type @ for commands"
+                    className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
+                    disabled={loading}
+                />
+                <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
+                    {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                    <span className="sr-only">Send</span>
+                </Button>
+                </div>
+            </PopoverTrigger>
+            <PopoverContent 
+                side="top" 
+                align="center" 
+                className="w-auto py-1 px-3 mb-2 text-sm text-muted-foreground"
+                sideOffset={10}
+            >
+                Thinking{thinkingDots}
+            </PopoverContent>
+            </Popover>
+        </form>
+      </PopoverTrigger>
       <PopoverContent 
           className="w-[400px] p-2 mb-2" 
           align="start"
