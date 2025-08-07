@@ -9,7 +9,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { X, Bot, Minus, Heart, MessageCircle } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
-import { ScrollArea } from '../ui/scroll-area';
 import { EntityWidget } from './EntityWidget';
 import { cn } from '@/lib/utils';
 import { ChatPanel } from './ChatPanel';
@@ -28,11 +27,11 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
-  const [chatPanelWidth, setChatPanelWidth] = useState(widgetRef.current ? widgetRef.current.offsetWidth / 2 : 375);
+  const [chatPanelWidth, setChatPanelWidth] = useState(375);
   const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
-    if (widgetRef.current) {
+    if (isChatOpen && widgetRef.current) {
         setChatPanelWidth(widgetRef.current.offsetWidth / 2);
     }
   }, [isChatOpen]);
@@ -185,11 +184,11 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
       <CardContent className="flex-1 min-h-0 relative p-0">
         <div className={cn("flex h-full", isResizing ? 'cursor-col-resize select-none' : '')}>
-            <ScrollArea className="h-full flex-1" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
+            <div className="h-full flex-1 overflow-auto no-scrollbar" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
               <div className="p-6">
                 {renderWidgetContent()}
               </div>
-            </ScrollArea>
+            </div>
             
             {isChatOpen && (
               <>

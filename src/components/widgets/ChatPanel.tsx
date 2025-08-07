@@ -5,7 +5,6 @@ import { useState, type FormEvent, useRef, useEffect } from 'react';
 import type { ChatMessage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2, X, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -23,12 +22,8 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Scroll to bottom when new messages arrive
     if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
-        if (viewport) {
-            viewport.scrollTop = viewport.scrollHeight;
-        }
+        scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -48,7 +43,7 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+      <div className="flex-1 p-4 overflow-auto no-scrollbar" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div key={index} className={cn('flex items-start gap-3', message.sender === 'user' ? 'justify-end' : 'justify-start')}>
@@ -81,7 +76,7 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
              </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
       <div className="p-4 border-t">
         <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">

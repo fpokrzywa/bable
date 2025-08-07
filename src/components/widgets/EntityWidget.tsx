@@ -6,7 +6,6 @@ import type { Incident, Problem, Change } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { EntityEditForm } from './EntityEditForm';
 
@@ -126,7 +125,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
         selectedEntity ? 'translate-x-0' : 'translate-x-full'
       )}>
         {selectedEntity && (
-           <ScrollArea className="h-full">
+           <div className="h-full overflow-auto no-scrollbar">
             <div className="flex items-center justify-between mb-4">
                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleBack}>
                 <ArrowLeft size={18} />
@@ -156,7 +155,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
                 </div>
               ))}
             </div>
-           </ScrollArea>
+           </div>
         )}
       </div>
     </div>
