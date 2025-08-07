@@ -13,19 +13,20 @@ async function get<T>(endpoint: string, params?: any): Promise<T> {
     throw new Error('ServiceNow credentials are not configured in the environment variables.');
   }
 
-  const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');
-
   const client = axios.create({
-    baseURL: `${appUrl}/api/now`,
+    baseURL: appUrl,
+    auth: {
+      username: appClient,
+      password: appSecret,
+    },
     headers: {
-      'Authorization': `Basic ${auth}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
   });
 
   try {
-    const response = await client.get(endpoint, { params });
+    const response = await client.get(`/api/now${endpoint}`, { params });
     return response.data.result;
   } catch (error) {
     console.error('ServiceNow API Error:', error);
