@@ -77,7 +77,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="p-2 flex flex-col items-start gap-2">
+        <SidebarMenu className="p-2 flex flex-col items-center gap-2">
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
               <Settings />
