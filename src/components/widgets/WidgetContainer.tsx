@@ -2,7 +2,7 @@
 'use client';
 
 import { useRef, createRef, useState, useEffect } from 'react';
-import Draggable from 'react-draggable';
+import Draggable, { type DraggableBounds } from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
 
@@ -14,8 +14,13 @@ interface WidgetContainerProps {
   toggleMinimizeWidget: (id: string) => void;
 }
 
+const WIDGET_WIDTH = 450;
+const WIDGET_HEIGHT = 400;
+
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [bounds, setBounds] = useState<DraggableBounds | undefined>(undefined);
+
   const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
 
   widgets.forEach(widget => {
@@ -23,6 +28,32 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
       nodeRefs.current.set(widget.id, createRef<HTMLDivElement>());
     }
   });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateBounds = () => {
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+      
+      setBounds({
+        left: 0,
+        top: 0,
+        right: Math.max(0, containerWidth - WIDGET_WIDTH),
+        bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
+      });
+    };
+
+    updateBounds();
+
+    const resizeObserver = new ResizeObserver(updateBounds);
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const minimizedWidgets = widgets.filter(w => w.isMinimized);
   const normalWidgets = widgets.filter(w => !w.isMinimized);
@@ -67,12 +98,12 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
               defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
-              bounds="parent"
+              bounds={bounds}
           >
               <div 
                 className="absolute" 
                 ref={nodeRef}
-                style={{zIndex: widget.zIndex}}
+                style={{zIndex: widget.zIndex, width: `${WIDGET_WIDTH}px`, height: `${WIDGET_HEIGHT}px`}}
                 onMouseDown={() => bringToFront(widget.id)}
               >
                   <BaseWidget 
