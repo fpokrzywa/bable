@@ -70,15 +70,15 @@ export function Settings() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="app-url">APP URL</Label>
-                    <Input id="app-url" readOnly value={process.env.APP_URL} />
+                    <Input id="app-url" readOnly value={process.env.NEXT_PUBLIC_APP_URL} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="app-id">APP ID</Label>
-                    <Input id="app-id" readOnly value={process.env.APP_CLIENT} />
+                    <Input id="app-id" readOnly value={process.env.NEXT_PUBLIC_APP_CLIENT} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="app-secret">APP Secret</Label>
-                    <Input id="app-secret" type="password" readOnly value={process.env.APP_SECRET} />
+                    <Input id="app-secret" type="password" readOnly value="******************" />
                 </div>
             </CardContent>
         </Card>
