@@ -15,7 +15,6 @@ export function Profile() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
           <CardDescription>This is how others will see you on the site.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">

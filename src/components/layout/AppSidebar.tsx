@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
 import type { Widget } from '@/lib/types';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
 
 interface AppSidebarProps {
@@ -101,6 +101,9 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
               </SidebarMenuItem>
             </DialogTrigger>
             <DialogContent size="lg">
+                <DialogHeader>
+                    <DialogTitle>Profile</DialogTitle>
+                </DialogHeader>
               <Profile />
             </DialogContent>
           </Dialog>
