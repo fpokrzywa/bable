@@ -31,7 +31,7 @@ const generateWidgetFromQueryPrompt = ai.definePrompt({
   name: 'generateWidgetFromQueryPrompt',
   input: {schema: GenerateWidgetFromQueryInputSchema},
   output: {schema: GenerateWidgetFromQueryOutputSchema},
-  prompt: `You are a ServiceNow expert. Directly answer the user's query in a clear and concise way.
+  prompt: `You are a ServiceNow expert. Directly answer the user's query in a clear and concise way. If you don't have a specific tool or data, provide a helpful, conversational response.
 
   User Query: {{{query}}}`,
 });
@@ -44,6 +44,9 @@ const generateWidgetFromQueryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await generateWidgetFromQueryPrompt(input);
-    return output!;
+    if (!output) {
+      return { answer: "I'm sorry, I could not process that request. Please try again." };
+    }
+    return output;
   }
 );
