@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Popover, PopoverContent } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -66,6 +67,7 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
     if (!query.trim() || loading) return;
     onSubmit(query);
     setQuery('');
+    setShowCommandMenu(false);
   };
   
   const handleListen = () => {
@@ -84,24 +86,24 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    if (newQuery.endsWith('@')) {
-      setShowCommandMenu(true);
-    } else if (!newQuery.includes('@')) {
-      setShowCommandMenu(false);
-    }
+    setShowCommandMenu(newQuery.includes('@'));
   };
 
   const handleCommandSelect = (commandQuery: string) => {
-    onSubmit(commandQuery);
-    setQuery('');
+    const atIndex = query.lastIndexOf('@');
+    const newQuery = query.substring(0, atIndex) + commandQuery;
+    
+    setQuery(newQuery);
     setShowCommandMenu(false);
-    inputRef.current?.focus();
+    
+    // We submit the form on command selection for immediate feedback
+    onSubmit(newQuery);
+    setQuery('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full">
-      <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
-        <PopoverTrigger asChild>
+    <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
+      <form onSubmit={handleSubmit} className="relative w-full">
           <Input
             ref={inputRef}
             value={query}
@@ -110,38 +112,41 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
             className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
             disabled={loading}
           />
-        </PopoverTrigger>
-        <PopoverContent 
-            className="w-[400px] p-2 mb-2" 
-            align="start"
-            onCloseAutoFocus={(e) => e.preventDefault()}
-        >
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground px-2">Commands</p>
-            {commands.map((command) => {
-              const Icon = command.icon;
-              return (
-                <button
-                  key={command.name}
-                  type="button"
-                  className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
-                  onClick={() => handleCommandSelect(command.query)}
-                >
-                  <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">{command.name}</p>
-                    <p className="text-xs text-muted-foreground">{command.description}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
-      <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
-        {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
-        <span className="sr-only">Send</span>
-      </Button>
-    </form>
+        <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
+          {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          <span className="sr-only">Send</span>
+        </Button>
+      </form>
+      <PopoverContent 
+          className="w-[400px] p-2 mb-2" 
+          align="start"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            inputRef.current?.focus();
+          }}
+          style={{ position: 'absolute', bottom: '100%', marginBottom: '0.5rem' }}
+      >
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground px-2">Commands</p>
+          {commands.map((command) => {
+            const Icon = command.icon;
+            return (
+              <button
+                key={command.name}
+                type="button"
+                className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
+                onClick={() => handleCommandSelect(command.query)}
+              >
+                <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">{command.name}</p>
+                  <p className="text-xs text-muted-foreground">{command.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
