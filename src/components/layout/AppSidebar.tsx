@@ -10,6 +10,7 @@ import {
   SidebarFooter,
   useSidebar,
   SidebarSeparator,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
@@ -28,9 +29,11 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
   return (
     <>
       <SidebarHeader className="h-16 flex items-center justify-end p-2">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-            <PanelLeft />
-        </Button>
+        <SidebarTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <PanelLeft />
+            </Button>
+        </SidebarTrigger>
       </SidebarHeader>
 
       <SidebarContent className="p-2 flex-grow flex flex-col items-center">
@@ -47,7 +50,6 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                     onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
-                    {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -67,7 +69,6 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
-                             {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}

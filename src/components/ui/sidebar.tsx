@@ -21,10 +21,13 @@ import {
 } from "@/components/ui/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
+const SIDEBAR_WIDTH_COOKIE_NAME = "sidebar_width"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "18rem"
+const SIDEBAR_WIDTH = 288 // 18rem
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3.5rem"
+const SIDEBAR_MIN_WIDTH = 240
+const SIDEBAR_MAX_WIDTH = 400
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -35,6 +38,9 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  width: number
+  setWidth: (width: number) => void
+  isResizing: boolean
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -87,12 +93,25 @@ const SidebarProvider = React.forwardRef<
       [setOpenProp, open]
     )
 
+    const [width, setWidth] = React.useState(SIDEBAR_WIDTH)
+    const [isResizing, setIsResizing] = React.useState(false)
+
+    React.useEffect(() => {
+        if (typeof document !== 'undefined') {
+            const savedWidth = document.cookie.split('; ').find(row => row.startsWith(`${SIDEBAR_WIDTH_COOKIE_NAME}=`));
+            if (savedWidth) {
+                setWidth(Number(savedWidth.split('=')[1]));
+            }
+        }
+    }, []);
+
     React.useEffect(() => {
       // This sets the cookie to keep the sidebar state.
       if (typeof document !== 'undefined') {
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        document.cookie = `${SIDEBAR_WIDTH_COOKIE_NAME}=${width}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
       }
-    }, [open]);
+    }, [open, width]);
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
@@ -117,6 +136,40 @@ const SidebarProvider = React.forwardRef<
       return () => window.removeEventListener("keydown", handleKeyDown)
     }, [toggleSidebar])
 
+    const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsResizing(true);
+    };
+
+    const handleMouseMove = React.useCallback((e: MouseEvent) => {
+        if (isResizing) {
+            let newWidth = e.clientX;
+            if (newWidth < SIDEBAR_MIN_WIDTH) newWidth = SIDEBAR_MIN_WIDTH;
+            if (newWidth > SIDEBAR_MAX_WIDTH) newWidth = SIDEBAR_MAX_WIDTH;
+            setWidth(newWidth);
+        }
+    }, [isResizing]);
+
+    const handleMouseUp = React.useCallback(() => {
+        setIsResizing(false);
+    }, []);
+
+    React.useEffect(() => {
+        if (isResizing) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        } else {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing, handleMouseMove, handleMouseUp]);
+
+
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
@@ -130,8 +183,11 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        width,
+        setWidth,
+        isResizing
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, width, setWidth, isResizing]
     )
 
     return (
@@ -140,19 +196,19 @@ const SidebarProvider = React.forwardRef<
           <div
             style={
               {
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
                 ...style,
               } as React.CSSProperties
             }
             className={cn(
               "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              isResizing ? 'cursor-ew-resize' : '',
               className
             )}
             ref={ref}
             {...props}
           >
             {children}
+            {state === 'expanded' && !isMobile && <SidebarRail onMouseDown={handleMouseDown} />}
           </div>
         </TooltipProvider>
       </SidebarContext.Provider>
@@ -180,15 +236,16 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile, width } = useSidebar()
 
     if (collapsible === "none") {
       return (
         <div
           className={cn(
-            "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
+            "flex h-full flex-col bg-sidebar text-sidebar-foreground",
             className
           )}
+          style={{ width: `${width}px` }}
           ref={ref}
           {...props}
         >
@@ -232,11 +289,12 @@ const Sidebar = React.forwardRef<
             "duration-200 relative h-svh bg-transparent transition-[width] ease-linear",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
-            variant === 'sidebar' && "w-[--sidebar-width]",
+            variant === 'sidebar' && "w-[var(--sidebar-width)]",
             variant === 'floating' && state === 'collapsed' && "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
-            collapsible === 'icon' && state === 'expanded' && "group-data-[collapsible=icon]:w-[--sidebar-width]",
+            collapsible === 'icon' && state === 'expanded' && "group-data-[collapsible=icon]:w-[var(--sidebar-width)]",
             collapsible === 'icon' && state === 'collapsed' && "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
           )}
+          style={{ '--sidebar-width': `${width}px`, '--sidebar-width-icon': SIDEBAR_WIDTH_ICON } as React.CSSProperties}
         />
         <div
           className={cn(
@@ -246,7 +304,7 @@ const Sidebar = React.forwardRef<
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             
             // Handle variant and state
-            "group-data-[variant=sidebar]:inset-y-0 group-data-[variant=sidebar]:w-[--sidebar-width]",
+            "group-data-[variant=sidebar]:inset-y-0 group-data-[variant=sidebar]:w-[var(--sidebar-width)]",
             "group-data-[variant=sidebar]:group-data-[state=collapsed]:w-0",
 
             "group-data-[variant=floating]:top-1/2 group-data-[variant=floating]:-translate-y-1/2",
@@ -255,11 +313,12 @@ const Sidebar = React.forwardRef<
             "group-data-[variant=floating]:p-2",
             "group-data-[variant=floating]:group-data-[state=expanded]:hidden",
 
-            collapsible === "icon" && state === 'expanded' && "w-[--sidebar-width]",
+            collapsible === "icon" && state === 'expanded' && "w-[var(--sidebar-width)]",
             collapsible === "icon" && state === 'collapsed' && "w-[--sidebar-width-icon] top-1/2 -translate-y-1/2 p-2",
 
             className
           )}
+          style={{ '--sidebar-width': `${width}px`, '--sidebar-width-icon': SIDEBAR_WIDTH_ICON } as React.CSSProperties}
           {...props}
         >
           <div
@@ -281,29 +340,30 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button> & { asChild?: boolean }
+>(({ className, onClick, asChild, children, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar();
+  const Comp = asChild ? Slot : Button;
 
   return (
-    <Button
+    <Comp
       ref={ref}
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
+        onClick?.(event);
+        toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
-  )
-})
+      {asChild ? children : <PanelLeft />}
+    </Comp>
+  );
+});
+
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
@@ -316,17 +376,13 @@ const SidebarRail = React.forwardRef<
     <button
       ref={ref}
       data-sidebar="rail"
-      aria-label="Toggle Sidebar"
+      aria-label="Resize Sidebar"
       tabIndex={-1}
-      onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title="Resize Sidebar"
       className={cn(
-        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
-        "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
-        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
-        "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar",
-        "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
-        "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
+        "absolute inset-y-0 z-20 w-1 cursor-ew-resize",
+        "group-data-[side=left]:-right-0",
+        "group-data-[side=right]:-left-0",
         className
       )}
       {...props}
@@ -578,8 +634,9 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
-    const button = (
-      <Comp
+    if (!tooltip || (state === 'expanded' && !isMobile)) {
+      return (
+        <Comp
         ref={ref}
         data-sidebar="menu-button"
         data-size={size}
@@ -588,12 +645,8 @@ const SidebarMenuButton = React.forwardRef<
         {...props}
       >
         {children}
-        {typeof tooltip === 'string' && state === 'expanded' && !isMobile && <span className="truncate">{tooltip}</span>}
       </Comp>
-    )
-
-    if (!tooltip || (state === 'expanded' && !isMobile)) {
-      return button
+      )
     }
 
     if (typeof tooltip === "string") {
@@ -604,7 +657,18 @@ const SidebarMenuButton = React.forwardRef<
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <Comp
+            ref={ref}
+            data-sidebar="menu-button"
+            data-size={size}
+            data-active={isActive}
+            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+            {...props}
+          >
+            {children}
+          </Comp>
+        </TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
