@@ -34,5 +34,5 @@ async function get<T>(endpoint: string, params?: any): Promise<T> {
 }
 
 export async function getIncidents(): Promise<Incident[]> {
-  return get<Incident[]>('/table/incident');
+  return get<Incident[]>('/table/incident', { sysparm_limit: 5 });
 }
