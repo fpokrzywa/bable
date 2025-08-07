@@ -18,6 +18,8 @@ import type { Widget } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
 import { cn } from '@/lib/utils';
+import { Settings as SettingsPage } from '../Settings';
+
 
 interface AppSidebarProps {
     minimizedWidgets: Widget[];
@@ -81,12 +83,24 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
 
       <SidebarFooter>
         <SidebarMenu className="p-2 flex flex-col items-center gap-2">
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
-              <Settings />
-               {state === 'expanded' && <span>Settings</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+           <Dialog>
+            <DialogTrigger asChild>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
+                  <Settings />
+                  {state === 'expanded' && <span>Settings</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </DialogTrigger>
+            <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px]">
+                <DialogHeader>
+                    <DialogTitle>Settings</DialogTitle>
+                </DialogHeader>
+                <div className="flex-grow overflow-auto no-scrollbar">
+                    <SettingsPage />
+                </div>
+            </DialogContent>
+          </Dialog>
           <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
