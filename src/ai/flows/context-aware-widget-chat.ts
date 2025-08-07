@@ -24,6 +24,7 @@ const ContextAwareWidgetChatInputSchema = z.object({
   userQuery: z.string().describe('The user input in the chat.'),
   selectedEntityData: z.any().optional().describe('The data for the specific entity the user is asking about.'),
   chatHistory: z.array(ChatHistorySchema).optional().describe('The previous chat history.'),
+  isGenericWidget: z.boolean().optional().describe('Flag to indicate if the widget is of generic type.'),
 });
 export type ContextAwareWidgetChatInput = z.infer<typeof ContextAwareWidgetChatInputSchema>;
 
@@ -54,7 +55,7 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   {{{json selectedEntityData}}}
   {{else}}
   Widget Data:
-  {{#if (eq widgetType "generic")}}
+  {{#if isGenericWidget}}
   {{{widgetData}}}
   {{else}}
   {{{json widgetData}}}
@@ -99,8 +100,12 @@ const contextAwareWidgetChatFlow = ai.defineFlow(
     inputSchema: ContextAwareWidgetChatInputSchema,
     outputSchema: ContextAwareWidgetChatOutputSchema,
   },
-  async input => {
-    const {output} = await contextAwareWidgetChatPrompt(input);
+  async (input) => {
+    const promptInput = {
+      ...input,
+      isGenericWidget: input.widgetType === 'generic',
+    };
+    const {output} = await contextAwareWidgetChatPrompt(promptInput);
     return output!;
   }
 );
