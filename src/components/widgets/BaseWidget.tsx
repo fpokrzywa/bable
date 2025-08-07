@@ -131,8 +131,8 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     if (!isChatOpen) {
       setIsChatOpen(true);
     }
-    setChatMessages(prev => [
-      ...prev,
+    // Reset chat history when a new entity is selected for chat
+    setChatMessages([
       { role: 'model', content: `What would you like to know about ${widget.type} ${entity.number}?` }
     ]);
   };

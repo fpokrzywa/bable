@@ -2,6 +2,7 @@
 
 export interface Incident {
   id: string;
+  sys_id: string;
   number: string;
   short_description: string;
   priority: string;
