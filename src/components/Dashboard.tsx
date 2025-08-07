@@ -297,7 +297,7 @@ export function Dashboard() {
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen">
       <div ref={sidebarRef}>
         <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
             <AppSidebar 
