@@ -5,29 +5,21 @@ import axios from 'axios';
 import type { Incident } from '@/lib/types';
 
 export async function getIncidents(): Promise<Incident[]> {
-  // Get credentials from environment variables for security
-  const appUrl = process.env.SERVICENOW_URL;
-  const appClient = process.env.SERVICENOW_USERNAME; // ai_browser
-  const appSecret = process.env.SERVICENOW_PASSWORD; // Appdev2025!
+  const appClient = 'ai_browser';
+  const appSecret = 'Appdev2025!';
+  const requestUrl = 'https://dev309119.service-now.com/api/now/table/incident?sysparm_limit=1';
 
-  if (!appUrl || !appClient || !appSecret) {
-    throw new Error('ServiceNow credentials are not configured in the environment variables.');
-  }
-  
   // Create Basic Auth header
   const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');
 
-  const client = axios.create({
-    baseURL: appUrl,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Basic ${auth}`,
-    },
-  });
-
   try {
-    const response = await client.get('/api/now/table/incident?sysparm_limit=1');
+    const response = await axios.get(requestUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Basic ${auth}`,
+      },
+    });
     return response.data.result;
   } catch (error: any) {
     console.error('ServiceNow API Error:', {
