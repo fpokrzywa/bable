@@ -12,6 +12,7 @@ import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { EntityWidget } from './EntityWidget';
 import { cn } from '@/lib/utils';
 import { ChatPanel } from './ChatPanel';
+import { WIDGET_EXPANDED_WIDTH, WIDGET_INITIAL_WIDTH } from './WidgetContainer';
 
 interface BaseWidgetProps {
   widget: Widget;
@@ -150,6 +151,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     <Card 
       className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
       ref={widgetRef}
+      style={{ width: isChatOpen ? WIDGET_EXPANDED_WIDTH : WIDGET_INITIAL_WIDTH }}
     >
       <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
         <CardHeader className="flex flex-row items-start justify-between p-4">

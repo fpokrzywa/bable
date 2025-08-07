@@ -18,9 +18,9 @@ interface WidgetContainerProps {
   sidebarRef: React.RefObject<HTMLDivElement>;
 }
 
-const WIDGET_INITIAL_WIDTH = 450;
-const WIDGET_EXPANDED_WIDTH = 750;
-const WIDGET_HEIGHT = 400;
+export const WIDGET_INITIAL_WIDTH = 450;
+export const WIDGET_EXPANDED_WIDTH = 750;
+export const WIDGET_HEIGHT = 400;
 
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -116,7 +116,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                 ref={nodeRef}
                 style={{
                     zIndex: widget.zIndex,
-                    width: `${WIDGET_EXPANDED_WIDTH}px`, // Fixed expanded width
                     height: `${WIDGET_HEIGHT}px`,
                 }}
                 onMouseDown={() => bringToFront(widget.id)}
