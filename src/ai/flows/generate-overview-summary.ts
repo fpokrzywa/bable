@@ -28,7 +28,7 @@ const generateOverviewSummaryPrompt = ai.definePrompt({
   name: 'generateOverviewSummaryPrompt',
   input: {schema: GenerateOverviewSummaryInputSchema},
   output: {schema: GenerateOverviewSummaryOutputSchema},
-  prompt: `You are a ServiceNow expert. Based on the data from all the open widgets, provide a concise summary.
+  prompt: `You are a ServiceNow expert. Based on the data from all the open widgets below, provide a concise summary. The data is provided as a JSON object.
 
   Widget Data:
   {{{json widgetData}}}
