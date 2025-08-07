@@ -17,6 +17,7 @@ const ContextAwareWidgetChatInputSchema = z.object({
   widgetType: z.string().describe('The type of widget (e.g., Incident, Change).'),
   widgetData: z.record(z.any()).describe('The data currently displayed in the widget.'),
   userQuery: z.string().describe('The user input in the chat.'),
+  selectedEntityData: z.record(z.any()).optional().describe('The data for the specific entity the user is asking about.'),
 });
 export type ContextAwareWidgetChatInput = z.infer<typeof ContextAwareWidgetChatInputSchema>;
 
@@ -38,22 +39,32 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   output: {schema: ContextAwareWidgetChatOutputSchema},
   prompt: `You are an AI assistant within a ServiceNow widget.
 
-  Based on the widget type and its current data, suggest relevant actions the user might want to take.
+  Based on the widget type and its current data, suggest relevant actions or answer questions.
   Consider the user's last query to refine your suggestions.
 
   Widget Type: {{{widgetType}}}
+  {{#if selectedEntityData}}
+  The user is specifically asking about the following record:
+  {{{selectedEntityData}}}
+  {{else}}
   Widget Data: {{{widgetData}}}
+  {{/if}}
   User Query: {{{userQuery}}}
 
-  Suggestions should be concise and actionable (e.g., "search for related knowledge articles", "update incident priority", "assign to correct group").
+  If the user asks a question, answer it based on the provided data. If they ask for an action, suggest relevant actions (e.g., "search for related knowledge articles", "update incident priority", "assign to correct group").
 
-  Return a JSON array of strings with the suggested actions.
+  Return a JSON array of strings with the suggested actions or answer.
 
-  Example Output:
+  Example Output for suggestions:
   [
     "search for related knowledge articles",
     "update incident priority",
     "add a comment to the incident"
+  ]
+
+  Example Output for an answer:
+  [
+    "The priority of this incident is 1 - Critical."
   ]
   `,
 });

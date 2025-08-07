@@ -29,6 +29,8 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const widgetRef = useRef<HTMLDivElement>(null);
   const [chatPanelWidth, setChatPanelWidth] = useState(375);
   const [isResizing, setIsResizing] = useState(false);
+  const [selectedEntityForChat, setSelectedEntityForChat] = useState<Incident | Problem | Change | null>(null);
+
 
   useEffect(() => {
     if (isChatOpen && widgetRef.current) {
@@ -71,7 +73,12 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   }, [isResizing, handleResize, handleResizeEnd]);
   
   const toggleChat = () => {
-    setIsChatOpen(prev => !prev);
+    setIsChatOpen(prev => {
+        if (!prev === false) {
+            setSelectedEntityForChat(null);
+        }
+        return !prev;
+    });
   }
   
   const handleChatSubmit = async (query: string) => {
@@ -90,6 +97,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
         widgetType: widget.type,
         widgetData: widget.data,
         userQuery: query,
+        selectedEntityData: selectedEntityForChat ?? undefined,
       });
       const aiResponse: ChatMessage = { sender: 'ai', text: result.suggestedActions.join('\n') || "I don't have any specific suggestions for that." };
       setChatMessages(prev => [...prev, aiResponse]);
@@ -116,6 +124,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   };
   
   const handleEntitySelectForChat = (entity: Incident | Problem | Change) => {
+    setSelectedEntityForChat(entity);
     if (!isChatOpen) {
       setIsChatOpen(true);
     }
