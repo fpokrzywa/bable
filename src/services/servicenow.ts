@@ -5,9 +5,9 @@ import axios from 'axios';
 import type { Incident } from '@/lib/types';
 
 async function get<T>(endpoint: string, params?: any): Promise<T> {
-  const appUrl = process.env.APP_URL;
-  const appClient = process.env.APP_CLIENT;
-  const appSecret = process.env.APP_SECRET;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const appClient = process.env.NEXT_PUBLIC_APP_CLIENT;
+  const appSecret = process.env.NEXT_PUBLIC_APP_SECRET;
 
   if (!appUrl || !appClient || !appSecret) {
     throw new Error('ServiceNow credentials are not configured in the environment variables.');
