@@ -14,7 +14,7 @@ import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { servicenowAPI } from '@/services/servicenow';
+import { getIncidents } from '@/services/servicenow';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -71,7 +71,7 @@ export function Dashboard() {
     
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
-        const incidentData = await servicenowAPI.getIncidents();
+        const incidentData = await getIncidents();
         newWidgetDef = {
           query: 'Incidents from ServiceNow',
           data: incidentData,
