@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Home() {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <Dashboard />
     </SidebarProvider>
   );

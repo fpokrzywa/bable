@@ -23,13 +23,9 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { setOpen, state } = useSidebar();
+  const { state } = useSidebar();
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    setOpen(false);
-  }, [setOpen]);
 
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
