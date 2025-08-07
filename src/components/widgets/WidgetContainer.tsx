@@ -83,7 +83,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground -mt-20">
             <Image 
-              src="https://storage.googleapis.com/aip-dev-images-public/studio-assets/babel-fish.png" 
+              src="/babel_fish_logo_with_tag.png" 
               alt="Babel Fish Logo" 
               width={500} 
               height={250}
