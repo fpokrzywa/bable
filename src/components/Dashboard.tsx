@@ -184,7 +184,7 @@ export function Dashboard() {
   };
   
   const handleRestoreFavorite = (fav: Widget) => {
-    const activeWidget = widgets.find(w => w.query === fav.query && w.type === fav.type);
+    const activeWidget = widgets.find(w => w.id === fav.id);
     if (!activeWidget) {
       createWidgetFromDefinition(fav);
     } else {
@@ -192,43 +192,35 @@ export function Dashboard() {
     }
   }
 
-  const toggleFavoriteWidget = (id: string) => {
-    let widgetToToggle: Widget | undefined;
+ const toggleFavoriteWidget = (id: string) => {
+    let widgetToToggle: Widget | undefined = widgets.find(w => w.id === id);
+    if (!widgetToToggle) {
+      widgetToToggle = favorites.find(f => f.id === id);
+    }
 
-    // Find the widget in the active widgets list and update it
+    if (!widgetToToggle) return;
+
+    const isCurrentlyFavorited = widgetToToggle.isFavorited;
+    const updatedWidget = { ...widgetToToggle, isFavorited: !isCurrentlyFavorited };
+
     setWidgets(prevWidgets =>
-      prevWidgets.map(widget => {
-        if (widget.id === id) {
-          widgetToToggle = { ...widget, isFavorited: !widget.isFavorited };
-          return widgetToToggle;
-        }
-        return widget;
-      })
+      prevWidgets.map(widget => (widget.id === id ? updatedWidget : widget))
     );
 
-    // If not found in active widgets, it might be in favorites (but closed)
-    if (!widgetToToggle) {
-        widgetToToggle = favorites.find(f => f.id === id);
-        if (widgetToToggle) {
-             widgetToToggle = { ...widgetToToggle, isFavorited: !widgetToToggle.isFavorited };
+    if (!isCurrentlyFavorited) {
+      // Add to favorites if it's not already there
+      setFavorites(prev => {
+        if (prev.some(f => f.id === updatedWidget.id)) {
+          return prev.map(f => f.id === updatedWidget.id ? updatedWidget : f);
         }
-    }
-    
-    if (widgetToToggle) {
-      if (widgetToToggle.isFavorited) {
-        // Add to favorites if not already there
-        setFavorites(prev => {
-          if (prev.some(f => f.id === widgetToToggle!.id)) {
-            return prev;
-          }
-          return [...prev, widgetToToggle!];
-        });
-      } else {
-        // Remove from favorites
-        setFavorites(prev => prev.filter(f => f.id !== id));
-      }
+        return [...prev, updatedWidget];
+      });
+    } else {
+      // Remove from favorites
+      setFavorites(prev => prev.filter(f => f.id !== id));
     }
   };
+
 
   const updateWidgetPosition = (id: string, x: number, y: number) => {
     setWidgets(prevWidgets =>
@@ -296,5 +288,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
