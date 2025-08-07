@@ -6,8 +6,8 @@ import type { Incident } from '@/lib/types';
 
 async function get<T>(endpoint: string, params?: any): Promise<T> {
   const appUrl = 'https://dev309119.service-now.com';
-  const appClient = 'n8n_admin';
-  const appSecret = '?0yNWbpcr8zFT9fL';
+  const appClient = 'ai_browser';
+  const appSecret = 'Appdev2025!';
 
   if (!appUrl || !appClient || !appSecret) {
     throw new Error('ServiceNow credentials are not configured in the environment variables.');
