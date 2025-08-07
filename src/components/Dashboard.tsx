@@ -6,6 +6,7 @@ import type { Widget, SavedQuery, Problem, Incident, Change } from '@/lib/types'
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
+import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
 
 import { Sidebar, SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -110,6 +111,17 @@ export function Dashboard() {
           data: problemData,
           agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
           type: 'problem',
+          isFavorited: false,
+        };
+      } else if (lowerCaseQuery.includes('@summary')) {
+        const allWidgetData = widgets.map(w => ({ type: w.type, query: w.query, data: w.data }));
+        const result = await generateOverviewSummary({ widgetData: allWidgetData });
+  
+        newWidgetDef = {
+          query: 'Overview Summary',
+          data: result.summary,
+          agent: { agentType: 'Summary Agent', agentBehavior: 'Provides a summary of all open widgets.' },
+          type: 'generic',
           isFavorited: false,
         };
       } else {

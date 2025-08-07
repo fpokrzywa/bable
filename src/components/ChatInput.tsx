@@ -4,10 +4,20 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+
 
 interface ChatInputProps {
   onSubmit: (query: string) => void;
@@ -19,6 +29,7 @@ const commands = [
   { name: 'Incidents', query: '@incident', description: 'View and manage incidents', icon: AlertCircle },
   { name: 'Changes', query: '@change', description: 'View and manage change requests', icon: GitBranch },
   { name: 'Problems', query: '@problem', description: 'View and manage problems', icon: FileWarning },
+  { name: 'Overview Summary', query: '@summary', description: 'Get a summary of all open widgets', icon: BookText },
 ];
 
 export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
