@@ -94,7 +94,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
 
   return (
     <div ref={containerRef} className="relative h-full overflow-hidden text-sm @[400px]:text-base">
-      <div className={cn("transition-transform duration-300 ease-in-out", {
+      <div className={cn("transition-transform duration-300 ease-in-out h-full", {
         '-translate-x-full': selectedEntity
       })}>
         {entities.map((entity) => (
@@ -125,7 +125,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
         selectedEntity ? 'translate-x-0' : 'translate-x-full'
       )}>
         {selectedEntity && (
-           <div className="h-full overflow-auto no-scrollbar">
+           <div className="flex-1 min-h-0 overflow-auto no-scrollbar">
             <div className="flex items-center justify-between mb-4">
                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleBack}>
                 <ArrowLeft size={18} />
