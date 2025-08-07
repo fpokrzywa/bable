@@ -17,7 +17,7 @@ interface WidgetContainerProps {
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
-  const [bounds, setBounds] = useState<{ left: number, top: number, right: number, bottom: number } | string>('parent');
+  const [bounds, setBounds] = useState<{ left: number, top: number, right: number, bottom: number } | string>({ left: 0, top: 0, right: 0, bottom: 0 });
 
 
   useEffect(() => {
