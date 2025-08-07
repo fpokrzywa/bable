@@ -69,6 +69,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       <Card 
         className="w-[350px] bg-card/80 backdrop-blur-sm cursor-pointer"
         onClick={() => toggleMinimizeWidget(widget.id)}
+        onMouseDown={(e) => { e.stopPropagation(); bringToFront(widget.id); }}
       >
         <CardHeader className="flex flex-row items-center justify-between p-3">
           <CardTitle className="text-base">{widget.query}</CardTitle>
@@ -92,7 +93,6 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   return (
     <Card 
       className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
-      style={{ zIndex: widget.zIndex }}
     >
       <CardHeader className="flex flex-row items-start justify-between p-4 drag-handle cursor-move">
         <div className="flex-1">

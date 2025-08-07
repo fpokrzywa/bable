@@ -33,9 +33,9 @@ export function Dashboard() {
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
       const widget = prevWidgets.find(w => w.id === id);
-      if (widget && widget.zIndex < nextZIndex - 1) {
-        const newZIndex = nextZIndex;
-        setNextZIndex(newZIndex + 1);
+      if (widget && widget.zIndex < nextZIndex) {
+        const newZIndex = nextZIndex + 1;
+        setNextZIndex(newZIndex);
         return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
       }
       return prevWidgets;

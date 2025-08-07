@@ -17,27 +17,6 @@ interface WidgetContainerProps {
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
-  const [bounds, setBounds] = useState<{ left: number, top: number, right: number, bottom: number } | string>('parent');
-
-
-  useEffect(() => {
-    if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const containerHeight = containerRef.current.offsetHeight;
-        
-        // This is a typical width for a widget, we can adjust if needed
-        const widgetWidth = 450; 
-        const widgetHeight = 400;
-
-        setBounds({
-            left: 0,
-            top: 0,
-            right: containerWidth - widgetWidth,
-            bottom: containerHeight - widgetHeight,
-        });
-    }
-  }, [widgets.length]);
-
 
   widgets.forEach(widget => {
     if (!nodeRefs.current.has(widget.id)) {
@@ -88,11 +67,12 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
               defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
-              bounds={bounds}
+              bounds="parent"
           >
               <div 
                 className="absolute" 
                 ref={nodeRef}
+                style={{zIndex: widget.zIndex}}
                 onMouseDown={() => bringToFront(widget.id)}
               >
                   <BaseWidget 
