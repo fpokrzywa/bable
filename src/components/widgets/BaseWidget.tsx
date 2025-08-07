@@ -2,17 +2,17 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import type { Widget, Problem, Incident, Change } from '@/lib/types';
+import type { Widget, Problem, Incident, Change, ChatMessage } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, Minus, Heart } from 'lucide-react';
+import { X, Bot, Minus, Heart, MessageCircle } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
-import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 import { EntityWidget } from './EntityWidget';
+import { cn } from '@/lib/utils';
+import { ChatPanel } from './ChatPanel';
 
 interface BaseWidgetProps {
   widget: Widget;
@@ -24,32 +24,44 @@ interface BaseWidgetProps {
 }
 
 export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
-  const [chatQuery, setChatQuery] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const handleChatSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!chatQuery.trim()) return;
+  
+  const handleChatSubmit = async (query: string) => {
+    if (!query.trim()) return;
     setLoading(true);
+    
+    const userMessage: ChatMessage = { sender: 'user', text: query };
+    setChatMessages(prev => [...prev, userMessage]);
+
+    if (!isChatOpen) {
+      setIsChatOpen(true);
+    }
+    
     try {
       const result = await contextAwareWidgetChat({
         widgetType: widget.type,
         widgetData: widget.data,
-        userQuery: chatQuery,
+        userQuery: query,
       });
-      setSuggestions(result.suggestedActions);
+      const aiResponse: ChatMessage = { sender: 'ai', text: result.suggestedActions.join('\n') || "I don't have any specific suggestions for that." };
+      setChatMessages(prev => [...prev, aiResponse]);
+
     } catch (error) {
       console.error('Context-aware chat failed:', error);
+      const errorMessage: ChatMessage = { sender: 'ai', text: 'Sorry, I encountered an error.' };
+      setChatMessages(prev => [...prev, errorMessage]);
     } finally {
       setLoading(false);
-      setChatQuery('');
     }
   };
 
   const handleTextSelection = (text: string) => {
+    // This could potentially open the chat with the selected text
     if (text) {
-      setChatQuery(text);
+      if (!isChatOpen) setIsChatOpen(true);
+      // Maybe set the chat query state here if chatpanel input is lifted
     }
   };
   
@@ -88,6 +100,10 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
           </TooltipProvider>
         </div>
         <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsChatOpen(!isChatOpen)}>
+                <MessageCircle size={18} className={isChatOpen ? 'text-primary' : ''} />
+                <span className="sr-only">Toggle chat</span>
+            </Button>
              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleFavoriteWidget(widget.id)}>
                 <Heart size={18} className={widget.isFavorited ? 'fill-primary text-primary' : ''} />
                 <span className="sr-only">Favorite widget</span>
@@ -105,35 +121,27 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       </div>
 
 
-      <CardContent className="flex-1 min-h-0 relative">
-        <ScrollArea className="h-full pr-4">
-          {renderWidgetContent()}
-        </ScrollArea>
+      <CardContent className="flex-1 min-h-0 relative p-0">
+        <div className="flex h-full">
+            <ScrollArea className="h-full flex-1 p-6">
+              {renderWidgetContent()}
+            </ScrollArea>
+            <div className={cn(
+                "transition-all duration-300 ease-in-out",
+                isChatOpen ? "w-[300px] border-l" : "w-0"
+            )}>
+              {isChatOpen && (
+                <ChatPanel 
+                    messages={chatMessages}
+                    loading={loading}
+                    onSubmit={handleChatSubmit}
+                    agentType={widget.agent.agentType}
+                    onClose={() => setIsChatOpen(false)}
+                />
+              )}
+            </div>
+        </div>
       </CardContent>
-
-      <CardFooter className="flex-col items-start gap-2 pt-4 border-t">
-        {suggestions.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((s, i) => (
-              <Badge key={i} variant="outline" className="cursor-pointer hover:bg-accent text-xs @[400px]:text-sm" onClick={() => setChatQuery(s)}>
-                {s}
-              </Badge>
-            ))}
-          </div>
-        )}
-        <form onSubmit={handleChatSubmit} className="flex w-full items-center gap-2">
-          <Input
-            placeholder={`Chat with ${widget.agent.agentType}...`}
-            value={chatQuery}
-            onChange={(e) => setChatQuery(e.target.value)}
-            disabled={loading}
-            className='text-xs @[400px]:text-sm'
-          />
-          <Button type="submit" size="icon" disabled={loading || !chatQuery.trim()}>
-            {loading ? <Loader2 className="animate-spin" /> : <Send size={16} />}
-          </Button>
-        </form>
-      </CardFooter>
     </Card>
   );
 }

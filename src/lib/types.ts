@@ -1,4 +1,5 @@
 
+
 export interface Incident {
   number: string;
   short_description: string;
@@ -47,4 +48,9 @@ export interface Widget {
 export interface SavedQuery {
   name: string;
   query: string;
+}
+
+export interface ChatMessage {
+    sender: 'user' | 'ai';
+    text: string;
 }
