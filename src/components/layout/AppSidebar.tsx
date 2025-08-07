@@ -17,6 +17,7 @@ import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
 import type { Widget } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface AppSidebarProps {
     minimizedWidgets: Widget[];
@@ -104,7 +105,9 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
               <DialogHeader>
                   <DialogTitle>Profile</DialogTitle>
               </DialogHeader>
-              <Profile />
+              <div className="flex-grow overflow-auto">
+                <Profile />
+              </div>
             </DialogContent>
           </Dialog>
         </SidebarMenu>
