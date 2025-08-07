@@ -311,7 +311,7 @@ export function Dashboard() {
               sidebarRef={sidebarRef}
             />
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
-              <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
+              <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
           </div>
         </div>
       </SidebarInset>

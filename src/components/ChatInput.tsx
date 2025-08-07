@@ -17,12 +17,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import type { Widget } from '@/lib/types';
 
 
 interface ChatInputProps {
   onSubmit: (query: string) => void;
   onSave: (query: string, name: string) => void;
   loading: boolean;
+  widgets: Widget[];
 }
 
 const commands = [
@@ -32,7 +34,7 @@ const commands = [
   { name: 'Overview Summary', query: '@summary', description: 'Get a summary of all open widgets', icon: BookText },
 ];
 
-export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
+export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps) {
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -122,6 +124,8 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
     setQuery('');
   };
 
+  const isSummaryDisabled = widgets.length === 0;
+
   return (
     <div className="flex flex-col gap-2">
       <form onSubmit={handleSubmit} className="relative w-full">
@@ -168,12 +172,17 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
               <p className="text-xs text-muted-foreground px-2">Commands</p>
               {commands.map((command) => {
                 const Icon = command.icon;
+                const isDisabled = command.query === '@summary' && isSummaryDisabled;
                 return (
                   <button
                     key={command.name}
                     type="button"
-                    className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
+                    className={cn(
+                      "w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3",
+                      isDisabled && "opacity-50 cursor-not-allowed"
+                    )}
                     onClick={() => handleCommandSelect(command.query)}
+                    disabled={isDisabled}
                   >
                     <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
                     <div>

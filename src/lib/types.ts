@@ -43,6 +43,7 @@ export interface Widget {
   isFavorited: boolean;
   x?: number;
   y?: number;
+  isExpanded?: boolean;
 }
 
 export interface SavedQuery {
