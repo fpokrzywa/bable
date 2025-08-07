@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -15,7 +16,6 @@ async function get<T>(endpoint: string, params?: any): Promise<T> {
   const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');
 
   const client = axios.create({
-    baseURL: appUrl,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -24,7 +24,7 @@ async function get<T>(endpoint: string, params?: any): Promise<T> {
   });
 
   try {
-    const response = await client.get(`/api/now${endpoint}`, { params });
+    const response = await client.get(appUrl, { params });
     return response.data.result;
   } catch (error) {
     console.error('ServiceNow API Error:', error);
