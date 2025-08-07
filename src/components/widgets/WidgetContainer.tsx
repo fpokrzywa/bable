@@ -67,7 +67,11 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               onStart={() => bringToFront(widget.id)}
               defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
           >
-              <div className="absolute" ref={nodeRef}>
+              <div 
+                className="absolute" 
+                ref={nodeRef}
+                onMouseDown={() => bringToFront(widget.id)}
+              >
                   <BaseWidget 
                       widget={widget} 
                       removeWidget={removeWidget} 
