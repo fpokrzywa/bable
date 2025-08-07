@@ -277,7 +277,7 @@ export function Dashboard() {
         </Sidebar>
       </div>
       <SidebarInset className="flex flex-col h-screen items-center">
-        <div className={cn("flex flex-col w-full h-full relative", widgets.length > 0 ? "flex-1" : "h-full justify-center items-center")}>
+        <div className={cn("relative w-full", widgets.length > 0 ? "flex-1" : "h-full flex flex-col justify-center items-center")}>
             <WidgetContainer 
               widgets={normalWidgets} 
               removeWidget={removeWidget} 
