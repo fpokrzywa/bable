@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, Minus, Plus } from 'lucide-react';
+import { X, Bot, Send, Loader2, Minus } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -64,34 +64,11 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     }
   };
 
-  if (widget.isMinimized) {
-    return (
-        <Card className="bg-card/80 backdrop-blur-sm">
-            <CardHeader 
-                className="flex flex-row items-center justify-between p-3"
-                onDoubleClick={() => toggleMinimizeWidget(widget.id)}
-            >
-            <CardTitle className="text-base truncate pr-2">{widget.query}</CardTitle>
-            <div className="flex items-center gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
-                    <Plus size={18} />
-                    <span className="sr-only">Restore widget</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); removeWidget(widget.id); }}>
-                    <X size={18} />
-                    <span className="sr-only">Close widget</span>
-                </Button>
-            </div>
-            </CardHeader>
-        </Card>
-    );
-  }
-
   return (
     <Card 
       className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
     >
-      <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
+      <div className="drag-handle cursor-move">
         <CardHeader className="flex flex-row items-start justify-between p-4">
             <div className="flex-1">
             <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>

@@ -16,8 +16,6 @@ interface WidgetContainerProps {
 
 const WIDGET_WIDTH = 450;
 const WIDGET_HEIGHT = 400;
-const MINIMIZED_WIDGET_WIDTH = 350;
-const MINIMIZED_WIDGET_HEIGHT = 70; // Approximate height of the header
 
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,7 +39,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
       
       setBounds({
         left: 0,
-        top: 20,
+        top: 0,
         right: Math.max(0, containerWidth - WIDGET_WIDTH),
         bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
       });
@@ -75,16 +73,14 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     <div className="relative w-full h-full" ref={containerRef}>
       {widgets.map((widget, index) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
-        const currentWidgetWidth = widget.isMinimized ? MINIMIZED_WIDGET_WIDTH : WIDGET_WIDTH;
-        const currentWidgetHeight = widget.isMinimized ? MINIMIZED_WIDGET_HEIGHT : WIDGET_HEIGHT;
         
         return (
           <Draggable
               key={widget.id}
               nodeRef={nodeRef}
-              handle={widget.isMinimized ? undefined : ".drag-handle"}
+              handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
-              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40 + 20}}
+              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
               bounds={bounds}
           >
               <div 
@@ -92,8 +88,8 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                 ref={nodeRef}
                 style={{
                     zIndex: widget.zIndex, 
-                    width: `${currentWidgetWidth}px`, 
-                    height: widget.isMinimized ? 'auto' : `${currentWidgetHeight}px`,
+                    width: `${WIDGET_WIDTH}px`, 
+                    height: `${WIDGET_HEIGHT}px`,
                 }}
                 onMouseDown={() => bringToFront(widget.id)}
               >

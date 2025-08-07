@@ -193,16 +193,19 @@ export function Dashboard() {
     );
   };
 
+  const normalWidgets = widgets.filter(w => !w.isMinimized);
+  const minimizedWidgets = widgets.filter(w => w.isMinimized);
+
 
   return (
     <div className="flex h-screen bg-background">
       <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
-        <AppSidebar />
+        <AppSidebar minimizedWidgets={minimizedWidgets} onRestoreWidget={toggleMinimizeWidget}/>
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen items-center">
         <div className={cn("flex flex-col w-full h-full relative", widgets.length > 0 ? "flex-1" : "h-full justify-center items-center")}>
             <WidgetContainer 
-              widgets={widgets} 
+              widgets={normalWidgets} 
               removeWidget={removeWidget} 
               updateEntity={updateEntity}
               bringToFront={bringToFront}
