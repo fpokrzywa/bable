@@ -102,82 +102,79 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    setShowCommandMenu(newQuery.includes('@'));
   };
 
   const handleCommandSelect = (commandQuery: string) => {
-    const atIndex = query.lastIndexOf('@');
-    const newQuery = query.substring(0, atIndex) + commandQuery;
-    
-    setQuery(newQuery);
+    setQuery(commandQuery);
     setShowCommandMenu(false);
-    
-    onSubmit(newQuery);
+    onSubmit(commandQuery);
     setQuery('');
   };
 
   return (
-    <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
-      <PopoverTrigger asChild>
-        <form onSubmit={handleSubmit} className="relative w-full">
-            <Popover open={loading}>
-            <PopoverTrigger asChild>
-                <div>
-                <Input
-                    ref={inputRef}
-                    value={query}
-                    onChange={handleInputChange}
-                    placeholder="Please type your message here, or type @ for commands"
-                    className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
-                    disabled={loading}
-                />
-                <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
-                    {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                    <span className="sr-only">Send</span>
-                </Button>
-                </div>
-            </PopoverTrigger>
-            <PopoverContent 
-                side="top" 
-                align="center" 
-                className="w-auto py-1 px-3 mb-2 text-sm text-muted-foreground"
-                sideOffset={10}
-            >
-                Thinking{thinkingDots}
-            </PopoverContent>
-            </Popover>
-        </form>
-      </PopoverTrigger>
-      <PopoverContent 
-          className="w-[400px] p-2 mb-2" 
-          align="start"
-          onCloseAutoFocus={(e) => {
-            e.preventDefault();
-            inputRef.current?.focus();
-          }}
-          style={{ position: 'absolute', bottom: '100%', marginBottom: '0.5rem' }}
-      >
-        <div className="space-y-1">
-          <p className="text-xs text-muted-foreground px-2">Commands</p>
-          {commands.map((command) => {
-            const Icon = command.icon;
-            return (
-              <button
-                key={command.name}
-                type="button"
-                className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
-                onClick={() => handleCommandSelect(command.query)}
-              >
-                <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">{command.name}</p>
-                  <p className="text-xs text-muted-foreground">{command.description}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
+    <div className="flex flex-col gap-2">
+      <form onSubmit={handleSubmit} className="relative w-full">
+          <Popover open={loading}>
+          <PopoverTrigger asChild>
+              <div>
+              <Input
+                  ref={inputRef}
+                  value={query}
+                  onChange={handleInputChange}
+                  placeholder="Please type your message here"
+                  className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
+                  disabled={loading}
+              />
+              <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
+                  {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                  <span className="sr-only">Send</span>
+              </Button>
+              </div>
+          </PopoverTrigger>
+          <PopoverContent 
+              side="top" 
+              align="center" 
+              className="w-auto py-1 px-3 mb-2 text-sm text-muted-foreground"
+              sideOffset={10}
+          >
+              Thinking{thinkingDots}
+          </PopoverContent>
+          </Popover>
+      </form>
+      <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
+          <PopoverTrigger asChild>
+              <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Use Commands</Button>
+          </PopoverTrigger>
+          <PopoverContent 
+              className="w-[400px] p-2 mb-2" 
+              align="start"
+              onCloseAutoFocus={(e) => {
+                e.preventDefault();
+                inputRef.current?.focus();
+              }}
+          >
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground px-2">Commands</p>
+              {commands.map((command) => {
+                const Icon = command.icon;
+                return (
+                  <button
+                    key={command.name}
+                    type="button"
+                    className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
+                    onClick={() => handleCommandSelect(command.query)}
+                  >
+                    <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">{command.name}</p>
+                      <p className="text-xs text-muted-foreground">{command.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </PopoverContent>
+      </Popover>
+    </div>
   );
 }
