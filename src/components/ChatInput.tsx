@@ -3,10 +3,10 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2, Sparkles } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Label } from './ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
   onSubmit: (query: string) => void;
@@ -14,12 +14,19 @@ interface ChatInputProps {
   loading: boolean;
 }
 
+const commands = [
+  { name: 'Incidents', query: 'show incidents', description: 'View and manage incidents', icon: AlertCircle },
+  { name: 'Changes', query: 'show changes', description: 'View and manage change requests', icon: GitBranch },
+  { name: 'Problems', query: 'show problems', description: 'View and manage problems', icon: FileWarning },
+];
+
 export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   const [query, setQuery] = useState('');
-  const [saveName, setSaveName] = useState('');
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -74,21 +81,63 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
     setIsListening(prev => !prev);
   };
 
-  const handleSave = () => {
-    onSave(query, saveName);
-    setSaveName('');
-    // Close popover, need to manage open state
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    if (newQuery.endsWith('@')) {
+      setShowCommandMenu(true);
+    } else if (!newQuery.includes('@')) {
+      setShowCommandMenu(false);
+    }
+  };
+
+  const handleCommandSelect = (commandQuery: string) => {
+    onSubmit(commandQuery);
+    setQuery('');
+    setShowCommandMenu(false);
+    inputRef.current?.focus();
   };
 
   return (
     <form onSubmit={handleSubmit} className="relative w-full">
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Please type your message here"
-        className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
-        disabled={loading}
-      />
+      <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
+        <PopoverTrigger asChild>
+          <Input
+            ref={inputRef}
+            value={query}
+            onChange={handleInputChange}
+            placeholder="Please type your message here, or type @ for commands"
+            className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
+            disabled={loading}
+          />
+        </PopoverTrigger>
+        <PopoverContent 
+            className="w-[400px] p-2 mb-2" 
+            align="start"
+            onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground px-2">Commands</p>
+            {commands.map((command) => {
+              const Icon = command.icon;
+              return (
+                <button
+                  key={command.name}
+                  type="button"
+                  className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
+                  onClick={() => handleCommandSelect(command.query)}
+                >
+                  <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">{command.name}</p>
+                    <p className="text-xs text-muted-foreground">{command.description}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
       <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
         {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
         <span className="sr-only">Send</span>
