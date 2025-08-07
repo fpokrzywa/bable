@@ -15,6 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
 import type { Widget } from '@/lib/types';
+import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Profile } from '../Profile';
 
 interface AppSidebarProps {
     minimizedWidgets: Widget[];
@@ -84,17 +86,24 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                {state === 'expanded' && <span>Settings</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="User"
-              size="icon"
-              variant="ghost"
-              className="bg-primary/20 text-primary hover:text-primary"
-            >
-              <User />
-              {state === 'expanded' && <span>User</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <Dialog>
+            <DialogTrigger asChild>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="User"
+                  size="icon"
+                  variant="ghost"
+                  className="bg-primary/20 text-primary hover:text-primary"
+                >
+                  <User />
+                  {state === 'expanded' && <span>User</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </DialogTrigger>
+            <DialogContent size="lg">
+              <Profile />
+            </DialogContent>
+          </Dialog>
         </SidebarMenu>
       </SidebarFooter>
     </>
