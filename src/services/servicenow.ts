@@ -2,6 +2,10 @@
 'use server';
 
 import axios, { type AxiosInstance } from 'axios';
+import type { Incident } from '@/lib/types';
+import { config } from 'dotenv';
+
+config();
 
 class ServiceNowAPI {
   private client: AxiosInstance;
@@ -36,6 +40,12 @@ class ServiceNowAPI {
       throw new Error('Failed to fetch data from ServiceNow.');
     }
   }
+
+  async getIncidents(): Promise<Incident[]> {
+    return this.get<Incident[]>('/table/incident');
+  }
 }
 
 export const servicenowAPI = new ServiceNowAPI();
+
+    

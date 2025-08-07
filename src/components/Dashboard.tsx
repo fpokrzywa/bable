@@ -14,6 +14,7 @@ import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { servicenowAPI } from '@/services/servicenow';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -69,7 +70,16 @@ export function Dashboard() {
     let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
-      if (lowerCaseQuery.includes('@incident')) {
+      if (lowerCaseQuery.includes('@servicenow')) {
+        const incidentData = await servicenowAPI.getIncidents();
+        newWidgetDef = {
+          query: 'Incidents from ServiceNow',
+          data: incidentData,
+          agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
+          type: 'incident',
+          isFavorited: false,
+        };
+      } else if (lowerCaseQuery.includes('@incident')) {
         const incidentData: Incident[] = [
           { number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
           { number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
@@ -318,3 +328,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
