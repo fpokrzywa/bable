@@ -58,10 +58,14 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   };
 
   const handleTextSelection = (text: string) => {
-    // This could potentially open the chat with the selected text
     if (text) {
-      if (!isChatOpen) setIsChatOpen(true);
-      // Maybe set the chat query state here if chatpanel input is lifted
+      if (!isChatOpen) {
+        setIsChatOpen(true);
+      }
+      setChatMessages(prev => [
+        ...prev,
+        { sender: 'ai', text: `What would you like to ask about "${text}"?` }
+      ]);
     }
   };
   
