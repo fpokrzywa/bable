@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
+  const [favorites, setFavorites] = useState<Widget[]>([]);
   const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([
     { name: 'Open Incidents', query: 'show me the open incidents' },
     { name: 'My High Priority Tasks', query: 'show my high priority tasks' },
@@ -40,113 +41,93 @@ export function Dashboard() {
       return prevWidgets;
     });
   };
+  
+  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>) => {
+    const widgetId = Date.now().toString();
+    const newZIndex = nextZIndex;
+    setNextZIndex(newZIndex + 1);
+
+    const initialX = (widgets.filter(w => !w.isMinimized).length % 5) * 40;
+    const initialY = Math.floor(widgets.filter(w => !w.isMinimized).length / 5) * 40;
+
+    const newWidget: Widget = {
+      ...widgetDef,
+      id: widgetId,
+      zIndex: newZIndex,
+      isMinimized: false,
+      x: widgetDef.x ?? initialX,
+      y: widgetDef.y ?? initialY,
+    };
+    
+    setWidgets((prev) => [...prev, newWidget]);
+  }
 
   const handleCreateWidget = async (query: string) => {
     if (!query.trim()) return;
     setLoading(true);
     const lowerCaseQuery = query.toLowerCase();
-    const widgetId = Date.now().toString();
-    const newZIndex = nextZIndex;
-    setNextZIndex(newZIndex + 1);
 
-
-    let newWidget: Widget | null = null;
-    const initialX = (widgets.filter(w => !w.isMinimized).length % 5) * 40;
-    const initialY = Math.floor(widgets.filter(w => !w.isMinimized).length / 5) * 40;
-
-
+    let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
+    
     if (lowerCaseQuery.includes('incident')) {
       const incidentData: Incident[] = [
-        { number: `INC${widgetId}-1`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
-        { number: `INC${widgetId}-2`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
-        { number: `INC${widgetId}-3`, short_description: 'Cannot connect to VPN', priority: '2 - High', state: 'On Hold', assigned_to: 'John Doe', description: 'Users are reporting that they cannot connect to the corporate VPN. The connection times out.' },
-        { number: `INC${widgetId}-4`, short_description: 'Printer not working', priority: '3 - Moderate', state: 'New', assigned_to: 'Jane Smith', description: 'The printer on the 3rd floor is not printing. It is showing a paper jam error, but there is no paper jam.' },
-        { number: `INC${widgetId}-5`, short_description: 'Software installation request', priority: '4 - Low', state: 'Closed', assigned_to: 'John Doe', description: 'Request to install Adobe Photoshop on a new marketing team member\'s laptop.' },
+        { number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
+        { number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
       ];
-      newWidget = {
-        id: widgetId,
+      newWidgetDef = {
         query: 'Incidents',
         data: incidentData,
         agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
         type: 'incident',
-        zIndex: newZIndex,
-        isMinimized: false,
         isFavorited: false,
-        x: initialX,
-        y: initialY,
       };
 
     } else if (lowerCaseQuery.includes('change')) {
       const changeData: Change[] = [
-        { number: `CHG${widgetId}-1`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
-        { number: `CHG${widgetId}-2`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
-        { number: `CHG${widgetId}-3`, short_description: 'Firewall rule change for new service', type: 'Emergency', state: 'Authorize', assigned_to: 'Network Team', justification: 'A critical vulnerability requires an immediate firewall rule update.', implementation_plan: 'Apply rule immediately and monitor for impact.' },
-        { number: `CHG${widgetId}-4`, short_description: 'Patch database servers for security vulnerability', type: 'Normal', state: 'Implement', assigned_to: 'DBA Team', justification: 'Address a known SQL injection vulnerability.', implementation_plan: 'Take a snapshot, apply the patch, and run verification tests.' },
-        { number: `CHG${widgetId}-5`, short_description: 'Migrate email services to cloud provider', type: 'Standard', state: 'Review', assigned_to: 'Cloud Team', justification: 'Reduce on-premise infrastructure costs and improve reliability.', implementation_plan: 'Migrate mailboxes in batches over the weekend.' },
+        { number: `CHG001`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
+        { number: `CHG002`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
       ];
-      newWidget = {
-        id: widgetId,
+      newWidgetDef = {
         query: 'Changes',
         data: changeData,
         agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
         type: 'change',
-        zIndex: newZIndex,
-        isMinimized: false,
         isFavorited: false,
-        x: initialX,
-        y: initialY,
       };
 
     } else if (lowerCaseQuery.includes('problem')) {
       const problemData: Problem[] = [
         {
-          number: `PRB${widgetId}-1`,
+          number: `PRB001`,
           short_description: 'Recurring network outages in building B',
           description: 'Users in building B are experiencing intermittent network connectivity loss, typically between 2 PM and 4 PM on weekdays.',
           workaround: 'Users can switch to the guest Wi-Fi network as a temporary solution, but it has limited access to internal resources.',
           cause: 'Initial investigation points to a faulty network switch on the 3rd floor of building B. Further diagnostics are needed to confirm.',
         },
-        {
-          number: `PRB${widgetId}-2`,
-          short_description: 'CRM application performance degradation',
-          description: 'The CRM application has been running significantly slower than usual, affecting all users. Page load times have increased by over 200%.',
-          workaround: 'Clearing browser cache and restarting the application provides temporary relief, but the issue returns within an hour.',
-          cause: 'The root cause is suspected to be an inefficient database query that is triggered frequently by a new reporting feature.',
-         },
       ];
   
-      newWidget = {
-        id: widgetId,
+      newWidgetDef = {
         query: 'Problem',
         data: problemData,
         agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
         type: 'problem',
-        zIndex: newZIndex,
-        isMinimized: false,
         isFavorited: false,
-        x: initialX,
-        y: initialY,
       };
     } else {
         const result = await generateWidgetFromQuery({ query });
         const agent = await agentSpecificWidget({ widgetData: result.widgetData });
   
-        newWidget = {
-          id: widgetId,
+        newWidgetDef = {
           query: query,
           data: JSON.parse(result.widgetData),
           agent: agent,
           type: 'generic',
-          zIndex: newZIndex,
-          isMinimized: false,
           isFavorited: false,
-          x: initialX,
-          y: initialY,
         };
     }
 
-    if (newWidget) {
-      setWidgets((prev) => [...prev, newWidget!]);
+    if (newWidgetDef) {
+      createWidgetFromDefinition(newWidgetDef);
     }
     
     setLoading(false);
@@ -202,18 +183,62 @@ export function Dashboard() {
     );
   };
   
+  const handleRestoreFavorite = (fav: Widget) => {
+    const activeWidget = widgets.find(w => w.query === fav.query && w.type === fav.type);
+    if (!activeWidget) {
+      createWidgetFromDefinition(fav);
+    } else {
+      bringToFront(activeWidget.id);
+    }
+  }
+
   const toggleFavoriteWidget = (id: string) => {
+    let widgetToToggle: Widget | undefined;
+
+    // Find the widget in the active widgets list and update it
     setWidgets(prevWidgets =>
-      prevWidgets.map(widget =>
-        widget.id === id ? { ...widget, isFavorited: !widget.isFavorited } : widget
-      )
+      prevWidgets.map(widget => {
+        if (widget.id === id) {
+          widgetToToggle = { ...widget, isFavorited: !widget.isFavorited };
+          return widgetToToggle;
+        }
+        return widget;
+      })
     );
+
+    // If not found in active widgets, it might be in favorites (but closed)
+    if (!widgetToToggle) {
+        widgetToToggle = favorites.find(f => f.id === id);
+        if (widgetToToggle) {
+             widgetToToggle = { ...widgetToToggle, isFavorited: !widgetToToggle.isFavorited };
+        }
+    }
+    
+    if (widgetToToggle) {
+      if (widgetToToggle.isFavorited) {
+        // Add to favorites if not already there
+        setFavorites(prev => {
+          if (prev.some(f => f.id === widgetToToggle!.id)) {
+            return prev;
+          }
+          return [...prev, widgetToToggle!];
+        });
+      } else {
+        // Remove from favorites
+        setFavorites(prev => prev.filter(f => f.id !== id));
+      }
+    }
   };
 
   const updateWidgetPosition = (id: string, x: number, y: number) => {
     setWidgets(prevWidgets =>
       prevWidgets.map(widget =>
         widget.id === id ? { ...widget, x, y } : widget
+      )
+    );
+    setFavorites(prevFavorites =>
+      prevFavorites.map(fav =>
+        fav.id === id ? { ...fav, x, y } : fav
       )
     );
   };
@@ -237,8 +262,6 @@ export function Dashboard() {
 
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !w.isFavorited);
-  const favoritedWidgets = widgets.filter(w => w.isFavorited);
-
 
   return (
     <div className="flex h-screen bg-background">
@@ -246,8 +269,9 @@ export function Dashboard() {
         <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
             <AppSidebar 
               minimizedWidgets={minimizedWidgets} 
-              favoritedWidgets={favoritedWidgets}
+              favoritedWidgets={favorites}
               onRestoreWidget={toggleMinimizeWidget}
+              onRestoreFavorite={handleRestoreFavorite}
             />
         </Sidebar>
       </div>
@@ -272,3 +296,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    

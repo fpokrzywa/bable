@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -19,9 +20,10 @@ interface AppSidebarProps {
     minimizedWidgets: Widget[];
     favoritedWidgets: Widget[];
     onRestoreWidget: (id: string) => void;
+    onRestoreFavorite: (widget: Widget) => void;
 }
 
-export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget }: AppSidebarProps) {
+export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
   const { toggleSidebar } = useSidebar();
   
   return (
@@ -43,7 +45,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                     size="icon"
                     variant="ghost"
                     className="rounded-full"
-                    onClick={() => onRestoreWidget(widget.id)}
+                    onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
                   </SidebarMenuButton>
@@ -72,8 +74,8 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-2 flex flex-col items-center gap-2">
-        <SidebarMenu>
+      <SidebarFooter>
+        <SidebarMenu className="p-2 flex flex-col items-center gap-2">
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
               <Settings />
@@ -94,3 +96,5 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
     </>
   );
 }
+
+    
