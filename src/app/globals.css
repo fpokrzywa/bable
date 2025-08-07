@@ -95,4 +95,11 @@ body {
     min-height: 250px;
     container-type: inline-size;
   }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
