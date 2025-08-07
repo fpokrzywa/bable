@@ -53,7 +53,12 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   The user is specifically asking about the following record:
   {{{json selectedEntityData}}}
   {{else}}
-  Widget Data: {{{json widgetData}}}
+  Widget Data:
+  {{#if (eq widgetType "generic")}}
+  {{{widgetData}}}
+  {{else}}
+  {{{json widgetData}}}
+  {{/if}}
   {{/if}}
 
   {{#if chatHistory}}
