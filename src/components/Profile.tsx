@@ -9,8 +9,14 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
+import { DialogClose } from './ui/dialog';
 
 export function Profile() {
+  const handleSaveChanges = () => {
+    // In a real application, you would save the changes here.
+    console.log('Saving changes...');
+  };
+
   return (
     <div className="flex flex-col h-full">
         <div className="flex-grow space-y-6 pb-6">
@@ -73,8 +79,12 @@ export function Profile() {
             </Card>
         </div>
       <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
-        <Button variant="outline">Cancel</Button>
-        <Button>Save Changes</Button>
+        <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+        </DialogClose>
+        <DialogClose asChild>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+        </DialogClose>
       </div>
     </div>
   );
