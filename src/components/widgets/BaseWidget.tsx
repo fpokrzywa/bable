@@ -196,7 +196,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       <CardContent className="flex-1 min-h-0 relative p-0">
         <div className={cn("flex h-full", isResizing ? 'cursor-col-resize select-none' : '')}>
             <div className="h-full flex-1 overflow-auto no-scrollbar" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
-              <div className="p-4">
+              <div className="p-4 h-full">
                 {renderWidgetContent()}
               </div>
             </div>
