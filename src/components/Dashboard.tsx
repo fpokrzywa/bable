@@ -71,7 +71,7 @@ export function Dashboard() {
     let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
-      if (lowerCaseQuery.includes('@servicenow')) {
+      if (lowerCaseQuery.includes('@servicenow') || lowerCaseQuery === 'get my incidents') {
         const incidentData = await getIncidents();
         newWidgetDef = {
           query: 'ServiceNow Records',
@@ -82,8 +82,8 @@ export function Dashboard() {
         };
       } else if (lowerCaseQuery.includes('@incident')) {
         const incidentData: Incident[] = [
-          { id: 'INC001', number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
-          { id: 'INC002', number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
+          { id: 'INC001', sys_id: 'INC001', number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
+          { id: 'INC002', sys_id: 'INC002', number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
         ];
         newWidgetDef = {
           query: 'Incidents',
