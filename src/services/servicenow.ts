@@ -1,13 +1,12 @@
-
 'use server';
 
 import axios from 'axios';
 import type { Incident } from '@/lib/types';
 
 async function get<T>(endpoint: string, params?: any): Promise<T> {
-  const appUrl = 'https://dev309119.service-now.com';
-  const appClient = 'ai_browser';
-  const appSecret = 'Appdev2025!';
+  const appUrl = "https://dev309119.service-now.com/api/now/table/incident?sysparm_limit=1";
+  const appClient = "7c29c861d5774a2982818223137888a9";
+  const appSecret = "Appdev2025!";
 
   if (!appUrl || !appClient || !appSecret) {
     throw new Error('ServiceNow credentials are not configured in the environment variables.');

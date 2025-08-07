@@ -1,6 +1,7 @@
 
 
 export interface Incident {
+  id: string;
   number: string;
   short_description: string;
   priority: string;

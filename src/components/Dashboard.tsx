@@ -7,6 +7,8 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { Sidebar, SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -29,6 +31,8 @@ export function Dashboard() {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [serviceNowData, setServiceNowData] = useState<Incident[] | null>(null);
+  const [isServiceNowModalOpen, setIsServiceNowModalOpen] = useState(false);
 
 
   const bringToFront = (id: string) => {
@@ -72,17 +76,14 @@ export function Dashboard() {
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
         const incidentData = await getIncidents();
-        newWidgetDef = {
-          query: 'Incidents from ServiceNow',
-          data: incidentData,
-          agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
-          type: 'incident',
-          isFavorited: false,
-        };
+        setServiceNowData(incidentData);
+        setIsServiceNowModalOpen(true);
+        setLoading(false);
+        return;
       } else if (lowerCaseQuery.includes('@incident')) {
         const incidentData: Incident[] = [
-          { number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
-          { number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
+          { id: 'INC001', number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
+          { id: 'INC002', number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
         ];
         newWidgetDef = {
           query: 'Incidents',
@@ -158,7 +159,9 @@ export function Dashboard() {
         description: 'Could not create widget. The AI service may be temporarily unavailable. Please try again later.',
       });
     } finally {
-      setLoading(false);
+      if (!lowerCaseQuery.includes('@servicenow')) {
+        setLoading(false);
+      }
     }
   };
 
@@ -320,6 +323,42 @@ export function Dashboard() {
               sidebarState={state}
               sidebarRef={sidebarRef}
             />
+             <Dialog open={isServiceNowModalOpen} onOpenChange={setIsServiceNowModalOpen}>
+                <DialogContent size="lg">
+                    <DialogHeader>
+                        <DialogTitle>ServiceNow Incidents</DialogTitle>
+                        <DialogDescription>
+                            This is the raw data fetched from the ServiceNow API.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-auto">
+                        {serviceNowData && serviceNowData.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Number</TableHead>
+                                        <TableHead>Short Description</TableHead>
+                                        <TableHead>Priority</TableHead>
+                                        <TableHead>State</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {serviceNowData.map((incident) => (
+                                        <TableRow key={incident.number}>
+                                            <TableCell>{incident.number}</TableCell>
+                                            <TableCell>{incident.short_description}</TableCell>
+                                            <TableCell>{incident.priority}</TableCell>
+                                            <TableCell>{incident.state}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p>No incidents found or failed to fetch data.</p>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
           </div>
@@ -328,5 +367,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
