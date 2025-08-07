@@ -143,7 +143,7 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
       </form>
       <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
           <PopoverTrigger asChild>
-              <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Use Commands</Button>
+              <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto ml-6">Use Commands</Button>
           </PopoverTrigger>
           <PopoverContent 
               className="w-[400px] p-2 mb-2" 
