@@ -45,9 +45,9 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   Widget Type: {{{widgetType}}}
   {{#if selectedEntityData}}
   The user is specifically asking about the following record:
-  {{{selectedEntityData}}}
+  {{{json selectedEntityData}}}
   {{else}}
-  Widget Data: {{{widgetData}}}
+  Widget Data: {{{json widgetData}}}
   {{/if}}
   User Query: {{{userQuery}}}
 
@@ -56,16 +56,21 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   Return a JSON array of strings with the suggested actions or answer.
 
   Example Output for suggestions:
-  [
-    "search for related knowledge articles",
-    "update incident priority",
-    "add a comment to the incident"
-  ]
+  {
+    "suggestedActions": [
+      "Search for related knowledge articles",
+      "Update incident priority",
+      "Add a comment to the incident"
+    ]
+  }
+
 
   Example Output for an answer:
-  [
-    "The priority of this incident is 1 - Critical."
-  ]
+  {
+    "suggestedActions": [
+      "The priority of this incident is 1 - Critical."
+    ]
+  }
   `,
 });
 
