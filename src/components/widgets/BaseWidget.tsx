@@ -24,7 +24,7 @@ interface BaseWidgetProps {
 
 export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(widget.type === 'generic');
   const [loading, setLoading] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
   const [chatPanelWidth, setChatPanelWidth] = useState(375);
