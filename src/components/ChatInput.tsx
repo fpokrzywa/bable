@@ -36,6 +36,7 @@ const commands = [
 
 export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps) {
   const [query, setQuery] = useState('');
+  const [tokenCount, setTokenCount] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
@@ -96,6 +97,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
     if (!query.trim() || loading) return;
     onSubmit(query);
     setQuery('');
+    setTokenCount(0);
     setShowCommandMenu(false);
   };
   
@@ -115,6 +117,8 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
+    // Estimate tokens: 1 token ~ 4 chars
+    setTokenCount(Math.ceil(newQuery.length / 4));
   };
 
   const handleCommandSelect = (commandQuery: string) => {
@@ -122,6 +126,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
     setShowCommandMenu(false);
     onSubmit(commandQuery);
     setQuery('');
+    setTokenCount(0);
   };
 
   const isSummaryDisabled = widgets.length === 0;
@@ -156,45 +161,48 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
           </PopoverContent>
           </Popover>
       </form>
-      <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
-          <PopoverTrigger asChild>
-              <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto ml-6">Use Commands</Button>
-          </PopoverTrigger>
-          <PopoverContent 
-              className="w-[400px] p-2 mb-2" 
-              align="start"
-              onCloseAutoFocus={(e) => {
-                e.preventDefault();
-                inputRef.current?.focus();
-              }}
-          >
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground px-2">Commands</p>
-              {commands.map((command) => {
-                const Icon = command.icon;
-                const isDisabled = command.query === '@summary' && isSummaryDisabled;
-                return (
-                  <button
-                    key={command.name}
-                    type="button"
-                    className={cn(
-                      "w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3",
-                      isDisabled && "opacity-50 cursor-not-allowed"
-                    )}
-                    onClick={() => handleCommandSelect(command.query)}
-                    disabled={isDisabled}
-                  >
-                    <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">{command.name}</p>
-                      <p className="text-xs text-muted-foreground">{command.description}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </PopoverContent>
-      </Popover>
+      <div className="flex justify-between items-center px-4">
+        <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
+            <PopoverTrigger asChild>
+                <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Use Commands</Button>
+            </PopoverTrigger>
+            <PopoverContent 
+                className="w-[400px] p-2 mb-2" 
+                align="start"
+                onCloseAutoFocus={(e) => {
+                  e.preventDefault();
+                  inputRef.current?.focus();
+                }}
+            >
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground px-2">Commands</p>
+                {commands.map((command) => {
+                  const Icon = command.icon;
+                  const isDisabled = command.query === '@summary' && isSummaryDisabled;
+                  return (
+                    <button
+                      key={command.name}
+                      type="button"
+                      className={cn(
+                        "w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3",
+                        isDisabled && "opacity-50 cursor-not-allowed"
+                      )}
+                      onClick={() => handleCommandSelect(command.query)}
+                      disabled={isDisabled}
+                    >
+                      <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                      <div>
+                        <p className="font-medium text-sm">{command.name}</p>
+                        <p className="text-xs text-muted-foreground">{command.description}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+        </Popover>
+        {query && <p className="text-xs text-muted-foreground">Estimated tokens: {tokenCount}</p>}
+      </div>
     </div>
   );
 }
