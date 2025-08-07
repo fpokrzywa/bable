@@ -9,6 +9,7 @@ import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { DialogClose } from './ui/dialog';
 import { cn } from '@/lib/utils';
+import { Input } from './ui/input';
 
 export function Settings() {
   const [darkMode, setDarkMode] = useState(false);
@@ -60,6 +61,26 @@ export function Settings() {
               <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} className={cn('transition-opacity', !pushNotifications && 'opacity-50')} />
             </div>
           </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>App Credentials</CardTitle>
+                <CardDescription>Your application credentials.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="app-url">APP URL</Label>
+                    <Input id="app-url" readOnly value={process.env.APP_URL} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="app-id">APP ID</Label>
+                    <Input id="app-id" readOnly value={process.env.APP_CLIENT} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="app-secret">APP Secret</Label>
+                    <Input id="app-secret" type="password" readOnly value={process.env.APP_SECRET} />
+                </div>
+            </CardContent>
         </Card>
       </div>
       <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
