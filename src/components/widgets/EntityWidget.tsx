@@ -103,22 +103,12 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
             key={entity.number}
             className="mb-4 p-2 rounded-md hover:bg-accent/50"
           >
-            <Dialog onOpenChange={(open) => !open && setEditingEntity(null)}>
-              <DialogTrigger asChild>
-                <p 
-                  className="font-medium cursor-pointer"
-                  onClick={() => onEntitySelectForChat(entity)}
-                >
-                  {entity.number}
-                </p>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit {entityTitle} {editingEntity?.number}</DialogTitle>
-                </DialogHeader>
-                {editingEntity && <EntityEditForm type={type} entity={editingEntity} onSubmit={handleEntityUpdate} />}
-              </DialogContent>
-            </Dialog>
+            <p 
+              className="font-medium cursor-pointer"
+              onClick={() => onEntitySelectForChat(entity)}
+            >
+              {entity.number}
+            </p>
 
             <p 
               className="text-muted-foreground cursor-pointer text-xs @[400px]:text-sm"
@@ -142,7 +132,17 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
                 <ArrowLeft size={18} />
               </Button>
                <h3 className="font-semibold">{selectedEntity.number}</h3>
-               <div className="w-7"/>
+                <Dialog onOpenChange={(open) => !open && setEditingEntity(null)}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => setEditingEntity(selectedEntity)}>Edit</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit {entityTitle} {editingEntity?.number}</DialogTitle>
+                    </DialogHeader>
+                    {editingEntity && <EntityEditForm type={type} entity={editingEntity} onSubmit={handleEntityUpdate} />}
+                  </DialogContent>
+                </Dialog>
             </div>
 
             <div className="space-y-4">
