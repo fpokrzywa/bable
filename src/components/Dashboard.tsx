@@ -42,8 +42,8 @@ export function Dashboard() {
     });
   };
   
-  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>) => {
-    const widgetId = Date.now().toString();
+  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>, id?: string) => {
+    const widgetId = id || Date.now().toString();
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -186,7 +186,7 @@ export function Dashboard() {
   const handleRestoreFavorite = (fav: Widget) => {
     const activeWidget = widgets.find(w => w.id === fav.id);
     if (!activeWidget) {
-      createWidgetFromDefinition(fav);
+      createWidgetFromDefinition(fav, fav.id);
     } else {
       bringToFront(activeWidget.id);
     }
@@ -194,7 +194,9 @@ export function Dashboard() {
 
  const toggleFavoriteWidget = (id: string) => {
     let widgetToToggle: Widget | undefined = widgets.find(w => w.id === id);
-    if (!widgetToToggle) {
+    let isCurrentlyInFavorites = favorites.some(f => f.id === id);
+
+    if (!widgetToToggle && isCurrentlyInFavorites) {
       widgetToToggle = favorites.find(f => f.id === id);
     }
 
@@ -208,15 +210,10 @@ export function Dashboard() {
     );
 
     if (!isCurrentlyFavorited) {
-      // Add to favorites if it's not already there
-      setFavorites(prev => {
-        if (prev.some(f => f.id === updatedWidget.id)) {
-          return prev.map(f => f.id === updatedWidget.id ? updatedWidget : f);
-        }
-        return [...prev, updatedWidget];
-      });
+      if (!isCurrentlyInFavorites) {
+        setFavorites(prev => [...prev, updatedWidget]);
+      }
     } else {
-      // Remove from favorites
       setFavorites(prev => prev.filter(f => f.id !== id));
     }
   };
@@ -253,7 +250,7 @@ export function Dashboard() {
   };
 
   const normalWidgets = widgets.filter(w => !w.isMinimized);
-  const minimizedWidgets = widgets.filter(w => w.isMinimized && !w.isFavorited);
+  const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
   return (
     <div className="flex h-screen bg-background">
