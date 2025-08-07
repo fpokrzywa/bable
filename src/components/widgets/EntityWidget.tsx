@@ -148,12 +148,16 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
             </div>
 
             <div className="space-y-4">
-              {Object.entries(fields).map(([key, label]) => (
-                <div key={key}>
-                  <h4 className="font-medium text-muted-foreground">{label}</h4>
-                  <p>{(selectedEntity as any)[key]}</p>
-                </div>
-              ))}
+              {Object.entries(fields).map(([key, label]) => {
+                const value = (selectedEntity as any)[key];
+                if (!value) return null;
+                return (
+                  <div key={key}>
+                    <h4 className="font-medium text-muted-foreground">{label}</h4>
+                    <p>{value}</p>
+                  </div>
+                );
+              })}
             </div>
            </div>
         )}
