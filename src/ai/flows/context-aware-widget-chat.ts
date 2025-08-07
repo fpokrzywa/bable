@@ -15,9 +15,9 @@ import {z} from 'genkit';
 
 const ContextAwareWidgetChatInputSchema = z.object({
   widgetType: z.string().describe('The type of widget (e.g., Incident, Change).'),
-  widgetData: z.record(z.any()).describe('The data currently displayed in the widget.'),
+  widgetData: z.any().describe('The data currently displayed in the widget.'),
   userQuery: z.string().describe('The user input in the chat.'),
-  selectedEntityData: z.record(z.any()).optional().describe('The data for the specific entity the user is asking about.'),
+  selectedEntityData: z.any().optional().describe('The data for the specific entity the user is asking about.'),
 });
 export type ContextAwareWidgetChatInput = z.infer<typeof ContextAwareWidgetChatInputSchema>;
 
