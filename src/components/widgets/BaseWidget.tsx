@@ -21,12 +21,22 @@ interface BaseWidgetProps {
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
   toggleFavoriteWidget: (id: string) => void;
+  setWidgetWidth: (id: string, width: number) => void;
+  initialWidth: number;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, setWidgetWidth, initialWidth }: BaseWidgetProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const expandedWidth = initialWidth + 300;
+  
+  const toggleChat = () => {
+    const newChatState = !isChatOpen;
+    setIsChatOpen(newChatState);
+    setWidgetWidth(widget.id, newChatState ? expandedWidth : initialWidth);
+  }
   
   const handleChatSubmit = async (query: string) => {
     if (!query.trim()) return;
@@ -36,7 +46,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     setChatMessages(prev => [...prev, userMessage]);
 
     if (!isChatOpen) {
-      setIsChatOpen(true);
+      toggleChat();
     }
     
     try {
@@ -60,7 +70,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const handleTextSelection = (text: string) => {
     if (text) {
       if (!isChatOpen) {
-        setIsChatOpen(true);
+        toggleChat();
       }
       setChatMessages(prev => [
         ...prev,
@@ -104,7 +114,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
           </TooltipProvider>
         </div>
         <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsChatOpen(!isChatOpen)}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleChat}>
                 <MessageCircle size={18} className={isChatOpen ? 'text-primary' : ''} />
                 <span className="sr-only">Toggle chat</span>
             </Button>
@@ -140,7 +150,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
                     loading={loading}
                     onSubmit={handleChatSubmit}
                     agentType={widget.agent.agentType}
-                    onClose={() => setIsChatOpen(false)}
+                    onClose={toggleChat}
                 />
               )}
             </div>
