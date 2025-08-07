@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useRef, useCallback, useEffect } from 'react';
 import type { Widget, Problem, Incident, Change, ChatMessage } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,21 +21,57 @@ interface BaseWidgetProps {
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
   toggleFavoriteWidget: (id: string) => void;
-  setWidgetWidth: (id: string, width: number) => void;
-  initialWidth: number;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, setWidgetWidth, initialWidth }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [chatPanelWidth, setChatPanelWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
 
-  const expandedWidth = initialWidth + 300;
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  const handleResize = useCallback((e: MouseEvent) => {
+    if (isResizing && widgetRef.current) {
+      const totalWidth = widgetRef.current.offsetWidth;
+      const newChatWidth = totalWidth - e.clientX;
+
+      // Constraints
+      const minWidth = 200;
+      const maxWidth = totalWidth - 250;
+      
+      if (newChatWidth > minWidth && newChatWidth < maxWidth) {
+        setChatPanelWidth(newChatWidth);
+      }
+    }
+  }, [isResizing]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleResize);
+      window.addEventListener('mouseup', handleResizeEnd);
+    } else {
+      window.removeEventListener('mousemove', handleResize);
+      window.removeEventListener('mouseup', handleResizeEnd);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleResize);
+      window.removeEventListener('mouseup', handleResizeEnd);
+    };
+  }, [isResizing, handleResize, handleResizeEnd]);
   
   const toggleChat = () => {
-    const newChatState = !isChatOpen;
-    setIsChatOpen(newChatState);
-    setWidgetWidth(widget.id, newChatState ? expandedWidth : initialWidth);
+    setIsChatOpen(prev => !prev);
   }
   
   const handleChatSubmit = async (query: string) => {
@@ -94,6 +130,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   return (
     <Card 
       className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
+      ref={widgetRef}
     >
       <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
         <CardHeader className="flex flex-row items-start justify-between p-4">
@@ -136,24 +173,28 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
 
       <CardContent className="flex-1 min-h-0 relative p-0">
-        <div className="flex h-full">
-            <ScrollArea className="h-full flex-1 p-6">
+        <div className={cn("flex h-full", isResizing ? 'cursor-col-resize select-none' : '')}>
+            <ScrollArea className="h-full flex-1 p-6" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
               {renderWidgetContent()}
             </ScrollArea>
-            <div className={cn(
-                "transition-all duration-300 ease-in-out",
-                isChatOpen ? "w-[300px] border-l" : "w-0"
-            )}>
-              {isChatOpen && (
-                <ChatPanel 
-                    messages={chatMessages}
-                    loading={loading}
-                    onSubmit={handleChatSubmit}
-                    agentType={widget.agent.agentType}
-                    onClose={toggleChat}
+            
+            {isChatOpen && (
+              <>
+                <div 
+                  className="w-1.5 h-full cursor-col-resize bg-border/50 hover:bg-border transition-colors"
+                  onMouseDown={handleResizeStart}
                 />
-              )}
-            </div>
+                <div style={{ width: `${chatPanelWidth}px` }}>
+                    <ChatPanel 
+                        messages={chatMessages}
+                        loading={loading}
+                        onSubmit={handleChatSubmit}
+                        agentType={widget.agent.agentType}
+                        onClose={toggleChat}
+                    />
+                </div>
+              </>
+            )}
         </div>
       </CardContent>
     </Card>

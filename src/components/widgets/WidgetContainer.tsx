@@ -19,13 +19,13 @@ interface WidgetContainerProps {
 }
 
 const WIDGET_INITIAL_WIDTH = 450;
+const WIDGET_EXPANDED_WIDTH = 750;
 const WIDGET_HEIGHT = 400;
 
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<{[key: string]: DraggableBounds}>({});
-  const [widgetWidths, setWidgetWidths] = useState<{[key: string]: number}>({});
-
+  
   const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
 
   widgets.forEach(widget => {
@@ -33,19 +33,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
       nodeRefs.current.set(widget.id, createRef<HTMLDivElement>());
     }
   });
-
-  useEffect(() => {
-    const newWidths: {[key: string]: number} = {};
-    widgets.forEach(widget => {
-      if (!widgetWidths[widget.id]) {
-        newWidths[widget.id] = WIDGET_INITIAL_WIDTH;
-      }
-    });
-    if (Object.keys(newWidths).length > 0) {
-      setWidgetWidths(prev => ({...prev, ...newWidths}));
-    }
-  }, [widgets, widgetWidths]);
-  
 
   useEffect(() => {
     const container = containerRef.current;
@@ -60,13 +47,16 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
       const newBounds: {[key: string]: DraggableBounds} = {};
       widgets.forEach(widget => {
-        const currentWidth = widgetWidths[widget.id] || WIDGET_INITIAL_WIDTH;
-        newBounds[widget.id] = {
-          left: leftBoundary,
-          top: 0,
-          right: Math.max(leftBoundary, containerWidth - currentWidth),
-          bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
-        };
+        const node = nodeRefs.current.get(widget.id)?.current;
+        if (node) {
+            const currentWidth = node.offsetWidth;
+            newBounds[widget.id] = {
+            left: leftBoundary,
+            top: 0,
+            right: Math.max(leftBoundary, containerWidth - currentWidth),
+            bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
+            };
+        }
       });
       setBounds(newBounds);
     };
@@ -82,14 +72,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     return () => {
       resizeObserver.disconnect();
     };
-  }, [sidebarState, sidebarRef, widgets, widgetWidths]);
+  }, [sidebarState, sidebarRef, widgets]);
   
   const handleStop = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);
-  };
-
-  const setWidgetWidth = (id: string, width: number) => {
-    setWidgetWidths(prev => ({ ...prev, [id]: width }));
   };
   
   if (widgets.length === 0) {
@@ -110,7 +96,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     <div className="relative w-full h-full" ref={containerRef}>
       {widgets.map((widget) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
-        const width = widgetWidths[widget.id] || WIDGET_INITIAL_WIDTH;
+        // The widget now determines its own expanded state
+        // For initial placement and boundary calculation, we might need a hint
+        // or just let it reflow. For simplicity, we'll use a fixed expanded width hint
+        // The actual width is controlled by BaseWidget's internal state now.
 
         return (
           <Draggable
@@ -126,8 +115,8 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                 className="absolute transition-all duration-300 ease-in-out" 
                 ref={nodeRef}
                 style={{
-                    zIndex: widget.zIndex, 
-                    width: `${width}px`, 
+                    zIndex: widget.zIndex,
+                    width: `${WIDGET_EXPANDED_WIDTH}px`, // Fixed expanded width
                     height: `${WIDGET_HEIGHT}px`,
                 }}
                 onMouseDown={() => bringToFront(widget.id)}
@@ -139,8 +128,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                       bringToFront={bringToFront}
                       toggleMinimizeWidget={toggleMinimizeWidget}
                       toggleFavoriteWidget={toggleFavoriteWidget}
-                      setWidgetWidth={setWidgetWidth}
-                      initialWidth={WIDGET_INITIAL_WIDTH}
                   />
               </div>
           </Draggable>
