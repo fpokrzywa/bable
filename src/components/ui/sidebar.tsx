@@ -570,6 +570,7 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
+      children,
       ...props
     },
     ref
@@ -585,10 +586,13 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
-      />
+      >
+        {children}
+        {typeof tooltip === 'string' && state === 'expanded' && !isMobile && <span className="truncate">{tooltip}</span>}
+      </Comp>
     )
 
-    if (!tooltip) {
+    if (!tooltip || (state === 'expanded' && !isMobile)) {
       return button
     }
 
