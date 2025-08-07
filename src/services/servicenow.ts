@@ -7,7 +7,7 @@ import type { Incident } from '@/lib/types';
 export async function getIncidents(): Promise<Incident[]> {
   const appClient = 'ai_browser';
   const appSecret = 'Appdev2025!';
-  const requestUrl = 'https://dev309119.service-now.com/api/now/table/incident?sysparm_limit=1';
+  const requestUrl = 'https://dev309119.service-now.com/api/now/table/incident?sysparm_limit=10';
 
   // Create Basic Auth header
   const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');

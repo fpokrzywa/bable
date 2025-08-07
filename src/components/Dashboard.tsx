@@ -31,9 +31,6 @@ export function Dashboard() {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [serviceNowData, setServiceNowData] = useState<Incident[] | null>(null);
-  const [isServiceNowModalOpen, setIsServiceNowModalOpen] = useState(false);
-
 
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
@@ -76,10 +73,13 @@ export function Dashboard() {
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
         const incidentData = await getIncidents();
-        setServiceNowData(incidentData);
-        setIsServiceNowModalOpen(true);
-        setLoading(false);
-        return;
+        newWidgetDef = {
+          query: 'ServiceNow Records',
+          data: incidentData,
+          agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
+          type: 'incident',
+          isFavorited: false,
+        };
       } else if (lowerCaseQuery.includes('@incident')) {
         const incidentData: Incident[] = [
           { id: 'INC001', number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
@@ -159,9 +159,7 @@ export function Dashboard() {
         description: 'Could not create widget. The AI service may be temporarily unavailable. Please try again later.',
       });
     } finally {
-      if (!lowerCaseQuery.includes('@servicenow')) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -323,42 +321,6 @@ export function Dashboard() {
               sidebarState={state}
               sidebarRef={sidebarRef}
             />
-             <Dialog open={isServiceNowModalOpen} onOpenChange={setIsServiceNowModalOpen}>
-                <DialogContent size="lg">
-                    <DialogHeader>
-                        <DialogTitle>ServiceNow Incidents</DialogTitle>
-                        <DialogDescription>
-                            This is the raw data fetched from the ServiceNow API.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="max-h-[60vh] overflow-auto">
-                        {serviceNowData && serviceNowData.length > 0 ? (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Number</TableHead>
-                                        <TableHead>Short Description</TableHead>
-                                        <TableHead>Priority</TableHead>
-                                        <TableHead>State</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {serviceNowData.map((incident) => (
-                                        <TableRow key={incident.number}>
-                                            <TableCell>{incident.number}</TableCell>
-                                            <TableCell>{incident.short_description}</TableCell>
-                                            <TableCell>{incident.priority}</TableCell>
-                                            <TableCell>{incident.state}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : (
-                            <p>No incidents found or failed to fetch data.</p>
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
           </div>
