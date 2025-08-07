@@ -71,6 +71,7 @@ export function Dashboard() {
         type: 'incident',
         zIndex: newZIndex,
         isMinimized: false,
+        isFavorited: false,
         x: initialX,
         y: initialY,
       };
@@ -91,6 +92,7 @@ export function Dashboard() {
         type: 'change',
         zIndex: newZIndex,
         isMinimized: false,
+        isFavorited: false,
         x: initialX,
         y: initialY,
       };
@@ -121,6 +123,7 @@ export function Dashboard() {
         type: 'problem',
         zIndex: newZIndex,
         isMinimized: false,
+        isFavorited: false,
         x: initialX,
         y: initialY,
       };
@@ -136,6 +139,7 @@ export function Dashboard() {
           type: 'generic',
           zIndex: newZIndex,
           isMinimized: false,
+          isFavorited: false,
           x: initialX,
           y: initialY,
         };
@@ -198,6 +202,14 @@ export function Dashboard() {
     );
   };
   
+  const toggleFavoriteWidget = (id: string) => {
+    setWidgets(prevWidgets =>
+      prevWidgets.map(widget =>
+        widget.id === id ? { ...widget, isFavorited: !widget.isFavorited } : widget
+      )
+    );
+  };
+
   const updateWidgetPosition = (id: string, x: number, y: number) => {
     setWidgets(prevWidgets =>
       prevWidgets.map(widget =>
@@ -224,14 +236,19 @@ export function Dashboard() {
   };
 
   const normalWidgets = widgets.filter(w => !w.isMinimized);
-  const minimizedWidgets = widgets.filter(w => w.isMinimized);
+  const minimizedWidgets = widgets.filter(w => w.isMinimized && !w.isFavorited);
+  const favoritedWidgets = widgets.filter(w => w.isFavorited);
 
 
   return (
     <div className="flex h-screen bg-background">
       <div ref={sidebarRef}>
         <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
-            <AppSidebar minimizedWidgets={minimizedWidgets} onRestoreWidget={toggleMinimizeWidget}/>
+            <AppSidebar 
+              minimizedWidgets={minimizedWidgets} 
+              favoritedWidgets={favoritedWidgets}
+              onRestoreWidget={toggleMinimizeWidget}
+            />
         </Sidebar>
       </div>
       <SidebarInset className="flex flex-col h-screen items-center">
@@ -242,6 +259,7 @@ export function Dashboard() {
               updateEntity={updateEntity}
               bringToFront={bringToFront}
               toggleMinimizeWidget={toggleMinimizeWidget}
+              toggleFavoriteWidget={toggleFavoriteWidget}
               updateWidgetPosition={updateWidgetPosition}
               sidebarState={state}
               sidebarRef={sidebarRef}

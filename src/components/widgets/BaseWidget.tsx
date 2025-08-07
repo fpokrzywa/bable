@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, Minus } from 'lucide-react';
+import { X, Bot, Send, Loader2, Minus, Star } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -20,9 +20,10 @@ interface BaseWidgetProps {
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
+  toggleFavoriteWidget: (id: string) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
   const [chatQuery, setChatQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -87,6 +88,10 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
           </TooltipProvider>
         </div>
         <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleFavoriteWidget(widget.id)}>
+                <Star size={18} className={widget.isFavorited ? 'fill-yellow-400 text-yellow-400' : ''} />
+                <span className="sr-only">Favorite widget</span>
+            </Button>
              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
                 <Minus size={18} />
                 <span className="sr-only">Minimize widget</span>

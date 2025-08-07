@@ -12,16 +12,17 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Star } from 'lucide-react';
 import type { Widget } from '@/lib/types';
 
 interface AppSidebarProps {
     minimizedWidgets: Widget[];
+    favoritedWidgets: Widget[];
     onRestoreWidget: (id: string) => void;
 }
 
-export function AppSidebar({ minimizedWidgets, onRestoreWidget }: AppSidebarProps) {
-  const { state, toggleSidebar } = useSidebar();
+export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget }: AppSidebarProps) {
+  const { toggleSidebar } = useSidebar();
   
   return (
     <>
@@ -32,6 +33,26 @@ export function AppSidebar({ minimizedWidgets, onRestoreWidget }: AppSidebarProp
       </SidebarHeader>
 
       <SidebarContent className="p-2 flex-grow flex flex-col items-center">
+        {favoritedWidgets.length > 0 && (
+          <>
+            <SidebarMenu>
+              {favoritedWidgets.map((widget) => (
+                <SidebarMenuItem key={widget.id}>
+                  <SidebarMenuButton
+                    tooltip={widget.query}
+                    size="icon"
+                    variant="ghost"
+                    className="rounded-full"
+                    onClick={() => onRestoreWidget(widget.id)}
+                  >
+                    <Star className="text-yellow-400 fill-yellow-400" />
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            <SidebarSeparator className="my-2" />
+          </>
+        )}
         {minimizedWidgets.length > 0 && (
             <SidebarMenu>
                 {minimizedWidgets.map((widget) => (

@@ -12,6 +12,7 @@ interface WidgetContainerProps {
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
+  toggleFavoriteWidget: (id: string) => void;
   updateWidgetPosition: (id: string, x: number, y: number) => void;
   sidebarState: 'expanded' | 'collapsed';
   sidebarRef: React.RefObject<HTMLDivElement>;
@@ -20,7 +21,7 @@ interface WidgetContainerProps {
 const WIDGET_WIDTH = 450;
 const WIDGET_HEIGHT = 400;
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<DraggableBounds | undefined>(undefined);
 
@@ -113,6 +114,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                       updateEntity={updateEntity}
                       bringToFront={bringToFront}
                       toggleMinimizeWidget={toggleMinimizeWidget}
+                      toggleFavoriteWidget={toggleFavoriteWidget}
                   />
               </div>
           </Draggable>

@@ -39,6 +39,7 @@ export interface Widget {
   type: 'incident' | 'generic' | 'problem' | 'change';
   zIndex: number;
   isMinimized: boolean;
+  isFavorited: boolean;
   x?: number;
   y?: number;
 }
