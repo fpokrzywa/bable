@@ -12,16 +12,15 @@ async function get<T>(endpoint: string, params?: any): Promise<T> {
   if (!appUrl || !appClient || !appSecret) {
     throw new Error('ServiceNow credentials are not configured in the environment variables.');
   }
+  
+  const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');
 
   const client = axios.create({
     baseURL: appUrl,
-    auth: {
-      username: appClient,
-      password: appSecret,
-    },
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Authorization': `Basic ${auth}`,
     },
   });
 
