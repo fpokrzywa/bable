@@ -51,6 +51,6 @@ export interface SavedQuery {
 }
 
 export interface ChatMessage {
-    sender: 'user' | 'ai';
-    text: string;
+    role: 'user' | 'model';
+    content: string;
 }

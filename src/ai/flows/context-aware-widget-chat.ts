@@ -13,11 +13,17 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const ChatHistorySchema = z.object({
+    role: z.enum(['user', 'model']),
+    content: z.string(),
+});
+
 const ContextAwareWidgetChatInputSchema = z.object({
   widgetType: z.string().describe('The type of widget (e.g., Incident, Change).'),
   widgetData: z.any().describe('The data currently displayed in the widget.'),
   userQuery: z.string().describe('The user input in the chat.'),
   selectedEntityData: z.any().optional().describe('The data for the specific entity the user is asking about.'),
+  chatHistory: z.array(ChatHistorySchema).optional().describe('The previous chat history.'),
 });
 export type ContextAwareWidgetChatInput = z.infer<typeof ContextAwareWidgetChatInputSchema>;
 
@@ -40,7 +46,7 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   prompt: `You are an AI assistant within a ServiceNow widget.
 
   Based on the widget type and its current data, suggest relevant actions or answer questions.
-  Consider the user's last query to refine your suggestions.
+  Consider the user's last query and the chat history to refine your suggestions.
 
   Widget Type: {{{widgetType}}}
   {{#if selectedEntityData}}
@@ -49,9 +55,17 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   {{else}}
   Widget Data: {{{json widgetData}}}
   {{/if}}
+
+  {{#if chatHistory}}
+  Chat History:
+  {{#each chatHistory}}
+  {{this.role}}: {{this.content}}
+  {{/each}}
+  {{/if}}
+
   User Query: {{{userQuery}}}
 
-  If the user asks a question, answer it based on the provided data. If they ask for an action, suggest relevant actions (e.g., "search for related knowledge articles", "update incident priority", "assign to correct group").
+  If the user asks a question, answer it based on the provided data and chat history. If they ask for an action, suggest relevant actions (e.g., "search for related knowledge articles", "update incident priority", "assign to correct group").
 
   Return a JSON array of strings with the suggested actions or answer.
 

@@ -86,8 +86,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     if (!query.trim()) return;
     setLoading(true);
     
-    const userMessage: ChatMessage = { sender: 'user', text: query };
-    setChatMessages(prev => [...prev, userMessage]);
+    const userMessage: ChatMessage = { role: 'user', content: query };
+    const newMessages: ChatMessage[] = [...chatMessages, userMessage];
+    setChatMessages(newMessages);
 
     if (!isChatOpen) {
       toggleChat();
@@ -99,13 +100,14 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
         widgetData: widget.data,
         userQuery: query,
         selectedEntityData: selectedEntityForChat ?? undefined,
+        chatHistory: newMessages.slice(0, -1).map(m => ({role: m.role === 'user' ? 'user' : 'model', content: m.content})),
       });
-      const aiResponse: ChatMessage = { sender: 'ai', text: result.suggestedActions.join('\n') || "I don't have any specific suggestions for that." };
+      const aiResponse: ChatMessage = { role: 'model', content: result.suggestedActions.join('\n') || "I don't have any specific suggestions for that." };
       setChatMessages(prev => [...prev, aiResponse]);
 
     } catch (error) {
       console.error('Context-aware chat failed:', error);
-      const errorMessage: ChatMessage = { sender: 'ai', text: 'Sorry, I encountered an error.' };
+      const errorMessage: ChatMessage = { role: 'model', content: 'Sorry, I encountered an error.' };
       setChatMessages(prev => [...prev, errorMessage]);
     } finally {
       setLoading(false);
@@ -119,7 +121,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       }
       setChatMessages(prev => [
         ...prev,
-        { sender: 'ai', text: `What would you like to ask about "${text}"?` }
+        { role: 'model', content: `What would you like to ask about "${text}"?` }
       ]);
     }
   };
@@ -131,7 +133,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     }
     setChatMessages(prev => [
       ...prev,
-      { sender: 'ai', text: `What would you like to know about ${widget.type} ${entity.number}?` }
+      { role: 'model', content: `What would you like to know about ${widget.type} ${entity.number}?` }
     ]);
   };
   

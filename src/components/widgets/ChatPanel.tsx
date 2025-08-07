@@ -53,19 +53,19 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
       <div className="flex-1 p-4 overflow-auto no-scrollbar" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message, index) => (
-            <div key={index} className={cn('flex items-start gap-3', message.sender === 'user' ? 'justify-end' : 'justify-start')}>
-              {message.sender === 'ai' && (
+            <div key={index} className={cn('flex items-start gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}>
+              {message.role === 'model' && (
                 <Avatar className="w-8 h-8 border">
                     <AvatarFallback><Bot size={18} /></AvatarFallback>
                 </Avatar>
               )}
               <div
                 className={cn('rounded-lg px-3 py-2 max-w-[80%] text-sm', 
-                message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}
+                message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}
               >
-                <p className="whitespace-pre-wrap">{message.text}</p>
+                <p className="whitespace-pre-wrap">{message.content}</p>
               </div>
-              {message.sender === 'user' && (
+              {message.role === 'user' && (
                  <Avatar className="w-8 h-8 border">
                     <AvatarFallback><User size={18} /></AvatarFallback>
                 </Avatar>
