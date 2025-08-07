@@ -22,7 +22,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ minimizedWidgets, onRestoreWidget }: AppSidebarProps) {
   const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  
   return (
     <>
       <SidebarHeader className="h-16 flex items-center justify-center">
@@ -31,7 +31,27 @@ export function AppSidebar({ minimizedWidgets, onRestoreWidget }: AppSidebarProp
         </Button>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow flex flex-col items-center justify-center">
+      <SidebarContent className="p-2 flex-grow flex flex-col items-center">
+        {minimizedWidgets.length > 0 && (
+            <SidebarMenu>
+                {minimizedWidgets.map((widget) => (
+                    <SidebarMenuItem key={widget.id}>
+                        <SidebarMenuButton
+                            tooltip={widget.query}
+                            size="icon"
+                            variant="ghost"
+                            className="rounded-full"
+                            onClick={() => onRestoreWidget(widget.id)}
+                        >
+                            <LayoutGrid />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+        )}
+      </SidebarContent>
+
+      <SidebarFooter className="p-2 flex flex-col items-center gap-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
@@ -49,25 +69,7 @@ export function AppSidebar({ minimizedWidgets, onRestoreWidget }: AppSidebarProp
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        {minimizedWidgets.length > 0 && <SidebarSeparator className="my-4" />}
-        <SidebarMenu>
-            {minimizedWidgets.map((widget) => (
-                 <SidebarMenuItem key={widget.id}>
-                    <SidebarMenuButton
-                        tooltip={widget.query}
-                        size="icon"
-                        variant="ghost"
-                        className="rounded-full"
-                        onClick={() => onRestoreWidget(widget.id)}
-                    >
-                        <LayoutGrid />
-                    </SidebarMenuButton>
-                 </SidebarMenuItem>
-            ))}
-        </SidebarMenu>
-      </SidebarContent>
-
-      <SidebarFooter className="h-16" />
+      </SidebarFooter>
     </>
   );
 }
