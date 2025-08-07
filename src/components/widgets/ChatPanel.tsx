@@ -35,8 +35,8 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
   };
 
   return (
-    <div className="h-full flex flex-col bg-background/50">
-      <div className="p-4 border-b flex items-center justify-between">
+    <div className="h-full flex flex-col bg-background/80">
+      <div className="p-3 flex items-center justify-between">
         <h4 className="font-semibold text-sm">Chat with {agentType}</h4>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
           <PanelLeft size={18} />
@@ -78,7 +78,7 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
         </div>
       </div>
 
-      <div className="p-4 border-t">
+      <div className="p-4">
         <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
           <Input
             placeholder="Your message..."
