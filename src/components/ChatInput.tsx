@@ -202,7 +202,6 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
               </div>
             </PopoverContent>
         </Popover>
-        {query && <p className="text-xs text-muted-foreground">Estimated tokens: {tokenCount}</p>}
       </div>
     </div>
   );

@@ -62,26 +62,6 @@ export function Settings() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>App Credentials</CardTitle>
-                <CardDescription>Your application credentials.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="app-url">APP URL</Label>
-                    <Input id="app-url" readOnly value={process.env.NEXT_PUBLIC_APP_URL} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="app-id">APP ID</Label>
-                    <Input id="app-id" readOnly value={process.env.NEXT_PUBLIC_APP_CLIENT} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="app-secret">APP Secret</Label>
-                    <Input id="app-secret" type="password" readOnly value="******************" />
-                </div>
-            </CardContent>
-        </Card>
       </div>
       <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
         <DialogClose asChild>
