@@ -39,6 +39,8 @@ export interface Widget {
   type: 'incident' | 'generic' | 'problem' | 'change';
   zIndex: number;
   isMinimized: boolean;
+  x?: number;
+  y?: number;
 }
 
 export interface SavedQuery {

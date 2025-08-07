@@ -2,7 +2,7 @@
 'use client';
 
 import { useRef, createRef, useState, useEffect } from 'react';
-import Draggable, { type DraggableBounds } from 'react-draggable';
+import Draggable, { type DraggableBounds, type DraggableData, type DraggableEvent } from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
 
@@ -12,12 +12,13 @@ interface WidgetContainerProps {
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
+  updateWidgetPosition: (id: string, x: number, y: number) => void;
 }
 
 const WIDGET_WIDTH = 450;
 const WIDGET_HEIGHT = 400;
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, updateWidgetPosition }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<DraggableBounds | undefined>(undefined);
 
@@ -55,6 +56,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     };
   }, []);
   
+  const handleStop = (id: string, data: DraggableData) => {
+    updateWidgetPosition(id, data.x, data.y);
+  };
+  
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -71,7 +76,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
   return (
     <div className="relative w-full h-full" ref={containerRef}>
-      {widgets.map((widget, index) => {
+      {widgets.map((widget) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
         
         return (
@@ -80,7 +85,8 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               nodeRef={nodeRef}
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
-              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
+              position={{ x: widget.x ?? 0, y: widget.y ?? 0 }}
+              onStop={(e: DraggableEvent, data: DraggableData) => handleStop(widget.id, data)}
               bounds={bounds}
           >
               <div 

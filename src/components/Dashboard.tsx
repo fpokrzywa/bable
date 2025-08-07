@@ -25,6 +25,7 @@ export function Dashboard() {
   const { toast } = useToast();
   const { setOpen, state } = useSidebar();
   const [nextZIndex, setNextZIndex] = useState(1);
+  const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setOpen(false);
@@ -52,6 +53,9 @@ export function Dashboard() {
 
 
     let newWidget: Widget | null = null;
+    const initialX = (widgets.filter(w => !w.isMinimized).length % 5) * 40;
+    const initialY = Math.floor(widgets.filter(w => !w.isMinimized).length / 5) * 40;
+
 
     if (lowerCaseQuery.includes('incident')) {
       const incidentData: Incident[] = [
@@ -69,6 +73,8 @@ export function Dashboard() {
         type: 'incident',
         zIndex: newZIndex,
         isMinimized: false,
+        x: initialX,
+        y: initialY,
       };
 
     } else if (lowerCaseQuery.includes('change')) {
@@ -87,6 +93,8 @@ export function Dashboard() {
         type: 'change',
         zIndex: newZIndex,
         isMinimized: false,
+        x: initialX,
+        y: initialY,
       };
 
     } else if (lowerCaseQuery.includes('problem')) {
@@ -115,6 +123,8 @@ export function Dashboard() {
         type: 'problem',
         zIndex: newZIndex,
         isMinimized: false,
+        x: initialX,
+        y: initialY,
       };
     } else {
         const result = await generateWidgetFromQuery({ query });
@@ -128,11 +138,13 @@ export function Dashboard() {
           type: 'generic',
           zIndex: newZIndex,
           isMinimized: false,
+          x: initialX,
+          y: initialY,
         };
     }
 
     if (newWidget) {
-      setWidgets((prev) => [...prev, newWidget]);
+      setWidgets((prev) => [...prev, newWidget!]);
     }
     
     setLoading(false);
@@ -171,11 +183,31 @@ export function Dashboard() {
 
   const toggleMinimizeWidget = (id: string) => {
     setWidgets(prevWidgets =>
+      prevWidgets.map(widget => {
+        if (widget.id === id) {
+          const isMinimized = !widget.isMinimized;
+          let newPosition = {};
+          if (!isMinimized) { // Restoring
+            const newX = lastRestorePosition.x + 20;
+            const newY = lastRestorePosition.y + 20;
+            setLastRestorePosition({ x: newX, y: newY });
+            newPosition = { x: newX, y: newY };
+          }
+          return { ...widget, isMinimized, ...newPosition };
+        }
+        return widget;
+      })
+    );
+  };
+  
+  const updateWidgetPosition = (id: string, x: number, y: number) => {
+    setWidgets(prevWidgets =>
       prevWidgets.map(widget =>
-        widget.id === id ? { ...widget, isMinimized: !widget.isMinimized } : widget
+        widget.id === id ? { ...widget, x, y } : widget
       )
     );
   };
+
 
   const updateEntity = (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => {
     setWidgets(prevWidgets =>
@@ -210,6 +242,7 @@ export function Dashboard() {
               updateEntity={updateEntity}
               bringToFront={bringToFront}
               toggleMinimizeWidget={toggleMinimizeWidget}
+              updateWidgetPosition={updateWidgetPosition}
             />
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
