@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch } from 'lucide-react';
-import { Popover, PopoverContent } from './ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,22 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   const { toast } = useToast();
   const [showCommandMenu, setShowCommandMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [thinkingDots, setThinkingDots] = useState('.');
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      interval = setInterval(() => {
+        setThinkingDots(dots => {
+          if (dots.length >= 3) return '.';
+          return dots + '.';
+        });
+      }, 500);
+    } else {
+      setThinkingDots('.');
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -96,7 +112,6 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
     setQuery(newQuery);
     setShowCommandMenu(false);
     
-    // We submit the form on command selection for immediate feedback
     onSubmit(newQuery);
     setQuery('');
   };
@@ -104,18 +119,32 @@ export function ChatInput({ onSubmit, onSave, loading }: ChatInputProps) {
   return (
     <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
       <form onSubmit={handleSubmit} className="relative w-full">
-          <Input
-            ref={inputRef}
-            value={query}
-            onChange={handleInputChange}
-            placeholder="Please type your message here, or type @ for commands"
-            className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
-            disabled={loading}
-          />
-        <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
-          {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
-          <span className="sr-only">Send</span>
-        </Button>
+        <Popover open={loading}>
+          <PopoverTrigger asChild>
+            <div>
+              <Input
+                ref={inputRef}
+                value={query}
+                onChange={handleInputChange}
+                placeholder="Please type your message here, or type @ for commands"
+                className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
+                disabled={loading}
+              />
+              <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
+                {loading ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                <span className="sr-only">Send</span>
+              </Button>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent 
+            side="top" 
+            align="center" 
+            className="w-auto py-1 px-3 mb-2 text-sm text-muted-foreground"
+            sideOffset={10}
+          >
+            Thinking{thinkingDots}
+          </PopoverContent>
+        </Popover>
       </form>
       <PopoverContent 
           className="w-[400px] p-2 mb-2" 
