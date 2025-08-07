@@ -19,7 +19,7 @@ const GenerateWidgetFromQueryInputSchema = z.object({
 export type GenerateWidgetFromQueryInput = z.infer<typeof GenerateWidgetFromQueryInputSchema>;
 
 const GenerateWidgetFromQueryOutputSchema = z.object({
-  widgetData: z.string().describe('A JSON string representing the widget data to be displayed.'),
+  answer: z.string().describe('A natural language answer to the user query.'),
 });
 export type GenerateWidgetFromQueryOutput = z.infer<typeof GenerateWidgetFromQueryOutputSchema>;
 
@@ -31,11 +31,7 @@ const generateWidgetFromQueryPrompt = ai.definePrompt({
   name: 'generateWidgetFromQueryPrompt',
   input: {schema: GenerateWidgetFromQueryInputSchema},
   output: {schema: GenerateWidgetFromQueryOutputSchema},
-  prompt: `You are a ServiceNow expert. Generate a JSON object that represents the data for a widget based on the user's query.
-
-  The widget should display the information requested in the query.  For example, if the query is "show me the open incidents", then the widgetData should be a JSON string that represents an array of open incidents, including fields like number, short_description, and priority.
-
-  Make sure to return a valid JSON string.
+  prompt: `You are a ServiceNow expert. Directly answer the user's query in a clear and concise way.
 
   User Query: {{{query}}}`,
 });

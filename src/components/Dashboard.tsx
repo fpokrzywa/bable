@@ -114,11 +114,11 @@ export function Dashboard() {
         };
       } else {
           const result = await generateWidgetFromQuery({ query });
-          const agent = await agentSpecificWidget({ widgetData: result.widgetData });
+          const agent = await agentSpecificWidget({ widgetData: result.answer });
     
           newWidgetDef = {
             query: query,
-            data: JSON.parse(result.widgetData),
+            data: result.answer,
             agent: agent,
             type: 'generic',
             isFavorited: false,
