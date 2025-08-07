@@ -85,7 +85,7 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
         </div>
       </div>
 
-      <div className="p-4 border-t border-border/50">
+      <div className="p-4">
         <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
           <Input
             ref={inputRef}
