@@ -62,13 +62,13 @@ const contextAwareWidgetChatPrompt = ai.definePrompt({
   {{/if}}
 
   {{#if chatHistory}}
-  Chat History:
+  Conversation History:
   {{#each chatHistory}}
-  {{this.role}}: {{this.content}}
+  - {{this.role}}: {{this.content}}
   {{/each}}
   {{/if}}
 
-  User Query: {{{userQuery}}}
+  User's Latest Query: {{{userQuery}}}
 
   If the user asks a question, answer it based on the provided data and chat history. If they ask for an action, suggest relevant actions (e.g., "search for related knowledge articles", "update incident priority", "assign to correct group").
 
