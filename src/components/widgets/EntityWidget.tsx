@@ -150,11 +150,11 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
             <div className="space-y-4">
               {Object.entries(fields).map(([key, label]) => {
                 const value = (selectedEntity as any)[key];
-                if (!value) return null;
+                if (value === undefined || value === null || value === '') return null;
                 return (
                   <div key={key}>
                     <h4 className="font-medium text-muted-foreground">{label}</h4>
-                    <p>{value}</p>
+                    <p className="whitespace-pre-wrap">{value}</p>
                   </div>
                 );
               })}
