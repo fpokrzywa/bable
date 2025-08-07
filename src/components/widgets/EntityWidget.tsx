@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Incident, Problem, Change } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -134,7 +134,10 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
                <h3 className="font-semibold">{selectedEntity.number}</h3>
                 <Dialog onOpenChange={(open) => !open && setEditingEntity(null)}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => setEditingEntity(selectedEntity)}>Edit</Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingEntity(selectedEntity)}>
+                      <Pencil size={16} />
+                      <span className="sr-only">Edit</span>
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
