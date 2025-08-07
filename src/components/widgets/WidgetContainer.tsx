@@ -66,7 +66,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
               defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
-              bounds="parent"
           >
               <div 
                 className="absolute" 
