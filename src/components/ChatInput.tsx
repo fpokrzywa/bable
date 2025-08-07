@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText, Server } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,7 @@ const commands = [
   { name: 'Changes', query: '@change', description: 'View and manage change requests', icon: GitBranch },
   { name: 'Problems', query: '@problem', description: 'View and manage problems', icon: FileWarning },
   { name: 'Overview Summary', query: '@summary', description: 'Get a summary of all open widgets', icon: BookText },
+  { name: 'Fetch ServiceNow', query: '@servicenow', description: 'Fetch data from ServiceNow', icon: Server },
 ];
 
 export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps) {
