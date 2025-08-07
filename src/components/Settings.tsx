@@ -34,7 +34,7 @@ export function Settings() {
                 <Label htmlFor="dark-mode">Dark Mode</Label>
                 <p className="text-sm text-muted-foreground">Enable dark theme for the application.</p>
               </div>
-              <Switch id="dark-mode" checked={darkMode} onCheckedChange={setDarkMode} />
+              <Switch id="dark-mode" checked={darkMode} onCheckedChange={setDarkMode} className={cn('transition-opacity', !darkMode && 'opacity-50')} />
             </div>
           </CardContent>
         </Card>
@@ -49,7 +49,7 @@ export function Settings() {
                 <Label htmlFor="email-notifications">Email Notifications</Label>
                 <p className="text-sm text-muted-foreground">Receive notifications about your account via email.</p>
               </div>
-              <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} />
+              <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} className={cn('transition-opacity', !emailNotifications && 'opacity-50')} />
             </div>
              <Separator />
              <div className="flex items-center justify-between">
@@ -57,7 +57,7 @@ export function Settings() {
                 <Label htmlFor="push-notifications">Push Notifications</Label>
                 <p className="text-sm text-muted-foreground">Receive push notifications on your devices.</p>
               </div>
-              <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} />
+              <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} className={cn('transition-opacity', !pushNotifications && 'opacity-50')} />
             </div>
           </CardContent>
         </Card>
