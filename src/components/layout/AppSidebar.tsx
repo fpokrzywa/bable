@@ -55,6 +55,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                     onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
+                    {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -74,6 +75,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
+                             {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
