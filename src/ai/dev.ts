@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config();
-
 import '@/ai/flows/generate-widget-from-query.ts';
 import '@/ai/flows/agent-specific-widget.ts';
 import '@/ai/flows/save-query-with-voice-text.ts';

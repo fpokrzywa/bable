@@ -3,14 +3,12 @@
 
 import axios, { type AxiosInstance } from 'axios';
 import type { Incident } from '@/lib/types';
-import { config } from 'dotenv';
-
-config();
 
 class ServiceNowAPI {
+  private static instance: ServiceNowAPI;
   private client: AxiosInstance;
 
-  constructor() {
+  private constructor() {
     const appUrl = process.env.APP_URL;
     const appClient = process.env.APP_CLIENT;
     const appSecret = process.env.APP_SECRET;
@@ -31,6 +29,13 @@ class ServiceNowAPI {
     });
   }
 
+  public static getInstance(): ServiceNowAPI {
+    if (!ServiceNowAPI.instance) {
+      ServiceNowAPI.instance = new ServiceNowAPI();
+    }
+    return ServiceNowAPI.instance;
+  }
+
   async get<T>(endpoint: string, params?: any): Promise<T> {
     try {
       const response = await this.client.get(endpoint, { params });
@@ -46,6 +51,4 @@ class ServiceNowAPI {
   }
 }
 
-export const servicenowAPI = new ServiceNowAPI();
-
-    
+export const servicenowAPI = ServiceNowAPI.getInstance();
