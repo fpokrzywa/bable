@@ -41,7 +41,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
       
       setBounds({
         left: 0,
-        top: 0,
+        top: 20,
         right: Math.max(0, containerWidth - WIDGET_WIDTH),
         bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
       });
@@ -84,11 +84,11 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               nodeRef={nodeRef}
               handle={widget.isMinimized ? undefined : ".drag-handle"}
               onStart={() => bringToFront(widget.id)}
-              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
-              bounds={{ left: 0 }}
+              defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40 + 20}}
+              bounds={bounds}
           >
               <div 
-                className="absolute cursor-move" 
+                className="absolute" 
                 ref={nodeRef}
                 style={{
                     zIndex: widget.zIndex, 
