@@ -13,12 +13,14 @@ interface WidgetContainerProps {
   bringToFront: (id: string) => void;
   toggleMinimizeWidget: (id: string) => void;
   updateWidgetPosition: (id: string, x: number, y: number) => void;
+  sidebarState: 'expanded' | 'collapsed';
+  sidebarRef: React.RefObject<HTMLDivElement>;
 }
 
 const WIDGET_WIDTH = 450;
 const WIDGET_HEIGHT = 400;
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, updateWidgetPosition }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<DraggableBounds | undefined>(undefined);
 
@@ -35,13 +37,16 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     if (!container) return;
 
     const updateBounds = () => {
+      const sidebarWidth = sidebarRef.current?.offsetWidth ?? 0;
+      const leftBoundary = sidebarState === 'expanded' ? sidebarWidth : 10;
+      
       const containerWidth = container.offsetWidth;
       const containerHeight = container.offsetHeight;
       
       setBounds({
-        left: 0,
+        left: leftBoundary,
         top: 0,
-        right: Math.max(0, containerWidth - WIDGET_WIDTH),
+        right: Math.max(leftBoundary, containerWidth - WIDGET_WIDTH),
         bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
       });
     };
@@ -50,11 +55,14 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
     const resizeObserver = new ResizeObserver(updateBounds);
     resizeObserver.observe(container);
+    if(sidebarRef.current) {
+        resizeObserver.observe(sidebarRef.current)
+    }
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [sidebarState, sidebarRef, widgets.length]);
   
   const handleStop = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);

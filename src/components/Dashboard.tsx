@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Widget, SavedQuery, Problem, Incident, Change } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
@@ -26,6 +26,8 @@ export function Dashboard() {
   const { state } = useSidebar();
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
 
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
@@ -227,9 +229,11 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
-        <AppSidebar minimizedWidgets={minimizedWidgets} onRestoreWidget={toggleMinimizeWidget}/>
-      </Sidebar>
+      <div ref={sidebarRef}>
+        <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
+            <AppSidebar minimizedWidgets={minimizedWidgets} onRestoreWidget={toggleMinimizeWidget}/>
+        </Sidebar>
+      </div>
       <SidebarInset className="flex flex-col h-screen items-center">
         <div className={cn("flex flex-col w-full h-full relative", widgets.length > 0 ? "flex-1" : "h-full justify-center items-center")}>
             <WidgetContainer 
@@ -239,6 +243,8 @@ export function Dashboard() {
               bringToFront={bringToFront}
               toggleMinimizeWidget={toggleMinimizeWidget}
               updateWidgetPosition={updateWidgetPosition}
+              sidebarState={state}
+              sidebarRef={sidebarRef}
             />
           <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
               <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} />
