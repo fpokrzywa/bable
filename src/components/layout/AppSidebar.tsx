@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -28,13 +27,13 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
   
   return (
     <>
-      <SidebarHeader className="h-16 flex items-center justify-end p-2">
+      <SidebarHeader className="h-16 flex items-center justify-center p-2">
         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <PanelLeft />
         </Button>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow flex flex-col items-start">
+      <SidebarContent className="p-2 flex-grow flex flex-col items-center">
         {favoritedWidgets.length > 0 && (
           <>
             <SidebarMenu>
@@ -75,7 +74,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="p-2 flex flex-col items-start gap-2">
+        <SidebarMenu className="p-2 flex flex-col items-center gap-2">
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
               <Settings />

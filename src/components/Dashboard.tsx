@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -42,8 +41,7 @@ export function Dashboard() {
     });
   };
   
-  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>, id?: string) => {
-    const widgetId = id || Date.now().toString();
+  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>) => {
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -52,7 +50,7 @@ export function Dashboard() {
 
     const newWidget: Widget = {
       ...widgetDef,
-      id: widgetId,
+      id: Date.now().toString(),
       zIndex: newZIndex,
       isMinimized: false,
       x: widgetDef.x ?? initialX,
@@ -186,32 +184,25 @@ export function Dashboard() {
   const handleRestoreFavorite = (fav: Widget) => {
     const activeWidget = widgets.find(w => w.id === fav.id);
     if (!activeWidget) {
-      createWidgetFromDefinition(fav, fav.id);
+       setWidgets((prev) => [...prev, {...fav, isMinimized: false}]);
     } else {
       bringToFront(activeWidget.id);
     }
   }
 
  const toggleFavoriteWidget = (id: string) => {
-    let widgetToToggle: Widget | undefined = widgets.find(w => w.id === id);
+    const widget = widgets.find(w => w.id === id);
+    if (!widget) return;
+    
+    const isFavorited = !widget.isFavorited;
+    const updatedWidget = { ...widget, isFavorited };
+    
+    setWidgets(prev => prev.map(w => w.id === id ? updatedWidget : w));
 
-    if (widgetToToggle) {
-        const isFavorited = !widgetToToggle.isFavorited;
-        const updatedWidget = { ...widgetToToggle, isFavorited };
-        
-        setWidgets(prev => prev.map(w => w.id === id ? updatedWidget : w));
-
-        if (isFavorited) {
-            setFavorites(prev => [...prev, updatedWidget]);
-        } else {
-            setFavorites(prev => prev.filter(f => f.id !== id));
-        }
+    if (isFavorited) {
+      setFavorites(prev => [...prev.filter(f => f.id !== id), updatedWidget]);
     } else {
-        // Handle case where widget is not open, but is in favorites (unfavoriting)
-        const favWidget = favorites.find(f => f.id === id);
-        if (favWidget) {
-            setFavorites(prev => prev.filter(f => f.id !== id));
-        }
+      setFavorites(prev => prev.filter(f => f.id !== id));
     }
   };
 
@@ -220,11 +211,6 @@ export function Dashboard() {
     setWidgets(prevWidgets =>
       prevWidgets.map(widget =>
         widget.id === id ? { ...widget, x, y } : widget
-      )
-    );
-    setFavorites(prevFavorites =>
-      prevFavorites.map(fav =>
-        fav.id === id ? { ...fav, x, y } : fav
       )
     );
   };
@@ -282,3 +268,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
