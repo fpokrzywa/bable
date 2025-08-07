@@ -66,48 +66,46 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
   if (widget.isMinimized) {
     return (
-      <Card 
-        className="w-[350px] bg-card/80 backdrop-blur-sm cursor-pointer"
-        onClick={() => toggleMinimizeWidget(widget.id)}
-        onMouseDown={(e) => { e.stopPropagation(); bringToFront(widget.id); }}
-      >
-        <CardHeader className="flex flex-row items-center justify-between p-3">
-          <CardTitle className="text-base">{widget.query}</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                <div>
+        <Card className="bg-card/80 backdrop-blur-sm">
+            <CardHeader 
+                className="flex flex-row items-center justify-between p-3"
+                onDoubleClick={() => toggleMinimizeWidget(widget.id)}
+            >
+            <CardTitle className="text-base truncate pr-2">{widget.query}</CardTitle>
+            <div className="flex items-center gap-1 flex-shrink-0">
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
                     <Plus size={18} />
                     <span className="sr-only">Restore widget</span>
-                </div>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); removeWidget(widget.id); }}>
-                <X size={18} />
-                <span className="sr-only">Close widget</span>
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); removeWidget(widget.id); }}>
+                    <X size={18} />
+                    <span className="sr-only">Close widget</span>
+                </Button>
+            </div>
+            </CardHeader>
+        </Card>
     );
   }
 
   return (
     <Card 
-      className="resizable-widget w-[450px] h-[400px] flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
+      className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
     >
-      <CardHeader className="flex flex-row items-start justify-between p-4 drag-handle cursor-move">
-        <div className="flex-1">
-          <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CardDescription className="flex items-center gap-1.5 cursor-help mt-1 text-xs @[400px]:text-sm">
-                  <Bot size={14} className="text-primary" />
-                  {widget.agent.agentType}
-                </CardDescription>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{widget.agent.agentBehavior}</p>
-              </TooltipContent>
+      <div className="drag-handle cursor-move">
+        <CardHeader className="flex flex-row items-start justify-between p-4">
+            <div className="flex-1">
+            <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
+            <TooltipProvider>
+                <Tooltip>
+                <TooltipTrigger asChild>
+                    <CardDescription className="flex items-center gap-1.5 cursor-help mt-1 text-xs @[400px]:text-sm">
+                    <Bot size={14} className="text-primary" />
+                    {widget.agent.agentType}
+                    </CardDescription>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{widget.agent.agentBehavior}</p>
+                </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
@@ -121,7 +119,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
                 <span className="sr-only">Close widget</span>
             </Button>
         </div>
-      </CardHeader>
+        </CardHeader>
+      </div>
+
 
       <CardContent className="flex-1 min-h-0 relative">
         <ScrollArea className="h-full pr-4">

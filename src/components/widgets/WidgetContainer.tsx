@@ -16,6 +16,8 @@ interface WidgetContainerProps {
 
 const WIDGET_WIDTH = 450;
 const WIDGET_HEIGHT = 400;
+const MINIMIZED_WIDGET_WIDTH = 350;
+const MINIMIZED_WIDGET_HEIGHT = 70; // Approximate height of the header
 
 export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,10 +56,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
       resizeObserver.disconnect();
     };
   }, []);
-
-  const minimizedWidgets = widgets.filter(w => w.isMinimized);
-  const normalWidgets = widgets.filter(w => !w.isMinimized);
-
+  
   if (widgets.length === 0) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -74,36 +73,28 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
   return (
     <div className="relative w-full h-full" ref={containerRef}>
-       {minimizedWidgets.length > 0 && (
-        <div className="absolute top-4 right-4 z-50 flex flex-col gap-2">
-          {minimizedWidgets.map(widget => (
-            <BaseWidget 
-              key={widget.id}
-              widget={widget} 
-              removeWidget={removeWidget} 
-              updateEntity={updateEntity}
-              bringToFront={bringToFront}
-              toggleMinimizeWidget={toggleMinimizeWidget}
-            />
-          ))}
-        </div>
-      )}
-
-      {normalWidgets.map((widget, index) => {
+      {widgets.map((widget, index) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
+        const currentWidgetWidth = widget.isMinimized ? MINIMIZED_WIDGET_WIDTH : WIDGET_WIDTH;
+        const currentWidgetHeight = widget.isMinimized ? MINIMIZED_WIDGET_HEIGHT : WIDGET_HEIGHT;
+        
         return (
           <Draggable
               key={widget.id}
               nodeRef={nodeRef}
-              handle=".drag-handle"
+              handle={widget.isMinimized ? undefined : ".drag-handle"}
               onStart={() => bringToFront(widget.id)}
               defaultPosition={{x: (index % 5) * 40, y: Math.floor(index / 5) * 40}}
               bounds={{ left: 0 }}
           >
               <div 
-                className="absolute" 
+                className="absolute cursor-move" 
                 ref={nodeRef}
-                style={{zIndex: widget.zIndex, width: `${WIDGET_WIDTH}px`, height: `${WIDGET_HEIGHT}px`}}
+                style={{
+                    zIndex: widget.zIndex, 
+                    width: `${currentWidgetWidth}px`, 
+                    height: widget.isMinimized ? 'auto' : `${currentWidgetHeight}px`,
+                }}
                 onMouseDown={() => bringToFront(widget.id)}
               >
                   <BaseWidget 
