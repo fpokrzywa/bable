@@ -41,7 +41,7 @@ export function Dashboard() {
     });
   };
   
-  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'>) => {
+  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'zIndex' | 'isMinimized'>, id?: string) => {
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -50,7 +50,7 @@ export function Dashboard() {
 
     const newWidget: Widget = {
       ...widgetDef,
-      id: Date.now().toString(),
+      id: id || Date.now().toString(),
       zIndex: newZIndex,
       isMinimized: false,
       x: widgetDef.x ?? initialX,
@@ -184,24 +184,44 @@ export function Dashboard() {
   const handleRestoreFavorite = (fav: Widget) => {
     const activeWidget = widgets.find(w => w.id === fav.id);
     if (!activeWidget) {
-       setWidgets((prev) => [...prev, {...fav, isMinimized: false}]);
+       // Create a new widget instance from the favorite definition
+       createWidgetFromDefinition({ ...fav, isFavorited: true }, fav.id);
     } else {
+      // If widget is just minimized, un-minimize it and bring to front
+      if (activeWidget.isMinimized) {
+        toggleMinimizeWidget(activeWidget.id);
+      }
       bringToFront(activeWidget.id);
     }
-  }
+  };
 
  const toggleFavoriteWidget = (id: string) => {
-    const widget = widgets.find(w => w.id === id);
-    if (!widget) return;
-    
-    const isFavorited = !widget.isFavorited;
-    const updatedWidget = { ...widget, isFavorited };
-    
-    setWidgets(prev => prev.map(w => w.id === id ? updatedWidget : w));
-
-    if (isFavorited) {
-      setFavorites(prev => [...prev.filter(f => f.id !== id), updatedWidget]);
+    let widgetToToggle: Widget | undefined = widgets.find(w => w.id === id);
+    if (!widgetToToggle) {
+      widgetToToggle = favorites.find(f => f.id === id);
+    }
+    if (!widgetToToggle) return;
+  
+    const isCurrentlyFavorited = widgetToToggle.isFavorited;
+  
+    // Update the widget in the main widgets array if it exists
+    setWidgets(prev => 
+      prev.map(w => 
+        w.id === id ? { ...w, isFavorited: !isCurrentlyFavorited } : w
+      )
+    );
+  
+    // Update the favorites list
+    if (!isCurrentlyFavorited) {
+      // Add to favorites if not already there
+      setFavorites(prev => {
+        if (prev.some(f => f.id === id)) {
+          return prev.map(f => f.id === id ? { ...widgetToToggle!, isFavorited: true } : f);
+        }
+        return [...prev, { ...widgetToToggle!, isFavorited: true }];
+      });
     } else {
+      // Remove from favorites
       setFavorites(prev => prev.filter(f => f.id !== id));
     }
   };
@@ -217,17 +237,26 @@ export function Dashboard() {
 
 
   const updateEntity = (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => {
+    const updateInData = (data: any[]) =>
+      data.map((entity: any) =>
+        entity.number === entityNumber ? { ...entity, ...updatedData } : entity
+      );
+  
     setWidgets(prevWidgets =>
       prevWidgets.map(widget => {
         if (widget.id === widgetId && (widget.type === 'problem' || widget.type === 'incident' || widget.type === 'change')) {
-          return {
-            ...widget,
-            data: widget.data.map((entity: any) =>
-              entity.number === entityNumber ? { ...entity, ...updatedData } : entity
-            ),
-          };
+          return { ...widget, data: updateInData(widget.data) };
         }
         return widget;
+      })
+    );
+  
+    setFavorites(prevFavorites =>
+      prevFavorites.map(fav => {
+        if (fav.id === widgetId && (fav.type === 'problem' || fav.type === 'incident' || fav.type === 'change')) {
+          return { ...fav, data: updateInData(fav.data) };
+        }
+        return fav;
       })
     );
   };
@@ -268,5 +297,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    

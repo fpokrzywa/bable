@@ -23,11 +23,11 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state } = useSidebar();
   
   return (
     <>
-      <SidebarHeader className="h-16 flex items-center justify-center p-2">
+      <SidebarHeader className="h-16 flex items-center justify-end p-2">
         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <PanelLeft />
         </Button>
@@ -47,6 +47,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                     onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
+                    {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -66,6 +67,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
+                             {state === 'expanded' && <span className="truncate">{widget.query}</span>}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
@@ -74,10 +76,11 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="p-2 flex flex-col items-center gap-2">
+        <SidebarMenu className="p-2 flex flex-col items-start gap-2">
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
               <Settings />
+               {state === 'expanded' && <span>Settings</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -88,6 +91,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
               className="bg-primary/20 text-primary hover:text-primary"
             >
               <User />
+              {state === 'expanded' && <span>User</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -95,5 +99,3 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
     </>
   );
 }
-
-    
