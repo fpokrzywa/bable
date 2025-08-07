@@ -194,27 +194,24 @@ export function Dashboard() {
 
  const toggleFavoriteWidget = (id: string) => {
     let widgetToToggle: Widget | undefined = widgets.find(w => w.id === id);
-    let isCurrentlyInFavorites = favorites.some(f => f.id === id);
 
-    if (!widgetToToggle && isCurrentlyInFavorites) {
-      widgetToToggle = favorites.find(f => f.id === id);
-    }
+    if (widgetToToggle) {
+        const isFavorited = !widgetToToggle.isFavorited;
+        const updatedWidget = { ...widgetToToggle, isFavorited };
+        
+        setWidgets(prev => prev.map(w => w.id === id ? updatedWidget : w));
 
-    if (!widgetToToggle) return;
-
-    const isCurrentlyFavorited = widgetToToggle.isFavorited;
-    const updatedWidget = { ...widgetToToggle, isFavorited: !isCurrentlyFavorited };
-
-    setWidgets(prevWidgets =>
-      prevWidgets.map(widget => (widget.id === id ? updatedWidget : widget))
-    );
-
-    if (!isCurrentlyFavorited) {
-      if (!isCurrentlyInFavorites) {
-        setFavorites(prev => [...prev, updatedWidget]);
-      }
+        if (isFavorited) {
+            setFavorites(prev => [...prev, updatedWidget]);
+        } else {
+            setFavorites(prev => prev.filter(f => f.id !== id));
+        }
     } else {
-      setFavorites(prev => prev.filter(f => f.id !== id));
+        // Handle case where widget is not open, but is in favorites (unfavoriting)
+        const favWidget = favorites.find(f => f.id === id);
+        if (favWidget) {
+            setFavorites(prev => prev.filter(f => f.id !== id));
+        }
     }
   };
 
