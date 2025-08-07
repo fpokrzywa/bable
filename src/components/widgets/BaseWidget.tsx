@@ -91,7 +91,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     <Card 
       className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
     >
-      <div className="drag-handle cursor-move">
+      <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
         <CardHeader className="flex flex-row items-start justify-between p-4">
             <div className="flex-1">
             <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
