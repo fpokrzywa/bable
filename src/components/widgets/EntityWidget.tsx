@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -17,6 +18,7 @@ interface EntityWidgetProps {
   entities: Entity[];
   onTextSelect: (text: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Entity>) => void;
+  onEntitySelectForChat: (entity: Entity) => void;
 }
 
 const entityFieldMapping = {
@@ -52,7 +54,7 @@ const entityFieldMapping = {
   },
 };
 
-export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEntity }: EntityWidgetProps) {
+export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEntity, onEntitySelectForChat }: EntityWidgetProps) {
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
   const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,7 +107,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
               <DialogTrigger asChild>
                 <p 
                   className="font-medium cursor-pointer"
-                  onClick={() => setEditingEntity(entity)}
+                  onClick={() => onEntitySelectForChat(entity)}
                 >
                   {entity.number}
                 </p>

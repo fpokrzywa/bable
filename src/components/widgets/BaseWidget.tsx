@@ -39,10 +39,10 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
   const handleResize = useCallback((e: MouseEvent) => {
     if (isResizing && widgetRef.current) {
+      const widgetRect = widgetRef.current.getBoundingClientRect();
+      const newChatWidth = widgetRect.right - e.clientX;
+      
       const totalWidth = widgetRef.current.offsetWidth;
-      const newChatWidth = totalWidth - e.clientX;
-
-      // Constraints
       const minWidth = 200;
       const maxWidth = totalWidth - 250;
       
@@ -115,12 +115,22 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     }
   };
   
+  const handleEntitySelectForChat = (entity: Incident | Problem | Change) => {
+    if (!isChatOpen) {
+      setIsChatOpen(true);
+    }
+    setChatMessages(prev => [
+      ...prev,
+      { sender: 'ai', text: `What would you like to know about ${widget.type} ${entity.number}?` }
+    ]);
+  };
+  
   const renderWidgetContent = () => {
     switch (widget.type) {
       case 'incident':
       case 'problem':
       case 'change':
-        return <EntityWidget widgetId={widget.id} type={widget.type} entities={widget.data} onTextSelect={handleTextSelection} updateEntity={updateEntity} />;
+        return <EntityWidget widgetId={widget.id} type={widget.type} entities={widget.data} onTextSelect={handleTextSelection} updateEntity={updateEntity} onEntitySelectForChat={handleEntitySelectForChat} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
@@ -174,14 +184,16 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
       <CardContent className="flex-1 min-h-0 relative p-0">
         <div className={cn("flex h-full", isResizing ? 'cursor-col-resize select-none' : '')}>
-            <ScrollArea className="h-full flex-1 p-6" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
-              {renderWidgetContent()}
+            <ScrollArea className="h-full flex-1" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
+              <div className="p-6">
+                {renderWidgetContent()}
+              </div>
             </ScrollArea>
             
             {isChatOpen && (
               <>
                 <div 
-                  className="w-1.5 h-full cursor-col-resize bg-border/50 hover:bg-border transition-colors"
+                  className="w-px h-full cursor-col-resize bg-border/50 hover:bg-border transition-colors"
                   onMouseDown={handleResizeStart}
                 />
                 <div style={{ width: `${chatPanelWidth}px` }}>
