@@ -131,9 +131,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     if (!isChatOpen) {
       setIsChatOpen(true);
     }
-    // Reset chat history when a new entity is selected for chat
-    setChatMessages([
-      { role: 'model', content: `What would you like to know about ${widget.type} ${entity.number}?` }
+    setChatMessages(prev => [
+      ...prev,
+      { role: 'model', content: `Now focusing on ${widget.type} ${entity.number}. What would you like to know?` }
     ]);
   };
   
@@ -142,7 +142,13 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       case 'incident':
       case 'problem':
       case 'change':
-        return <EntityWidget widgetId={widget.id} type={widget.type} entities={widget.data} onTextSelect={handleTextSelection} updateEntity={updateEntity} onEntitySelectForChat={handleEntitySelectForChat} />;
+        const entities = widget.data.map((e: any) => 
+            Object.entries(e).reduce((acc, [key, value]) => {
+                acc[key] = typeof value === 'object' && value !== null && 'value' in value ? (value as any).value : value;
+                return acc;
+            }, {} as any)
+        );
+        return <EntityWidget widgetId={widget.id} type={widget.type} entities={entities} onTextSelect={handleTextSelection} updateEntity={updateEntity} onEntitySelectForChat={handleEntitySelectForChat} />;
       case 'generic':
       default:
         return <GenericWidget data={widget.data} />;
