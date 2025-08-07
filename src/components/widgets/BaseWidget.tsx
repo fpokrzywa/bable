@@ -27,15 +27,16 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [chatPanelWidth, setChatPanelWidth] = useState(300);
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const [chatPanelWidth, setChatPanelWidth] = useState(widgetRef.current ? widgetRef.current.offsetWidth / 2 : 375);
   const [isResizing, setIsResizing] = useState(false);
 
-  const widgetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (widgetRef.current) {
+        setChatPanelWidth(widgetRef.current.offsetWidth / 2);
+    }
+  }, [isChatOpen]);
 
-  const handleResizeStart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsResizing(true);
-  };
 
   const handleResize = useCallback((e: MouseEvent) => {
     if (isResizing && widgetRef.current) {
@@ -194,7 +195,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
               <>
                 <div 
                   className="w-px h-full cursor-col-resize bg-border/50 hover:bg-border transition-colors"
-                  onMouseDown={handleResizeStart}
+                  onMouseDown={() => setIsResizing(true)}
                 />
                 <div style={{ width: `${chatPanelWidth}px` }}>
                     <ChatPanel 
