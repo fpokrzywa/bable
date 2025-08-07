@@ -94,7 +94,7 @@ export function EntityWidget({ widgetId, type, entities, onTextSelect, updateEnt
 
   return (
     <div ref={containerRef} className="relative h-full overflow-hidden text-sm @[400px]:text-base">
-      <div className={cn("transition-transform duration-300 ease-in-out h-full", {
+      <div className={cn("transition-transform duration-300 ease-in-out h-full overflow-y-auto no-scrollbar", {
         '-translate-x-full': selectedEntity
       })}>
         {entities.map((entity) => (
