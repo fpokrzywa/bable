@@ -12,7 +12,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Star } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
 import type { Widget } from '@/lib/types';
 
 interface AppSidebarProps {
@@ -45,7 +45,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                     className="rounded-full"
                     onClick={() => onRestoreWidget(widget.id)}
                   >
-                    <Star className="text-yellow-400 fill-yellow-400" />
+                    <Heart className="text-primary fill-primary" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, Bot, Send, Loader2, Minus, Star } from 'lucide-react';
+import { X, Bot, Send, Loader2, Minus, Heart } from 'lucide-react';
 import { GenericWidget } from './GenericWidget';
 import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { Badge } from '../ui/badge';
@@ -69,7 +69,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     <Card 
       className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
     >
-      <div className="drag-handle cursor-move">
+      <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
         <CardHeader className="flex flex-row items-start justify-between p-4">
             <div className="flex-1">
             <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
@@ -89,7 +89,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
         </div>
         <div className="flex items-center gap-2">
              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleFavoriteWidget(widget.id)}>
-                <Star size={18} className={widget.isFavorited ? 'fill-yellow-400 text-yellow-400' : ''} />
+                <Heart size={18} className={widget.isFavorited ? 'fill-primary text-primary' : ''} />
                 <span className="sr-only">Favorite widget</span>
             </Button>
              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleMinimizeWidget(widget.id)}>
