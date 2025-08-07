@@ -5,7 +5,7 @@ import { useState, type FormEvent, useRef, useEffect } from 'react';
 import type { ChatMessage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2, X, Bot, User } from 'lucide-react';
+import { Send, Loader2, Bot, User, PanelRightClose } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
@@ -39,7 +39,7 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
       <div className="p-4 border-b flex items-center justify-between">
         <h4 className="font-semibold text-sm">Chat with {agentType}</h4>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-          <X size={18} />
+          <PanelRightClose size={18} />
         </Button>
       </div>
 
