@@ -41,8 +41,12 @@ export function Profile() {
       }
       setLoading(false);
     };
-    fetchProfile();
-  }, []);
+
+    // Fetch profile if it's not already loaded
+    if (!profile) {
+      fetchProfile();
+    }
+  }, [profile]);
 
   const handleSaveChanges = async () => {
     if (!profile) return;
@@ -62,6 +66,7 @@ export function Profile() {
   
   const handleLogout = () => {
     localStorage.removeItem('session');
+    setProfile(null); // Clear profile state
     router.push('/login');
   };
 
@@ -168,7 +173,9 @@ export function Profile() {
             </Card>
         </div>
       <div className="flex-shrink-0 flex justify-between items-center gap-2 pt-4 border-t">
-        <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        <DialogClose asChild>
+          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        </DialogClose>
         <div className="flex gap-2">
             <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
