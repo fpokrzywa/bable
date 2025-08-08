@@ -4,8 +4,6 @@
 import axios from 'axios';
 import type { User } from '@/lib/types';
 
-const defaultUserId = 'freddie@3cpublish.com';
-
 const getWebhookUrl = () => {
     const url = process.env.USER_PROFILE_WEBHOOK_URL;
     if (!url) {
@@ -15,49 +13,47 @@ const getWebhookUrl = () => {
     return url;
 };
 
-const createDefaultUser = (): User => ({
-    _id: defaultUserId,
-    userId: defaultUserId,
+const createDefaultUser = (email: string): User => ({
+    _id: email,
+    userId: email,
     username: 'Default User',
-    email: 'default@example.com',
+    email: email,
     bio: 'Please configure your user profile webhook in the .env file to fetch real user data.',
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
 });
 
 
-export async function getUserProfile(): Promise<User | null> {
+export async function getUserProfile(email: string): Promise<User | null> {
     const webhookUrl = getWebhookUrl();
 
     if (!webhookUrl) {
-        return createDefaultUser();
+        return createDefaultUser(email);
     }
 
     try {
-        // Pass userId as a query parameter
-        const response = await axios.get(webhookUrl, { params: { userId: defaultUserId } });
+        const response = await axios.get(webhookUrl, { params: { userId: email } });
         
         if (response.status === 200 && response.data) {
-            // Ensure the _id field is a string
             if (response.data._id && typeof response.data._id === 'object') {
                 response.data._id = response.data._id.toString();
             }
             return response.data;
         }
 
-        console.warn(`Webhook returned status ${response.status} or no data. Falling back to default user.`);
-        return createDefaultUser();
+        console.warn(`Webhook returned status ${response.status} or no data for ${email}. Falling back to default user.`);
+        return createDefaultUser(email);
 
     } catch (error) {
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 404) {
-                 console.warn(`User not found via webhook (userId: ${defaultUserId}). Falling back to default user.`);
+                 console.warn(`User not found via webhook (userId: ${email}). Falling back to default user.`);
             } else {
-                 console.error('Failed to get user profile from webhook:', error.message);
+                 console.error(`Failed to get user profile from webhook for ${email}:`, error.message);
             }
         } else {
             console.error('An unexpected error occurred:', error);
         }
-        return createDefaultUser();
+        return createDefaultUser(email);
     }
 }
 
@@ -69,8 +65,7 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     }
 
     try {
-        // Send userId in the request body for the POST request
-        const dataToSend = { ...profileData, userId: profileData.userId || defaultUserId };
+        const dataToSend = { ...profileData };
         const response = await axios.post(webhookUrl, dataToSend);
         return response.status === 200 || response.status === 204;
     } catch (error) {

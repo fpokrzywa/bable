@@ -29,9 +29,15 @@ export function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
-      const userProfile = await getUserProfile();
-      if (userProfile) {
-        setProfile(userProfile);
+      const session = localStorage.getItem('session');
+      if (session) {
+        const userEmail = JSON.parse(session).email;
+        if (userEmail) {
+          const userProfile = await getUserProfile(userEmail);
+          if (userProfile) {
+            setProfile(userProfile);
+          }
+        }
       }
       setLoading(false);
     };
