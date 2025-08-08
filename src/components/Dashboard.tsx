@@ -38,8 +38,14 @@ export function Dashboard() {
 
   useEffect(() => {
     const fetchUser = async () => {
-        const profile = await getUserProfile();
-        setUser(profile);
+      const session = localStorage.getItem('session');
+      if (session) {
+        const userEmail = JSON.parse(session).email;
+        if (userEmail) {
+          const profile = await getUserProfile(userEmail);
+          setUser(profile);
+        }
+      }
     }
     fetchUser();
   }, []);
@@ -432,5 +438,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
