@@ -33,19 +33,29 @@ export async function getUserProfile(): Promise<User | null> {
     }
 
     try {
-        const response = await axios.get(`${webhookUrl}/${defaultUserId}`);
+        // Pass userId as a query parameter
+        const response = await axios.get(webhookUrl, { params: { userId: defaultUserId } });
+        
         if (response.status === 200 && response.data) {
+            // Ensure the _id field is a string
+            if (response.data._id && typeof response.data._id === 'object') {
+                response.data._id = response.data._id.toString();
+            }
             return response.data;
         }
-        // If response is not 200 or data is missing, fallback to default.
+
         console.warn(`Webhook returned status ${response.status} or no data. Falling back to default user.`);
         return createDefaultUser();
 
     } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            console.warn(`User not found via webhook. Falling back to default user.`);
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 404) {
+                 console.warn(`User not found via webhook (userId: ${defaultUserId}). Falling back to default user.`);
+            } else {
+                 console.error('Failed to get user profile from webhook:', error.message);
+            }
         } else {
-            console.error('Failed to get user profile from webhook:', error);
+            console.error('An unexpected error occurred:', error);
         }
         return createDefaultUser();
     }
@@ -59,8 +69,9 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     }
 
     try {
-        const userId = profileData.userId || defaultUserId;
-        const response = await axios.post(`${webhookUrl}/${userId}`, profileData);
+        // Send userId in the request body for the POST request
+        const dataToSend = { ...profileData, userId: profileData.userId || defaultUserId };
+        const response = await axios.post(webhookUrl, dataToSend);
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to update user profile via webhook:', error);
