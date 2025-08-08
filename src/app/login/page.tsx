@@ -1,12 +1,18 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { LoginForm } from '@/components/LoginForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleOverride = () => {
     localStorage.setItem('session', JSON.stringify({ loggedIn: true, email: 'override@example.com' }));
@@ -22,7 +28,7 @@ export default function LoginPage() {
             <CardDescription>Enter your email below to login to your account.</CardDescription>
           </CardHeader>
           <CardContent>
-            <LoginForm />
+            {isMounted ? <LoginForm /> : null}
           </CardContent>
         </Card>
       </div>
