@@ -34,6 +34,7 @@ export async function getUserProfile(email: string): Promise<User | null> {
         const response = await axios.get(webhookUrl, { params: { userId: email } });
         
         if (response.status === 200 && response.data) {
+            // Ensure _id is a string if it exists and is an object (like MongoDB's ObjectId)
             if (response.data._id && typeof response.data._id === 'object') {
                 response.data._id = response.data._id.toString();
             }
@@ -66,6 +67,11 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
 
     try {
         const dataToSend = { ...profileData };
+        // Don't send the _id back to the server if it's not needed for the update operation
+        // or convert it to a simple string if your backend expects it.
+        // For this example, let's assume the backend identifies the user by userId/email.
+        // delete dataToSend._id;
+
         const response = await axios.post(webhookUrl, dataToSend);
         return response.status === 200 || response.status === 204;
     } catch (error) {

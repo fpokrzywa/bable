@@ -12,41 +12,30 @@ import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
 import { DialogClose } from './ui/dialog';
 import { cn } from '@/lib/utils';
-import { getUserProfile, updateUserProfile } from '@/services/userService';
+import { updateUserProfile } from '@/services/userService';
 import type { User } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
-export function Profile() {
-  const [profile, setProfile] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+interface ProfileProps {
+    user: User | null;
+}
+
+export function Profile({ user }: ProfileProps) {
+  const [profile, setProfile] = useState<User | null>(user);
+  const [loading, setLoading] = useState(!user);
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      const session = localStorage.getItem('session');
-      if (session) {
-        const userEmail = JSON.parse(session).email;
-        if (userEmail) {
-          const userProfile = await getUserProfile(userEmail);
-          if (userProfile) {
-            setProfile(userProfile);
-          }
-        }
-      }
+    setProfile(user);
+    if (user) {
       setLoading(false);
-    };
-
-    // Fetch profile if it's not already loaded
-    if (!profile) {
-      fetchProfile();
     }
-  }, [profile]);
+  }, [user]);
 
   const handleSaveChanges = async () => {
     if (!profile) return;
@@ -66,7 +55,6 @@ export function Profile() {
   
   const handleLogout = () => {
     localStorage.removeItem('session');
-    setProfile(null); // Clear profile state
     router.push('/login');
   };
 

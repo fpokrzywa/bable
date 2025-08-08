@@ -378,6 +378,7 @@ export function Dashboard() {
       <div ref={sidebarRef}>
         <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
             <AppSidebar 
+              user={user}
               minimizedWidgets={minimizedWidgets} 
               favoritedWidgets={favorites}
               onRestoreWidget={toggleMinimizeWidget}

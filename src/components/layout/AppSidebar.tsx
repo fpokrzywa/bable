@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
-import type { Widget } from '@/lib/types';
+import type { Widget, User as UserType } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
 import { cn } from '@/lib/utils';
@@ -22,13 +22,14 @@ import { Settings as SettingsPage } from '../Settings';
 
 
 interface AppSidebarProps {
+    user: UserType | null;
     minimizedWidgets: Widget[];
     favoritedWidgets: Widget[];
     onRestoreWidget: (id: string) => void;
     onRestoreFavorite: (widget: Widget) => void;
 }
 
-export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
+export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
   const { toggleSidebar, state } = useSidebar();
   
   return (
@@ -122,7 +123,7 @@ export function AppSidebar({ minimizedWidgets, favoritedWidgets, onRestoreWidget
                   <DialogTitle>Profile</DialogTitle>
               </DialogHeader>
               <div className="flex-grow overflow-auto no-scrollbar">
-                <Profile />
+                <Profile user={user} />
               </div>
             </DialogContent>
           </Dialog>
