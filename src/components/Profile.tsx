@@ -16,6 +16,7 @@ import { getUserProfile, updateUserProfile } from '@/services/userService';
 import type { User } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export function Profile() {
   const [profile, setProfile] = useState<User | null>(null);
@@ -23,6 +24,7 @@ export function Profile() {
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,6 +50,11 @@ export function Profile() {
     if (!profile) return;
     const { id, value } = e.target;
     setProfile({ ...profile, [id]: value });
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('session');
+    router.push('/login');
   };
 
 
@@ -152,13 +159,16 @@ export function Profile() {
                 </CardContent>
             </Card>
         </div>
-      <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
-        <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <DialogClose asChild>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
-        </DialogClose>
+      <div className="flex-shrink-0 flex justify-between items-center gap-2 pt-4 border-t">
+        <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        <div className="flex gap-2">
+            <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
+            </DialogClose>
+        </div>
       </div>
     </div>
   );

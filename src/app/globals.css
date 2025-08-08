@@ -4,12 +4,15 @@
 
 body {
   font-family: 'Inter', sans-serif;
+  background-color: hsl(var(--background));
+}
+
+.page-background {
   background-image: url('https://storage.googleapis.com/aip-dev-images-public/studio-assets/babel-fish.png');
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: 400px;
-  background-color: hsl(var(--background));
 }
 
 @layer base {
