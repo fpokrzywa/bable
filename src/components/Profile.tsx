@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -12,15 +12,84 @@ import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
 import { DialogClose } from './ui/dialog';
 import { cn } from '@/lib/utils';
+import { getUserProfile, updateUserProfile } from '@/services/userService';
+import type { User } from '@/lib/types';
+import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 export function Profile() {
+  const [profile, setProfile] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const { toast } = useToast();
 
-  const handleSaveChanges = () => {
-    // In a real application, you would save the changes here.
-    console.log('Saving changes...');
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      const userProfile = await getUserProfile();
+      setProfile(userProfile);
+      setLoading(false);
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSaveChanges = async () => {
+    if (!profile) return;
+    const success = await updateUserProfile(profile);
+     if (success) {
+      toast({ title: 'Success', description: 'Profile updated successfully!' });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update profile.' });
+    }
   };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!profile) return;
+    const { id, value } = e.target;
+    setProfile({ ...profile, [id]: value });
+  };
+
+
+  if (loading) {
+      return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-5 w-2/5" />
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-24 w-24 rounded-full" />
+                        <div className="grid gap-1.5">
+                            <Skeleton className="h-8 w-32" />
+                            <Skeleton className="h-5 w-48" />
+                            <Skeleton className="h-9 w-24 mt-1" />
+                        </div>
+                    </div>
+                     <div className="grid gap-4">
+                        <div className="grid gap-2">
+                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-10 w-full" />
+                        </div>
+                         <div className="grid gap-2">
+                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-10 w-full" />
+                        </div>
+                         <div className="grid gap-2">
+                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-20 w-full" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+      );
+  }
+
+  if (!profile) {
+    return <div>Failed to load profile. Please try again later.</div>;
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -32,12 +101,12 @@ export function Profile() {
                 <CardContent className="space-y-8">
                 <div className="flex items-center gap-4">
                     <Avatar className="h-24 w-24">
-                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User avatar" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage src={profile.avatar} alt="User avatar" />
+                    <AvatarFallback>{profile.username?.substring(0,2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="grid gap-1.5">
-                    <h2 className="text-2xl font-bold">John Doe</h2>
-                    <p className="text-muted-foreground">john.doe@example.com</p>
+                    <h2 className="text-2xl font-bold">{profile.username}</h2>
+                    <p className="text-muted-foreground">{profile.email}</p>
                     <Button size="sm" variant="outline">
                         Change Avatar
                     </Button>
@@ -46,15 +115,15 @@ export function Profile() {
                 <div className="grid gap-4">
                     <div className="grid gap-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" defaultValue="john.doe" />
+                    <Input id="username" value={profile.username} onChange={handleInputChange} />
                     </div>
                     <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue="john.doe@example.com" />
+                    <Input id="email" type="email" value={profile.email} onChange={handleInputChange} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="bio">Bio</Label>
-                        <Textarea id="bio" placeholder="Tell us a little bit about yourself" defaultValue="I am a ServiceNow developer with a passion for creating efficient and user-friendly applications." />
+                        <Textarea id="bio" placeholder="Tell us a little bit about yourself" value={profile.bio} onChange={handleInputChange} />
                     </div>
                 </div>
                 </CardContent>

@@ -59,3 +59,12 @@ export interface ChatMessage {
     role: 'user' | 'model';
     content: string;
 }
+
+
+export interface User {
+    _id: any;
+    username: string;
+    email: string;
+    bio?: string;
+    avatar?: string;
+}
