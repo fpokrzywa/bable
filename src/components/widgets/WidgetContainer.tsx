@@ -41,7 +41,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
     const updateBounds = () => {
       const sidebarWidth = sidebarRef.current?.offsetWidth ?? 0;
-      const leftBoundary = sidebarState === 'expanded' ? sidebarWidth : 10;
+      const leftBoundary = sidebarState === 'expanded' ? sidebarWidth : 0;
       
       const containerWidth = container.offsetWidth;
       const containerHeight = container.offsetHeight;
@@ -52,9 +52,9 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         if (node) {
             const currentWidth = node.offsetWidth;
             newBounds[widget.id] = {
-              left: 0,
+              left: leftBoundary,
               top: 0,
-              right: Math.max(0, containerWidth - currentWidth),
+              right: containerWidth - currentWidth,
               bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
             };
         }
