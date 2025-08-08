@@ -16,11 +16,10 @@ export async function getUserProfile(): Promise<User | null> {
   try {
     const usersCollection = await getCollection();
     
-    // Check if the user exists, if not, create one
     let user = await usersCollection.findOne({ userId: defaultUserId });
 
     if (!user) {
-        const newUser: Omit<User, '_id'> = {
+        const newUser: Omit<User, '_id' | 'userId'> & { userId: string } = {
             userId: defaultUserId,
             username: 'john.doe',
             email: 'john.doe@example.com',
@@ -31,11 +30,13 @@ export async function getUserProfile(): Promise<User | null> {
         user = { ...newUser, _id: result.insertedId };
     }
 
-    // Convert ObjectId to string for client-side usage
+    if (!user) {
+        return null;
+    }
+
     return { ...user, _id: user._id.toString() };
   } catch (error) {
     console.error('Failed to get user profile:', error);
-    // In a real app, you'd want more robust error handling
     return null;
   }
 }
