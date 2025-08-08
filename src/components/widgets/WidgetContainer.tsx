@@ -113,7 +113,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
               bounds={bounds[widget.id]}
           >
               <div 
-                className="absolute transition-all duration-150 ease-in-out" 
+                className="absolute" 
                 ref={nodeRef}
                 style={{
                     zIndex: widget.zIndex,
