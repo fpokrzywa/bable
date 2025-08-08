@@ -45,7 +45,7 @@ export function Dashboard() {
         const welcomeWidget: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> = {
           query: 'Welcome!',
           data: 'Hello! I am your BabelPhish AI. You can ask me to fetch data, create reports, or manage your tasks. Try typing "get my incidents" or use one of the commands below to get started.',
-          agent: { agentType: 'BabelPhish AI', agentBehavior: 'Greets users and provides basic instructions.' },
+          agent: { agentType: 'Welcome Agent', agentBehavior: 'Greets users and provides basic instructions.' },
           type: 'generic',
           isFavorited: false,
           x: 50,
