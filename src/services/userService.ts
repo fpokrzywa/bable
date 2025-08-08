@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -36,6 +37,8 @@ export async function getUserProfile(): Promise<User | null> {
         if (response.status === 200 && response.data) {
             return response.data;
         }
+        // If response is not 200 or data is missing, fallback to default.
+        console.warn(`Webhook returned status ${response.status} or no data. Falling back to default user.`);
         return createDefaultUser();
 
     } catch (error) {
