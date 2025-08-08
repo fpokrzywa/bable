@@ -12,6 +12,7 @@ export interface Incident {
 }
 
 export interface Problem {
+  sys_id: string;
   number: string;
   short_description: string;
   description: string;
@@ -20,6 +21,7 @@ export interface Problem {
 }
 
 export interface Change {
+  sys_id: string;
   number: string;
   short_description: string;
   type: string;

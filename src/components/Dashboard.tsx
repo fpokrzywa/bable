@@ -32,6 +32,54 @@ export function Dashboard() {
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    try {
+      const savedWidgets = localStorage.getItem('dashboard-widgets');
+      if (savedWidgets) {
+        const parsedWidgets: Widget[] = JSON.parse(savedWidgets);
+        setWidgets(parsedWidgets);
+        const maxZIndex = parsedWidgets.reduce((max, w) => Math.max(max, w.zIndex || 0), 0);
+        setNextZIndex(maxZIndex + 1);
+      } else {
+        // First time user, create a welcome widget
+        const welcomeWidget: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> = {
+          query: 'Welcome!',
+          data: 'Hello! I am your ServiceNow AI assistant. You can ask me to fetch data, create reports, or manage your tasks. Try typing "get my incidents" or use one of the commands below to get started.',
+          agent: { agentType: 'Welcome Agent', agentBehavior: 'Greets users and provides basic instructions.' },
+          type: 'generic',
+          isFavorited: false,
+          x: 50,
+          y: 50,
+        };
+        createWidgetFromDefinition(welcomeWidget, 'welcome-widget');
+      }
+    } catch (error) {
+      console.error("Could not load widgets from localStorage", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const widgetsToSave = widgets.map(w => ({
+        id: w.id,
+        query: w.query,
+        data: w.data,
+        agent: w.agent,
+        type: w.type,
+        zIndex: w.zIndex,
+        isMinimized: w.isMinimized,
+        isFavorited: w.isFavorited,
+        x: w.x,
+        y: w.y,
+        isExpanded: w.isExpanded,
+      }));
+      localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
+    } catch (error) {
+        console.error("Could not save widgets to localStorage", error);
+    }
+  }, [widgets]);
+
+
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
       const widget = prevWidgets.find(w => w.id === id);
@@ -95,8 +143,8 @@ export function Dashboard() {
 
       } else if (lowerCaseQuery.includes('@change')) {
         const changeData: Change[] = [
-          { number: `CHG001`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
-          { number: `CHG002`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
+          { sys_id: 'CHG001', number: `CHG001`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
+          { sys_id: 'CHG002', number: `CHG002`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
         ];
         newWidgetDef = {
           query: 'Changes',
@@ -109,6 +157,7 @@ export function Dashboard() {
       } else if (lowerCaseQuery.includes('@problem')) {
         const problemData: Problem[] = [
           {
+            sys_id: 'PRB001',
             number: `PRB001`,
             short_description: 'Recurring network outages in building B',
             description: 'Users in building B are experiencing intermittent network connectivity loss, typically between 2 PM and 4 PM on weekdays.',
@@ -297,7 +346,7 @@ export function Dashboard() {
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen">
       <div ref={sidebarRef}>
         <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
             <AppSidebar 
