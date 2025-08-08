@@ -405,7 +405,7 @@ export function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col h-full w-full max-w-3xl mx-auto px-4">
+          <div className="flex flex-col h-full w-full px-4">
               <div className="flex-grow flex flex-col justify-center items-center">
                   <h1 className="text-4xl font-bold tracking-tight">
                     Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
