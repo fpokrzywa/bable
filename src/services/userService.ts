@@ -10,25 +10,25 @@ const getCollection = async () => {
   return db.collection<User>('users');
 };
 
-// Using a hardcoded ID for now as there is no auth
-const hardcodedUserId = '66a012345678901234567890'; 
+const defaultUserId = '001';
 
 export async function getUserProfile(): Promise<User | null> {
   try {
     const usersCollection = await getCollection();
     
     // Check if the user exists, if not, create one
-    let user = await usersCollection.findOne({ _id: new ObjectId(hardcodedUserId) });
+    let user = await usersCollection.findOne({ userId: defaultUserId });
 
     if (!user) {
-        user = {
-            _id: new ObjectId(hardcodedUserId),
+        const newUser: Omit<User, '_id'> = {
+            userId: defaultUserId,
             username: 'john.doe',
             email: 'john.doe@example.com',
             bio: 'I am a ServiceNow developer with a passion for creating efficient and user-friendly applications.',
             avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
         };
-        await usersCollection.insertOne(user);
+        const result = await usersCollection.insertOne(newUser as User);
+        user = { ...newUser, _id: result.insertedId };
     }
 
     // Convert ObjectId to string for client-side usage
@@ -43,10 +43,10 @@ export async function getUserProfile(): Promise<User | null> {
 export async function updateUserProfile(profileData: Partial<User>): Promise<boolean> {
   try {
     const usersCollection = await getCollection();
-    const { _id, ...dataToUpdate } = profileData;
+    const { _id, userId, ...dataToUpdate } = profileData;
 
     const result = await usersCollection.updateOne(
-      { _id: new ObjectId(hardcodedUserId) },
+      { userId: defaultUserId },
       { $set: dataToUpdate }
     );
 
