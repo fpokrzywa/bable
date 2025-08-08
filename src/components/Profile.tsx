@@ -30,7 +30,9 @@ export function Profile() {
     const fetchProfile = async () => {
       setLoading(true);
       const userProfile = await getUserProfile();
-      setProfile(userProfile);
+      if (userProfile) {
+        setProfile(userProfile);
+      }
       setLoading(false);
     };
     fetchProfile();

@@ -7,7 +7,7 @@ const defaultUserId = 'freddie@3cpublish.com';
 
 const getWebhookUrl = () => {
     const url = process.env.USER_PROFILE_WEBHOOK_URL;
-    if (!url || url === 'https://your-webhook-url.com/api/user') {
+    if (!url) {
         console.warn('USER_PROFILE_WEBHOOK_URL is not configured in .env file. Using fallback data.');
         return null;
     }
@@ -33,16 +33,17 @@ export async function getUserProfile(): Promise<User | null> {
 
     try {
         const response = await axios.get(`${webhookUrl}/${defaultUserId}`);
-
         if (response.status === 200 && response.data) {
             return response.data;
         }
-        
-        console.warn(`Webhook at ${webhookUrl} returned status ${response.status}. Falling back to default user.`);
         return createDefaultUser();
 
     } catch (error) {
-        console.error('Failed to get user profile from webhook:', error);
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            console.warn(`User not found via webhook. Falling back to default user.`);
+        } else {
+            console.error('Failed to get user profile from webhook:', error);
+        }
         return createDefaultUser();
     }
 }
