@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { Widget, SavedQuery, Problem, Incident, Change } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident, Change, User } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -17,6 +17,9 @@ import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getIncidents } from '@/services/servicenow';
+import { getUserProfile } from '@/services/userService';
+import { Sparkle } from 'lucide-react';
+import { Button } from './ui/button';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -31,6 +34,15 @@ export function Dashboard() {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+        const profile = await getUserProfile();
+        setUser(profile);
+    }
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     try {
@@ -51,7 +63,7 @@ export function Dashboard() {
           x: 50,
           y: 50,
         };
-        createWidgetFromDefinition(welcomeWidget, 'welcome-widget');
+        // createWidgetFromDefinition(welcomeWidget, 'welcome-widget');
       }
     } catch (error) {
       console.error("Could not load widgets from localStorage", error);
@@ -119,7 +131,7 @@ export function Dashboard() {
     let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
-      if (lowerCaseQuery.includes('@servicenow') || lowerCaseQuery === 'get my incidents') {
+      if (lowerCaseQuery.includes('@servicenow') || lowerCaseQuery === 'get my incidents' || lowerCaseQuery === "get my incidents") {
         const incidentData = await getIncidents();
         newWidgetDef = {
           query: 'ServiceNow Records',
@@ -345,6 +357,16 @@ export function Dashboard() {
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
+  const starterPrompts = [
+    { text: 'Get my incidents', query: 'Get my incidents' },
+    { text: 'Show me high priority changes', query: '@change high priority' },
+    { text: 'Are there any recurring problems?', query: '@problem recurring' },
+  ]
+
+  const handleStarterPrompt = (query: string) => {
+    handleCreateWidget(query);
+  }
+
   return (
     <div className="flex h-screen">
       <div ref={sidebarRef}>
@@ -358,22 +380,53 @@ export function Dashboard() {
         </Sidebar>
       </div>
       <SidebarInset className="flex flex-col h-screen items-center">
-        <div className={cn("relative w-full", widgets.length > 0 ? "flex-1" : "h-full flex flex-col justify-center items-center")}>
-            <WidgetContainer 
-              widgets={normalWidgets} 
-              removeWidget={removeWidget} 
-              updateEntity={updateEntity}
-              bringToFront={bringToFront}
-              toggleMinimizeWidget={toggleMinimizeWidget}
-              toggleFavoriteWidget={toggleFavoriteWidget}
-              updateWidgetPosition={updateWidgetPosition}
-              sidebarState={state}
-              sidebarRef={sidebarRef}
-            />
-          <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
-              <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+        {widgets.length > 0 ? (
+           <div className="relative w-full flex-1">
+              <WidgetContainer 
+                widgets={normalWidgets} 
+                removeWidget={removeWidget} 
+                updateEntity={updateEntity}
+                bringToFront={bringToFront}
+                toggleMinimizeWidget={toggleMinimizeWidget}
+                toggleFavoriteWidget={toggleFavoriteWidget}
+                updateWidgetPosition={updateWidgetPosition}
+                sidebarState={state}
+                sidebarRef={sidebarRef}
+              />
+            <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
+                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col justify-center items-center h-full w-full max-w-3xl mx-auto -mt-16">
+              <div className="text-center w-full">
+                  <h1 className="text-4xl font-bold tracking-tight">
+                    Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
+                  </h1>
+                  <p className="text-2xl text-muted-foreground mt-2">How can I help you?</p>
+              </div>
+              <div className="mt-12 w-full">
+                  <p className="text-sm text-muted-foreground mb-4">Get started with a prompt</p>
+                  <div className="space-y-3">
+                      {starterPrompts.map((prompt, index) => (
+                          <Button 
+                              key={index}
+                              variant="outline"
+                              className="w-full justify-start h-auto py-3 px-4 text-left"
+                              onClick={() => handleStarterPrompt(prompt.query)}
+                          >
+                              <Sparkle className="mr-3 text-primary" size={20}/>
+                              {prompt.text}
+                          </Button>
+                      ))}
+                  </div>
+              </div>
+
+              <div className="mt-auto w-full pb-8">
+                  <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+              </div>
+          </div>
+        )}
       </SidebarInset>
     </div>
   );
