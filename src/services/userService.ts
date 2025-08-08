@@ -3,7 +3,7 @@
 import axios from 'axios';
 import type { User } from '@/lib/types';
 
-const defaultUserId = '001';
+const defaultUserId = 'freddie@3cpublish.com';
 
 const getWebhookUrl = () => {
     const url = process.env.USER_PROFILE_WEBHOOK_URL;
@@ -32,8 +32,6 @@ export async function getUserProfile(): Promise<User | null> {
     }
 
     try {
-        // The webhook should know which user to fetch based on auth context,
-        // but we pass the defaultUserId for demonstration if needed.
         const response = await axios.get(`${webhookUrl}/${defaultUserId}`);
 
         if (response.status === 200 && response.data) {
@@ -45,7 +43,6 @@ export async function getUserProfile(): Promise<User | null> {
 
     } catch (error) {
         console.error('Failed to get user profile from webhook:', error);
-        // Fallback to a default user if the webhook fails
         return createDefaultUser();
     }
 }
@@ -58,8 +55,8 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     }
 
     try {
-        // Assuming the webhook uses the userId to identify the user to update
-        const response = await axios.post(`${webhookUrl}/${profileData.userId || defaultUserId}`, profileData);
+        const userId = profileData.userId || defaultUserId;
+        const response = await axios.post(`${webhookUrl}/${userId}`, profileData);
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to update user profile via webhook:', error);
