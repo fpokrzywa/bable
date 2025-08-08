@@ -52,10 +52,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         if (node) {
             const currentWidth = node.offsetWidth;
             newBounds[widget.id] = {
-            left: leftBoundary,
-            top: 0,
-            right: Math.max(leftBoundary, containerWidth - currentWidth),
-            bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
+              left: 0,
+              top: 0,
+              right: Math.max(0, containerWidth - currentWidth),
+              bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
             };
         }
       });
