@@ -414,12 +414,12 @@ export function Dashboard() {
               </div>
               <div className="flex-shrink-0 pb-8">
                 <div className="w-full">
-                  <p className="text-sm text-muted-foreground mb-4">Get started with a prompt</p>
+                  <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
                   <div className="space-y-3">
                       {starterPrompts.map((prompt, index) => (
                           <Button 
                               key={index}
-                              variant="outline"
+                              variant="ghost"
                               className="w-full justify-start h-auto py-3 px-4 text-left"
                               onClick={() => handleStarterPrompt(prompt.query)}
                           >
