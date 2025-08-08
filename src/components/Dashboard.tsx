@@ -398,14 +398,15 @@ export function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col justify-center items-center h-full w-full max-w-3xl mx-auto -mt-16">
-              <div className="text-center w-full">
+          <div className="flex flex-col h-full w-full max-w-3xl mx-auto px-4">
+              <div className="flex-grow flex flex-col justify-center items-center">
                   <h1 className="text-4xl font-bold tracking-tight">
                     Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
                   </h1>
                   <p className="text-2xl text-muted-foreground mt-2">How can I help you?</p>
               </div>
-              <div className="mt-12 w-full">
+              <div className="flex-shrink-0 pb-8">
+                <div className="w-full">
                   <p className="text-sm text-muted-foreground mb-4">Get started with a prompt</p>
                   <div className="space-y-3">
                       {starterPrompts.map((prompt, index) => (
@@ -420,10 +421,10 @@ export function Dashboard() {
                           </Button>
                       ))}
                   </div>
-              </div>
-
-              <div className="mt-auto w-full pb-8">
+                </div>
+                <div className="mt-8">
                   <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+                </div>
               </div>
           </div>
         )}
@@ -431,3 +432,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
