@@ -7,15 +7,11 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-import { Sidebar, SidebarInset, useSidebar } from '@/components/ui/sidebar';
+import { Sidebar, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { Sparkle } from 'lucide-react';
@@ -34,6 +30,7 @@ export function Dashboard() {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -58,18 +55,6 @@ export function Dashboard() {
         setWidgets(parsedWidgets);
         const maxZIndex = parsedWidgets.reduce((max, w) => Math.max(max, w.zIndex || 0), 0);
         setNextZIndex(maxZIndex + 1);
-      } else {
-        // First time user, create a welcome widget
-        const welcomeWidget: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> = {
-          query: 'Welcome!',
-          data: 'Hello! I am your BabelPhish AI. You can ask me to fetch data, create reports, or manage your tasks. Try typing "get my incidents" or use one of the commands below to get started.',
-          agent: { agentType: 'Welcome Agent', agentBehavior: 'Greets users and provides basic instructions.' },
-          type: 'generic',
-          isFavorited: false,
-          x: 50,
-          y: 50,
-        };
-        // createWidgetFromDefinition(welcomeWidget, 'welcome-widget');
       }
     } catch (error) {
       console.error("Could not load widgets from localStorage", error);
@@ -374,22 +359,21 @@ export function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen">
-      <div ref={sidebarRef}>
-        <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
-            <AppSidebar 
-              user={user}
-              minimizedWidgets={minimizedWidgets} 
-              favoritedWidgets={favorites}
-              onRestoreWidget={toggleMinimizeWidget}
-              onRestoreFavorite={handleRestoreFavorite}
-            />
-        </Sidebar>
-      </div>
-      <SidebarInset className="flex flex-col h-screen items-center">
-        {widgets.length > 0 ? (
-           <div className="relative w-full flex-1">
-              <WidgetContainer 
+    <div className="relative flex h-screen w-screen overflow-hidden">
+        <div ref={sidebarRef} className="z-50">
+            <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
+                <AppSidebar 
+                user={user}
+                minimizedWidgets={minimizedWidgets} 
+                favoritedWidgets={favorites}
+                onRestoreWidget={toggleMinimizeWidget}
+                onRestoreFavorite={handleRestoreFavorite}
+                />
+            </Sidebar>
+        </div>
+
+        <div className="absolute inset-0">
+             <WidgetContainer 
                 widgets={normalWidgets} 
                 removeWidget={removeWidget} 
                 updateEntity={updateEntity}
@@ -399,43 +383,45 @@ export function Dashboard() {
                 updateWidgetPosition={updateWidgetPosition}
                 sidebarState={state}
                 sidebarRef={sidebarRef}
+                chatInputRef={chatInputRef}
               />
-            <div className="fixed bottom-4 right-4 p-4 bg-transparent w-full max-w-xl">
-                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col h-full w-full px-4">
-              <div className="flex-grow flex flex-col justify-center items-center">
-                  <h1 className="text-4xl font-bold tracking-tight">
-                    Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
-                  </h1>
-                  <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
-              </div>
-              <div className="flex-shrink-0 pb-8">
-                <div className="w-full">
-                  <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
-                  <div className="space-y-3">
-                      {starterPrompts.map((prompt, index) => (
-                          <Button 
-                              key={index}
-                              variant="ghost"
-                              className="w-full justify-start h-auto py-3 px-4 text-left"
-                              onClick={() => handleStarterPrompt(prompt.query)}
-                          >
-                              <Sparkle className="mr-3 text-primary" size={20}/>
-                              {prompt.text}
-                          </Button>
-                      ))}
-                  </div>
+        </div>
+
+        {widgets.length === 0 && (
+             <div className="flex-1 flex flex-col h-full w-full px-4">
+                <div className="flex-grow flex flex-col justify-center items-center">
+                    <h1 className="text-4xl font-bold tracking-tight">
+                        Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
+                    </h1>
+                    <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="mt-8">
-                  <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+                <div className="flex-shrink-0 pb-8">
+                    <div className="w-full">
+                    <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
+                    <div className="space-y-3">
+                        {starterPrompts.map((prompt, index) => (
+                            <Button 
+                                key={index}
+                                variant="ghost"
+                                className="w-full justify-start h-auto py-3 px-4 text-left"
+                                onClick={() => handleStarterPrompt(prompt.query)}
+                            >
+                                <Sparkle className="mr-3 text-primary" size={20}/>
+                                {prompt.text}
+                            </Button>
+                        ))}
+                    </div>
+                    </div>
                 </div>
-              </div>
           </div>
         )}
-      </SidebarInset>
+        
+        <div ref={chatInputRef} className="fixed bottom-4 right-4 left-4 z-40" style={{ paddingLeft: state === 'expanded' ? (sidebarRef.current?.offsetWidth ?? 0) : 0, transition: 'padding-left 0.2s ease-in-out' }}>
+            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
+                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+            </div>
+        </div>
     </div>
   );
 }
+

@@ -17,13 +17,14 @@ interface WidgetContainerProps {
   updateWidgetPosition: (id: string, x: number, y: number) => void;
   sidebarState: 'expanded' | 'collapsed';
   sidebarRef: React.RefObject<HTMLDivElement>;
+  chatInputRef: React.RefObject<HTMLDivElement>;
 }
 
 export const WIDGET_INITIAL_WIDTH = 450;
 export const WIDGET_EXPANDED_WIDTH = 750;
 export const WIDGET_HEIGHT = 400;
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef }: WidgetContainerProps) {
+export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef, chatInputRef }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<{[key: string]: DraggableBounds}>({});
   
@@ -40,8 +41,8 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     if (!container) return;
 
     const updateBounds = () => {
-      const sidebarWidth = sidebarRef.current?.offsetWidth ?? 0;
-      const leftBoundary = sidebarState === 'expanded' ? sidebarWidth : 0;
+      const sidebarWidth = sidebarState === 'expanded' ? (sidebarRef.current?.offsetWidth ?? 0) : 0;
+      const chatInputHeight = chatInputRef.current?.offsetHeight ?? 0;
       
       const containerWidth = container.offsetWidth;
       const containerHeight = container.offsetHeight;
@@ -52,10 +53,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         if (node) {
             const currentWidth = node.offsetWidth;
             newBounds[widget.id] = {
-              left: leftBoundary,
+              left: sidebarWidth,
               top: 0,
               right: containerWidth - currentWidth,
-              bottom: Math.max(0, containerHeight - WIDGET_HEIGHT),
+              bottom: Math.max(0, containerHeight - WIDGET_HEIGHT - chatInputHeight),
             };
         }
       });
@@ -69,11 +70,14 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     if(sidebarRef.current) {
         resizeObserver.observe(sidebarRef.current)
     }
+     if(chatInputRef.current) {
+        resizeObserver.observe(chatInputRef.current)
+    }
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [sidebarState, sidebarRef, widgets]);
+  }, [sidebarState, sidebarRef, chatInputRef, widgets]);
   
   const handleStop = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);
@@ -98,11 +102,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     <div className="relative w-full h-full" ref={containerRef}>
       {widgets.map((widget) => {
         const nodeRef = nodeRefs.current.get(widget.id)!;
-        // The widget now determines its own expanded state
-        // For initial placement and boundary calculation, we might need a hint
-        // or just let it reflow. For simplicity, we'll use a fixed expanded width hint
-        // The actual width is controlled by BaseWidget's internal state now.
-
         return (
           <Draggable
               key={widget.id}

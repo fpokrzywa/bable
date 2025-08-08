@@ -143,7 +143,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
                   value={query}
                   onChange={handleInputChange}
                   placeholder="Please type your message here"
-                  className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base"
+                  className="w-full rounded-full h-14 pl-6 pr-16 bg-card/80 border-primary focus-visible:ring-primary/50 text-base shadow-lg"
                   disabled={loading}
               />
               <Button type="submit" size="icon" disabled={loading || !query.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary">
