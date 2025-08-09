@@ -17,6 +17,8 @@ const createDefaultUser = (email: string): User => ({
     _id: email,
     userId: email,
     username: 'Default User',
+    first_name: 'Default',
+    last_name: 'User',
     email: email,
     bio: 'Please configure your user profile webhook in the .env file to fetch real user data.',
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',

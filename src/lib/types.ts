@@ -65,6 +65,8 @@ export interface User {
     _id: any;
     userId: string;
     username: string;
+    first_name?: string;
+    last_name?: string;
     email: string;
     bio?: string;
     avatar?: string;

@@ -426,7 +426,7 @@ export function Dashboard() {
                       className="opacity-80 mb-4"
                   />
                   <h1 className="text-4xl font-bold tracking-tight mt-2">
-                      Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
+                      Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
                   </h1>
                   <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
               </div>

@@ -113,7 +113,7 @@ export function Profile({ user }: ProfileProps) {
                     <AvatarFallback>{profile.username?.substring(0,2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="grid gap-1.5">
-                    <h2 className="text-2xl font-bold">{profile.username}</h2>
+                    <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
                     <p className="text-muted-foreground">{profile.email}</p>
                     <Button size="sm" variant="outline">
                         Change Avatar
@@ -121,6 +121,16 @@ export function Profile({ user }: ProfileProps) {
                     </div>
                 </div>
                 <div className="grid gap-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="first_name">First Name</Label>
+                            <Input id="first_name" value={profile.first_name} onChange={handleInputChange} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="last_name">Last Name</Label>
+                            <Input id="last_name" value={profile.last_name} onChange={handleInputChange} />
+                        </div>
+                    </div>
                     <div className="grid gap-2">
                     <Label htmlFor="username">Username</Label>
                     <Input id="username" value={profile.username} onChange={handleInputChange} />
