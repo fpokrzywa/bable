@@ -401,7 +401,7 @@ export function Dashboard() {
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {normalWidgets.length === 0 && (
-             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center">
+             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <Image
                         src="/phish_logo.png"
@@ -415,15 +415,15 @@ export function Dashboard() {
                     </h1>
                     <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="flex-shrink-0 w-full flex flex-col justify-end pb-4">
+                <div className="flex-shrink-0 w-full flex flex-col justify-end">
                     <div className="w-full text-left">
                     <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
                     <div className="space-y-3">
                         {starterPrompts.map((prompt, index) => (
                             <Button 
                                 key={index}
-                                variant="outline"
-                                className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-background/50 hover:bg-accent/50 pointer-events-auto rounded-lg border"
+                                variant="link"
+                                className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
                                 onClick={() => handleStarterPrompt(prompt.query)}
                             >
                                 <Sparkle className="mr-3 text-primary" size={20}/>
