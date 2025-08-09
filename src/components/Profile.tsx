@@ -156,7 +156,7 @@ export function Profile({ user }: ProfileProps) {
                 </CardContent>
             </Card>
         </div>
-      <div className="flex-shrink-0 flex justify-end items-center gap-2 p-6 border-t">
+      <div className="flex-shrink-0 flex justify-end items-center gap-2 p-6 bg-background/80 backdrop-blur-sm">
         <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
         </DialogClose>
