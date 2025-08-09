@@ -404,7 +404,7 @@ export function Dashboard() {
              <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-20">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <Image
-                        src="https://storage.googleapis.com/aip-dev-images-public/studio-assets/babel-fish.png"
+                        src="/phish_logo.png"
                         alt="Babel Fish Logo"
                         width={100}
                         height={100}
@@ -445,5 +445,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-
