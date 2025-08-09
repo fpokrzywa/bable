@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -29,6 +29,7 @@ export function Profile({ user }: ProfileProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setProfile(user);
@@ -53,6 +54,22 @@ export function Profile({ user }: ProfileProps) {
     setProfile({ ...profile, [id]: value });
   };
   
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (profile) {
+          setProfile({ ...profile, avatar: reader.result as string });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (loading) {
       return (
@@ -103,7 +120,7 @@ export function Profile({ user }: ProfileProps) {
                 </CardHeader>
                 <CardContent className="space-y-8">
                 <div className="flex items-center gap-4">
-                    <div className="relative group">
+                    <div className="relative group" onClick={handleAvatarClick}>
                         <Avatar className="h-24 w-24">
                             <AvatarImage src={profile.avatar} alt="User avatar" />
                             <AvatarFallback>{profile.first_name?.substring(0,1)}{profile.last_name?.substring(0,1)}</AvatarFallback>
@@ -111,6 +128,7 @@ export function Profile({ user }: ProfileProps) {
                         <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                             <Pencil className="text-white" size={32} />
                         </div>
+                        <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" />
                     </div>
                     <div className="grid gap-1.5">
                         <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
