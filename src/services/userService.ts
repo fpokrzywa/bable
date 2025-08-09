@@ -65,7 +65,7 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
 
     try {
         // The webhook should identify the user by userId/email in the body
-        const response = await axios.post(webhookUrl, profileData);
+        const response = await axios.get(webhookUrl, { params: profileData });
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to update user profile via webhook:', error);
