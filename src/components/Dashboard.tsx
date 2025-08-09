@@ -16,6 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { Sparkle } from 'lucide-react';
 import { Button } from './ui/button';
+import Image from 'next/image';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -394,7 +395,13 @@ export function Dashboard() {
         {widgets.length === 0 && (
              <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-20">
                 <div className="flex-grow flex flex-col justify-center items-center">
-                    <p className="text-muted-foreground text-sm">Babel Fish Logo</p>
+                    <Image
+                        src="https://storage.googleapis.com/aip-dev-images-public/studio-assets/babel-fish.png"
+                        alt="Babel Fish Logo"
+                        width={100}
+                        height={100}
+                        className="opacity-80 mb-4"
+                    />
                     <h1 className="text-4xl font-bold tracking-tight mt-2">
                         Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
                     </h1>
