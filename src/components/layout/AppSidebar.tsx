@@ -105,9 +105,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                 <DialogHeader>
                     <DialogTitle>Settings</DialogTitle>
                 </DialogHeader>
-                <div className="flex-grow overflow-auto no-scrollbar">
-                    <SettingsPage />
-                </div>
+                <SettingsPage />
             </DialogContent>
           </Dialog>
           <Dialog>
@@ -127,9 +125,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               <DialogHeader>
                   <DialogTitle>Profile</DialogTitle>
               </DialogHeader>
-              <div className="flex-grow overflow-auto no-scrollbar">
-                <Profile user={user} />
-              </div>
+              <Profile user={user} />
             </DialogContent>
           </Dialog>
           <SidebarSeparator className="my-1" />

@@ -95,7 +95,7 @@ export function Profile({ user }: ProfileProps) {
 
   return (
     <div className="flex flex-col h-full">
-        <div className="flex-grow space-y-6 pb-6">
+        <div className="flex-grow space-y-6 pb-6 overflow-y-auto no-scrollbar">
             <Card>
                 <CardHeader>
                 <CardDescription>This is how others will see you on the site.</CardDescription>
@@ -177,5 +177,3 @@ export function Profile({ user }: ProfileProps) {
     </div>
   );
 }
-
-    
