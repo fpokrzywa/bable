@@ -62,7 +62,6 @@ export interface ChatMessage {
 
 
 export interface User {
-    _id: any;
     userId: string;
     username: string;
     first_name?: string;

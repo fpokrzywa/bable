@@ -14,14 +14,13 @@ const getWebhookUrl = () => {
 };
 
 const createDefaultUser = (email: string): User => ({
-    _id: email,
     userId: email,
     username: 'Default User',
     first_name: 'Default',
     last_name: 'User',
     email: email,
     bio: 'Please configure your user profile webhook in the .env file to fetch real user data.',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+    avatar: `https://i.pravatar.cc/150?u=${email}`,
 });
 
 
@@ -36,10 +35,7 @@ export async function getUserProfile(email: string): Promise<User | null> {
         const response = await axios.get(webhookUrl, { params: { userId: email } });
         
         if (response.status === 200 && response.data) {
-            // Ensure _id is a string if it exists and is an object (like MongoDB's ObjectId)
-            if (response.data._id && typeof response.data._id === 'object') {
-                response.data._id = response.data._id.toString();
-            }
+            // The webhook should return the user object
             return response.data;
         }
 
@@ -68,13 +64,8 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     }
 
     try {
-        const dataToSend = { ...profileData };
-        // Don't send the _id back to the server if it's not needed for the update operation
-        // or convert it to a simple string if your backend expects it.
-        // For this example, let's assume the backend identifies the user by userId/email.
-        // delete dataToSend._id;
-
-        const response = await axios.post(webhookUrl, dataToSend);
+        // The webhook should identify the user by userId/email in the body
+        const response = await axios.post(webhookUrl, profileData);
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to update user profile via webhook:', error);
