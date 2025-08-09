@@ -76,11 +76,20 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     }
 
     try {
-        // The webhook should identify the user by userId/email in the body
         const response = await axios.post(webhookUrl, profileData);
         return response.status === 200 || response.status === 204;
     } catch (error) {
-        console.error('Failed to update user profile via webhook:', error);
+        if (axios.isAxiosError(error)) {
+            console.error('Failed to update user profile via webhook:', {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+                url: webhookUrl,
+                sentData: profileData
+            });
+        } else {
+            console.error('An unexpected error occurred during profile update:', error);
+        }
         return false;
     }
 }
