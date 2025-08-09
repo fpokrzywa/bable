@@ -7,7 +7,7 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
-import { Sidebar, useSidebar, SidebarMobileTrigger } from '@/components/ui/sidebar';
+import { Sidebar, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer, WIDGET_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
@@ -482,7 +482,5 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
 
     

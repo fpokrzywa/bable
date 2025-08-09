@@ -118,11 +118,11 @@ export function Profile({ user }: ProfileProps) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="first_name">First Name</Label>
-                            <Input id="first_name" value={profile.first_name} onChange={handleInputChange} />
+                            <Input id="first_name" value={profile.first_name || ''} onChange={handleInputChange} />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="last_name">Last Name</Label>
-                            <Input id="last_name" value={profile.last_name} onChange={handleInputChange} />
+                            <Input id="last_name" value={profile.last_name || ''} onChange={handleInputChange} />
                         </div>
                     </div>
                     <div className="grid gap-2">
@@ -135,7 +135,7 @@ export function Profile({ user }: ProfileProps) {
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="bio">Bio</Label>
-                        <Textarea id="bio" placeholder="Tell us a little bit about yourself" value={profile.bio} onChange={handleInputChange} />
+                        <Textarea id="bio" placeholder="Tell us a little bit about yourself" value={profile.bio || ''} onChange={handleInputChange} />
                     </div>
                 </div>
                 </CardContent>
@@ -177,3 +177,5 @@ export function Profile({ user }: ProfileProps) {
     </div>
   );
 }
+
+    

@@ -35,8 +35,11 @@ export async function getUserProfile(email: string): Promise<User | null> {
         const response = await axios.get(webhookUrl, { params: { userId: email } });
         
         if (response.status === 200 && response.data) {
-            // The webhook should return the user object
-            return response.data;
+            // The webhook can return a single user or an array of users
+            const userData = Array.isArray(response.data) ? response.data[0] : response.data;
+            if (userData) {
+                return userData;
+            }
         }
 
         console.warn(`Webhook returned status ${response.status} or no data for ${email}. Falling back to default user.`);
@@ -72,3 +75,5 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
         return false;
     }
 }
+
+    
