@@ -372,7 +372,7 @@ export function Dashboard() {
             </Sidebar>
         </div>
 
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 transition-all duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
              <WidgetContainer 
                 widgets={normalWidgets} 
                 removeWidget={removeWidget} 
@@ -387,15 +387,20 @@ export function Dashboard() {
               />
         </div>
 
+        <div 
+          className="absolute inset-0 flex flex-col items-center transition-all duration-300 ease-in-out" 
+          style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+        >
         {widgets.length === 0 && (
-             <div className="flex-1 flex flex-col h-full w-full px-4">
+             <div className="flex-1 flex flex-col justify-center items-center text-center w-full px-4">
                 <div className="flex-grow flex flex-col justify-center items-center">
-                    <h1 className="text-4xl font-bold tracking-tight">
+                    <p className="text-muted-foreground text-sm">Babel Fish Logo</p>
+                    <h1 className="text-4xl font-bold tracking-tight mt-2">
                         Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
                     </h1>
                     <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="flex-shrink-0 pb-8">
+                <div className="flex-shrink-0 pb-8 w-full max-w-xl">
                     <div className="w-full">
                     <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
                     <div className="space-y-3">
@@ -403,7 +408,7 @@ export function Dashboard() {
                             <Button 
                                 key={index}
                                 variant="ghost"
-                                className="w-full justify-start h-auto py-3 px-4 text-left"
+                                className="w-full justify-start h-auto py-2 px-2 text-left text-base"
                                 onClick={() => handleStarterPrompt(prompt.query)}
                             >
                                 <Sparkle className="mr-3 text-primary" size={20}/>
@@ -415,8 +420,9 @@ export function Dashboard() {
                 </div>
           </div>
         )}
+        </div>
         
-        <div ref={chatInputRef} className="fixed bottom-4 right-4 left-4 z-40" style={{ paddingLeft: state === 'expanded' ? (sidebarRef.current?.offsetWidth ?? 0) : 0, transition: 'padding-left 0.2s ease-in-out' }}>
+        <div ref={chatInputRef} className="fixed bottom-4 right-4 left-4 z-40 transition-all duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
                 <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
             </div>
