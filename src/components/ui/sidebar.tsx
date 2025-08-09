@@ -240,7 +240,13 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <div className="flex h-full w-full flex-col">{children}</div>
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+            <SheetContent side={side} className="w-[var(--sidebar-width-mobile)] p-0">
+                <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+                    {children}
+                </div>
+            </SheetContent>
+        </Sheet>
       )
     }
 
@@ -356,11 +362,9 @@ const SidebarMobileTrigger = React.forwardRef<
     HTMLButtonElement,
     React.ComponentProps<typeof Button> & { asChild?: boolean }
 >(({ className, asChild, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : Button
   return (
-    <SheetTrigger asChild>
-        <Comp ref={ref} variant="ghost" size="icon" {...props} />
-    </SheetTrigger>
+    <Comp ref={ref} variant="ghost" size="icon" {...props} />
   );
 });
 SidebarMobileTrigger.displayName = "SidebarMobileTrigger";

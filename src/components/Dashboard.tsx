@@ -453,9 +453,22 @@ export function Dashboard() {
       </div>
 
       <div className={cn("absolute top-4 left-4 z-50", isMobile ? 'block' : 'hidden')}>
-          <SidebarMobileTrigger>
-              <Menu />
-          </SidebarMobileTrigger>
+          <Sheet>
+              <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                      <Menu />
+                  </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
+                <AppSidebar 
+                  user={user}
+                  minimizedWidgets={minimizedWidgets} 
+                  favoritedWidgets={favorites}
+                  onRestoreWidget={toggleMinimizeWidget}
+                  onRestoreFavorite={handleRestoreFavorite}
+                />
+              </SheetContent>
+          </Sheet>
       </div>
       
       <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
