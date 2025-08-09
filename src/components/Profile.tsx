@@ -104,7 +104,7 @@ export function Profile({ user }: ProfileProps) {
                 <div className="flex items-center gap-4">
                     <Avatar className="h-24 w-24">
                     <AvatarImage src={profile.avatar} alt="User avatar" />
-                    <AvatarFallback>{profile.username?.substring(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{profile.first_name?.substring(0,1)}{profile.last_name?.substring(0,1)}</AvatarFallback>
                     </Avatar>
                     <div className="grid gap-1.5">
                     <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
