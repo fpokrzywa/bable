@@ -14,12 +14,12 @@ import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
+import { getSampleData } from '@/services/sampleDataService';
 import { Menu, Sparkle } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import sampleData from '@/lib/sample-data.json';
 
 
 export function Dashboard() {
@@ -150,27 +150,30 @@ export function Dashboard() {
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@incident')) {
+        const incidentData = await getSampleData('incident');
         newWidgetDef = {
           query: 'Incidents',
-          data: sampleData.incidents,
+          data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
           isFavorited: false,
         };
 
       } else if (lowerCaseQuery.includes('@change')) {
+         const changeData = await getSampleData('change_request');
         newWidgetDef = {
           query: 'Changes',
-          data: sampleData.changes,
+          data: changeData,
           agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
           type: 'change',
           isFavorited: false,
         };
 
       } else if (lowerCaseQuery.includes('@problem')) {
+        const problemData = await getSampleData('problem');
         newWidgetDef = {
           query: 'Problem',
-          data: sampleData.problems,
+          data: problemData,
           agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
           type: 'problem',
           isFavorited: false,
@@ -471,5 +474,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    

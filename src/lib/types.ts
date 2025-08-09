@@ -41,7 +41,7 @@ export interface Widget {
   query: string;
   data: any;
   agent: Agent;
-  type: 'incident' | 'generic' | 'problem' | 'change';
+  type: 'incident' | 'generic' | 'problem' | 'change' | 'change_request';
   zIndex: number;
   isMinimized: boolean;
   isFavorited: boolean;
