@@ -433,12 +433,12 @@ export function Dashboard() {
               <div className="flex-shrink-0 w-full flex flex-col justify-end">
                   <div className="w-full text-left">
                       <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                           {starterPrompts.map((prompt, index) => (
                               <Button 
                                   key={index}
                                   variant="link"
-                                  className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
+                                  className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
                                   onClick={() => handleStarterPrompt(prompt.query)}
                               >
                                   <Sparkle className="mr-3 text-primary" size={20}/>
