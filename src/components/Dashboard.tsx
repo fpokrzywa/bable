@@ -18,7 +18,7 @@ import { Menu, Sparkle } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 
 
 export function Dashboard() {
@@ -460,6 +460,9 @@ export function Dashboard() {
                   </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                </SheetHeader>
                 <AppSidebar 
                   user={user}
                   minimizedWidgets={minimizedWidgets} 
