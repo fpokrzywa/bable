@@ -43,7 +43,7 @@ export function Profile({ user, onProfileUpdate }: ProfileProps) {
     if (!profile) return;
     const success = await updateUserProfile(profile);
      if (success) {
-      toast({ title: 'Success', description: 'Profile updated successfully!' });
+      toast({ title: 'Success', description: 'Profile updated successfully!', duration: 3000 });
       onProfileUpdate();
     } else {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to update profile.' });
