@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -365,6 +365,24 @@ const SidebarTrigger = React.forwardRef<
 });
 
 SidebarTrigger.displayName = "SidebarTrigger"
+
+const SidebarMobileTrigger = React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<typeof Button> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const Comp = asChild ? Slot : Button;
+
+  if (!isMobile) return null;
+
+  return (
+    <SheetTrigger asChild>
+        <Comp ref={ref} variant="ghost" size="icon" {...props} />
+    </SheetTrigger>
+  );
+});
+SidebarMobileTrigger.displayName = "SidebarMobileTrigger";
+
 
 const SidebarRail = React.forwardRef<
   HTMLButtonElement,
@@ -848,5 +866,8 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarMobileTrigger,
   useSidebar,
 }
+
+    

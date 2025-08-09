@@ -7,16 +7,18 @@ import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
-import { Sidebar, useSidebar } from '@/components/ui/sidebar';
+import { Sidebar, useSidebar, SidebarMobileTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { WidgetContainer, WIDGET_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
-import { Sparkle } from 'lucide-react';
+import { Menu, Sparkle } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
+
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -27,7 +29,7 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -368,7 +370,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="relative flex h-screen w-screen overflow-hidden">
+    <div className="relative flex h-screen w-screen overflow-hidden bg-background">
         <div ref={sidebarRef} className="z-50">
             <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
                 <AppSidebar 
@@ -398,14 +400,14 @@ export function Dashboard() {
 
         <div 
           className="absolute inset-0 flex flex-col items-center pointer-events-none" 
-          style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+          style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {normalWidgets.length === 0 && (
-             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
+            <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <Image
                         src="/phish_logo.png"
-                        alt="Babel Phish Logo"
+                        alt="BabelPhish Logo"
                         width={100}
                         height={100}
                         className="opacity-80 mb-4"
@@ -417,27 +419,33 @@ export function Dashboard() {
                 </div>
                 <div className="flex-shrink-0 w-full flex flex-col justify-end">
                     <div className="w-full text-left">
-                    <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                    <div className="space-y-3">
-                        {starterPrompts.map((prompt, index) => (
-                            <Button 
-                                key={index}
-                                variant="link"
-                                className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
-                                onClick={() => handleStarterPrompt(prompt.query)}
-                            >
-                                <Sparkle className="mr-3 text-primary" size={20}/>
-                                {prompt.text}
-                            </Button>
-                        ))}
-                    </div>
+                        <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
+                        <div className="space-y-3">
+                            {starterPrompts.map((prompt, index) => (
+                                <Button 
+                                    key={index}
+                                    variant="link"
+                                    className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
+                                    onClick={() => handleStarterPrompt(prompt.query)}
+                                >
+                                    <Sparkle className="mr-3 text-primary" size={20}/>
+                                    {prompt.text}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 </div>
           </div>
         )}
         </div>
+
+        <div className={cn("absolute top-4 left-4 z-50", isMobile ? 'block' : 'hidden')}>
+            <SidebarMobileTrigger>
+                <Menu />
+            </SidebarMobileTrigger>
+        </div>
         
-        <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+        <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
                 <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
             </div>
@@ -446,4 +454,5 @@ export function Dashboard() {
   );
 }
 
+    
     
