@@ -13,6 +13,15 @@ const getWebhookUrl = () => {
     return url;
 };
 
+const getUpdateWebhookUrl = () => {
+    const url = process.env.USER_PROFILE_UPDATE_WEBHOOK_URL;
+    if (!url) {
+        console.warn('USER_PROFILE_UPDATE_WEBHOOK_URL is not configured in .env file.');
+        return null;
+    }
+    return url;
+}
+
 const createDefaultUser = (email: string): User => ({
     userId: email,
     username: 'Default User',
@@ -60,20 +69,18 @@ export async function getUserProfile(email: string): Promise<User | null> {
 }
 
 export async function updateUserProfile(profileData: Partial<User>): Promise<boolean> {
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = getUpdateWebhookUrl();
     if (!webhookUrl) {
-        console.error('Cannot update user profile: USER_PROFILE_WEBHOOK_URL is not configured.');
+        console.error('Cannot update user profile: USER_PROFILE_UPDATE_WEBHOOK_URL is not configured.');
         return false;
     }
 
     try {
         // The webhook should identify the user by userId/email in the body
-        const response = await axios.get(webhookUrl, { params: profileData });
+        const response = await axios.post(webhookUrl, profileData);
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to update user profile via webhook:', error);
         return false;
     }
 }
-
-    

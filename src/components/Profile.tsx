@@ -127,11 +127,11 @@ export function Profile({ user }: ProfileProps) {
                     </div>
                     <div className="grid gap-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" value={profile.username} onChange={handleInputChange} />
+                    <Input id="username" value={profile.username} onChange={handleInputChange} readOnly className="cursor-not-allowed bg-muted" />
                     </div>
                     <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={profile.email} onChange={handleInputChange} />
+                    <Input id="email" type="email" value={profile.email} onChange={handleInputChange} readOnly className="cursor-not-allowed bg-muted" />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="bio">Bio</Label>
