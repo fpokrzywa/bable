@@ -18,6 +18,7 @@ import { Menu, Sparkle } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 
 export function Dashboard() {
@@ -29,7 +30,7 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -369,90 +370,99 @@ export function Dashboard() {
     handleCreateWidget(query);
   }
 
+  const renderSidebar = () => (
+    <AppSidebar 
+      user={user}
+      minimizedWidgets={minimizedWidgets} 
+      favoritedWidgets={favorites}
+      onRestoreWidget={toggleMinimizeWidget}
+      onRestoreFavorite={handleRestoreFavorite}
+    />
+  );
+
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-background">
+      {isMobile ? (
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+          <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
+            {renderSidebar()}
+          </SheetContent>
+        </Sheet>
+      ) : (
         <div ref={sidebarRef} className="z-50">
-            <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
-                <AppSidebar 
-                user={user}
-                minimizedWidgets={minimizedWidgets} 
-                favoritedWidgets={favorites}
-                onRestoreWidget={toggleMinimizeWidget}
-                onRestoreFavorite={handleRestoreFavorite}
-                />
-            </Sidebar>
+          <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
+            {renderSidebar()}
+          </Sidebar>
         </div>
+      )}
 
-        <div className="absolute inset-0">
-             <WidgetContainer 
-                widgets={normalWidgets} 
-                removeWidget={removeWidget} 
-                updateEntity={updateEntity}
-                bringToFront={bringToFront}
-                toggleMinimizeWidget={toggleMinimizeWidget}
-                toggleFavoriteWidget={toggleFavoriteWidget}
-                updateWidgetPosition={updateWidgetPosition}
-                sidebarState={state}
-                sidebarRef={sidebarRef}
-                chatInputRef={chatInputRef}
-              />
+      <div className="absolute inset-0">
+          <WidgetContainer 
+            widgets={normalWidgets} 
+            removeWidget={removeWidget} 
+            updateEntity={updateEntity}
+            bringToFront={bringToFront}
+            toggleMinimizeWidget={toggleMinimizeWidget}
+            toggleFavoriteWidget={toggleFavoriteWidget}
+            updateWidgetPosition={updateWidgetPosition}
+            sidebarState={state}
+            sidebarRef={sidebarRef}
+            chatInputRef={chatInputRef}
+          />
+      </div>
+
+      <div 
+        className="absolute inset-0 flex flex-col items-center pointer-events-none" 
+        style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+      >
+      {normalWidgets.length === 0 && (
+          <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
+              <div className="flex-grow flex flex-col justify-center items-center">
+                  <Image
+                      src="/phish_logo.png"
+                      alt="BabelPhish Logo"
+                      width={100}
+                      height={100}
+                      className="opacity-80 mb-4"
+                  />
+                  <h1 className="text-4xl font-bold tracking-tight mt-2">
+                      Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
+                  </h1>
+                  <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
+              </div>
+              <div className="flex-shrink-0 w-full flex flex-col justify-end">
+                  <div className="w-full text-left">
+                      <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
+                      <div className="space-y-3">
+                          {starterPrompts.map((prompt, index) => (
+                              <Button 
+                                  key={index}
+                                  variant="link"
+                                  className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
+                                  onClick={() => handleStarterPrompt(prompt.query)}
+                              >
+                                  <Sparkle className="mr-3 text-primary" size={20}/>
+                                  {prompt.text}
+                              </Button>
+                          ))}
+                      </div>
+                  </div>
+              </div>
         </div>
+      )}
+      </div>
 
-        <div 
-          className="absolute inset-0 flex flex-col items-center pointer-events-none" 
-          style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
-        >
-        {normalWidgets.length === 0 && (
-            <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
-                <div className="flex-grow flex flex-col justify-center items-center">
-                    <Image
-                        src="/phish_logo.png"
-                        alt="BabelPhish Logo"
-                        width={100}
-                        height={100}
-                        className="opacity-80 mb-4"
-                    />
-                    <h1 className="text-4xl font-bold tracking-tight mt-2">
-                        Hello, <span className="text-primary">{user?.username || "Explorer"}</span>
-                    </h1>
-                    <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
-                </div>
-                <div className="flex-shrink-0 w-full flex flex-col justify-end">
-                    <div className="w-full text-left">
-                        <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                        <div className="space-y-3">
-                            {starterPrompts.map((prompt, index) => (
-                                <Button 
-                                    key={index}
-                                    variant="link"
-                                    className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-transparent pointer-events-auto rounded-lg"
-                                    onClick={() => handleStarterPrompt(prompt.query)}
-                                >
-                                    <Sparkle className="mr-3 text-primary" size={20}/>
-                                    {prompt.text}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+      <div className={cn("absolute top-4 left-4 z-50", isMobile ? 'block' : 'hidden')}>
+          <SidebarMobileTrigger>
+              <Menu />
+          </SidebarMobileTrigger>
+      </div>
+      
+      <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+          <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
+              <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
           </div>
-        )}
-        </div>
-
-        <div className={cn("absolute top-4 left-4 z-50", isMobile ? 'block' : 'hidden')}>
-            <SidebarMobileTrigger>
-                <Menu />
-            </SidebarMobileTrigger>
-        </div>
-        
-        <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
-            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
-            </div>
-        </div>
+      </div>
     </div>
   );
 }
-
-    
-    

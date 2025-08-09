@@ -238,6 +238,12 @@ const Sidebar = React.forwardRef<
   ) => {
     const { isMobile, state, openMobile, setOpenMobile, width } = useSidebar()
 
+    if (isMobile) {
+      return (
+        <div className="flex h-full w-full flex-col">{children}</div>
+      )
+    }
+
     if (collapsible === "none") {
       return (
         <div
@@ -251,26 +257,6 @@ const Sidebar = React.forwardRef<
         >
           {children}
         </div>
-      )
-    }
-
-    if (isMobile) {
-      return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
-            data-sidebar="sidebar"
-            data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar/95 p-0 text-sidebar-foreground [&>button]:hidden"
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-              } as React.CSSProperties
-            }
-            side={side}
-          >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
       )
     }
 
@@ -370,11 +356,7 @@ const SidebarMobileTrigger = React.forwardRef<
     HTMLButtonElement,
     React.ComponentProps<typeof Button> & { asChild?: boolean }
 >(({ className, asChild, ...props }, ref) => {
-  const { isMobile, toggleSidebar } = useSidebar();
-  const Comp = asChild ? Slot : Button;
-
-  if (!isMobile) return null;
-
+  const Comp = asChild ? Slot : "button"
   return (
     <SheetTrigger asChild>
         <Comp ref={ref} variant="ghost" size="icon" {...props} />
