@@ -9,7 +9,7 @@ import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
 import { Sidebar, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { WidgetContainer } from '@/components/widgets/WidgetContainer';
+import { WidgetContainer, WIDGET_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
@@ -100,9 +100,17 @@ export function Dashboard() {
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
-    const initialX = (widgets.filter(w => !w.isMinimized).length % 5) * 40;
-    const initialY = Math.floor(widgets.filter(w => !w.isMinimized).length / 5) * 40;
+    const sidebarWidth = state === 'expanded' && sidebarRef.current ? sidebarRef.current.offsetWidth : 0;
+    const workspaceWidth = window.innerWidth - sidebarWidth;
+    const workspaceHeight = window.innerHeight;
+    
+    // Add some randomness to avoid perfect stacking
+    const randomOffsetX = Math.floor(Math.random() * 50) - 25; 
+    const randomOffsetY = Math.floor(Math.random() * 50) - 25;
 
+    const initialX = sidebarWidth + (workspaceWidth / 2) - (WIDGET_INITIAL_WIDTH / 2) + randomOffsetX;
+    const initialY = (workspaceHeight / 2) - (WIDGET_HEIGHT / 2) + randomOffsetY;
+    
     const newWidget: Widget = {
       ...widgetDef,
       id: id || Date.now().toString(),
@@ -437,3 +445,4 @@ export function Dashboard() {
     </div>
   );
 }
+
