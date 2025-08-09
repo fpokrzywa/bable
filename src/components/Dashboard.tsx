@@ -19,6 +19,7 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import sampleData from '@/lib/sample-data.json';
 
 
 export function Dashboard() {
@@ -149,46 +150,27 @@ export function Dashboard() {
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@incident')) {
-        const incidentData: Incident[] = [
-          { id: 'INC001', sys_id: 'INC001', number: `INC001`, short_description: 'User unable to login', priority: '1 - Critical', state: 'New', assigned_to: 'John Doe', description: 'User is getting an invalid password error when trying to log in to the portal.' },
-          { id: 'INC002', sys_id: 'INC002', number: `INC002`, short_description: 'Email server is down', priority: '1 - Critical', state: 'In Progress', assigned_to: 'Jane Smith', description: 'The primary email server is not responding. All email services are down.' },
-        ];
         newWidgetDef = {
           query: 'Incidents',
-          data: incidentData,
+          data: sampleData.incidents,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
           isFavorited: false,
         };
 
       } else if (lowerCaseQuery.includes('@change')) {
-        const changeData: Change[] = [
-          { sys_id: 'CHG001', number: `CHG001`, short_description: 'Upgrade production server firmware', type: 'Standard', state: 'Scheduled', assigned_to: 'Admin Team', justification: 'Firmware update includes critical security patches.', implementation_plan: 'Follow standard server update procedure during maintenance window.' },
-          { sys_id: 'CHG002', number: `CHG002`, short_description: 'Deploy new CRM application to production', type: 'Normal', state: 'Assess', assigned_to: 'DevOps Team', justification: 'New CRM provides enhanced features for the sales team.', implementation_plan: 'Deploy using blue-green deployment strategy.' },
-        ];
         newWidgetDef = {
           query: 'Changes',
-          data: changeData,
+          data: sampleData.changes,
           agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
           type: 'change',
           isFavorited: false,
         };
 
       } else if (lowerCaseQuery.includes('@problem')) {
-        const problemData: Problem[] = [
-          {
-            sys_id: 'PRB001',
-            number: `PRB001`,
-            short_description: 'Recurring network outages in building B',
-            description: 'Users in building B are experiencing intermittent network connectivity loss, typically between 2 PM and 4 PM on weekdays.',
-            workaround: 'Users can switch to the guest Wi-Fi network as a temporary solution, but it has limited access to internal resources.',
-            cause: 'Initial investigation points to a faulty network switch on the 3rd floor of building B. Further diagnostics are needed to confirm.',
-          },
-        ];
-    
         newWidgetDef = {
           query: 'Problem',
-          data: problemData,
+          data: sampleData.problems,
           agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
           type: 'problem',
           isFavorited: false,
