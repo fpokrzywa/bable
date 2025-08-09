@@ -372,7 +372,7 @@ export function Dashboard() {
             </Sidebar>
         </div>
 
-        <div className="absolute inset-0 transition-all duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+        <div className="absolute inset-0 transition-all duration-300 ease-in-out">
              <WidgetContainer 
                 widgets={normalWidgets} 
                 removeWidget={removeWidget} 
@@ -392,7 +392,7 @@ export function Dashboard() {
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {widgets.length === 0 && (
-             <div className="flex-1 flex flex-col justify-center items-center text-center w-full px-4">
+             <div className="flex-1 flex flex-col justify-center items-center text-center w-full px-4 pb-24">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <p className="text-muted-foreground text-sm">Babel Fish Logo</p>
                     <h1 className="text-4xl font-bold tracking-tight mt-2">
@@ -400,7 +400,7 @@ export function Dashboard() {
                     </h1>
                     <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="flex-shrink-0 pb-8 w-full max-w-xl">
+                <div className="flex-shrink-0 w-full max-w-xl">
                     <div className="w-full">
                     <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
                     <div className="space-y-3">
