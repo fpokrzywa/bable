@@ -1,33 +1,44 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Dashboard } from "@/components/Dashboard";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { LoginForm } from '@/components/LoginForm';
+import { Card, CardDescription } from '@/components/ui/card';
 
-export default function Home() {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const session = localStorage.getItem('session');
-    if (!session) {
-      router.push('/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
-
-  if (!isAuthenticated) {
-    return null; // or a loading spinner
-  }
+export default function LandingPage() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   return (
-    <div>
-      <SidebarProvider defaultOpen={false}>
-        <Dashboard />
-      </SidebarProvider>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div className="text-center">
+        <Image
+          src="/phish_logo.png"
+          alt="BabelPhish Logo"
+          width={120}
+          height={120}
+          className="mx-auto"
+        />
+        <h1 className="text-4xl font-bold mt-6">
+          <span className="text-foreground">I am </span>
+          <span className="text-primary">BabelPhish</span>
+        </h1>
+
+        <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-8">Login</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Login</DialogTitle>
+              <CardDescription>Enter your email below to login to your account.</CardDescription>
+            </DialogHeader>
+            <LoginForm onLoginSuccess={() => setIsLoginOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

@@ -14,7 +14,11 @@ const formSchema = z.object({
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-export function LoginForm() {
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -29,7 +33,10 @@ export function LoginForm() {
     // For now, we'll just simulate a successful login.
     console.log(values);
     localStorage.setItem('session', JSON.stringify({ loggedIn: true, email: values.email }));
-    router.push('/');
+    router.push('/dashboard');
+    if(onLoginSuccess) {
+      onLoginSuccess();
+    }
   }
 
   return (

@@ -55,7 +55,7 @@ export function Profile({ user }: ProfileProps) {
   
   const handleLogout = () => {
     localStorage.removeItem('session');
-    router.push('/login');
+    router.push('/');
   };
 
 
