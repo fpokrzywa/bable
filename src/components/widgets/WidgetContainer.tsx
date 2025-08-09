@@ -5,7 +5,6 @@ import { useRef, createRef, useState, useEffect } from 'react';
 import Draggable, { type DraggableBounds, type DraggableData, type DraggableEvent } from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
-import Image from 'next/image';
 
 interface WidgetContainerProps {
   widgets: Widget[];
@@ -84,18 +83,7 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
   };
   
   if (widgets.length === 0) {
-    return (
-        <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground -mt-20">
-            <Image 
-              src="https://storage.googleapis.com/aip-dev-images-public/studio-assets/babel_fish_logo_with_tag.png" 
-              alt="Babel Fish Logo" 
-              width={500} 
-              height={250}
-              className="opacity-20"
-              priority
-            />
-        </div>
-    )
+    return null;
   }
 
   return (

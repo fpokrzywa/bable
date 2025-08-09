@@ -7,13 +7,6 @@ body {
   background-color: hsl(var(--background));
 }
 
-.page-background {
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: 400px;
-}
-
 @layer base {
   :root {
     --background: 210 100% 98%;
