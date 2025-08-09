@@ -401,11 +401,11 @@ export function Dashboard() {
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {normalWidgets.length === 0 && (
-             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-20">
+             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <Image
                         src="/phish_logo.png"
-                        alt="Babel Fish Logo"
+                        alt="Babel Phish Logo"
                         width={100}
                         height={100}
                         className="opacity-80 mb-4"
@@ -415,7 +415,7 @@ export function Dashboard() {
                     </h1>
                     <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="flex-shrink-0 w-full">
+                <div className="flex-shrink-0 w-full flex flex-col justify-end pb-4">
                     <div className="w-full text-left">
                     <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
                     <div className="space-y-3">
@@ -445,3 +445,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
