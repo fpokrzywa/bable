@@ -373,7 +373,7 @@ export function Dashboard() {
             </Sidebar>
         </div>
 
-        <div className="absolute inset-0 transition-all duration-300 ease-in-out">
+        <div className="absolute inset-0">
              <WidgetContainer 
                 widgets={normalWidgets} 
                 removeWidget={removeWidget} 
@@ -389,7 +389,7 @@ export function Dashboard() {
         </div>
 
         <div 
-          className="absolute inset-0 flex flex-col items-center transition-all duration-300 ease-in-out pointer-events-none" 
+          className="absolute inset-0 flex flex-col items-center pointer-events-none" 
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {widgets.length === 0 && (
@@ -429,7 +429,7 @@ export function Dashboard() {
         )}
         </div>
         
-        <div ref={chatInputRef} className="fixed bottom-4 right-4 left-4 z-40 transition-all duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+        <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
                 <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
             </div>
