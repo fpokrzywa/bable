@@ -388,11 +388,11 @@ export function Dashboard() {
         </div>
 
         <div 
-          className="absolute inset-0 flex flex-col items-center transition-all duration-300 ease-in-out" 
+          className="absolute inset-0 flex flex-col items-center transition-all duration-300 ease-in-out pointer-events-none" 
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
         {widgets.length === 0 && (
-             <div className="flex-1 flex flex-col justify-center items-center text-center w-full px-4 pb-24">
+             <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-20">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <p className="text-muted-foreground text-sm">Babel Fish Logo</p>
                     <h1 className="text-4xl font-bold tracking-tight mt-2">
@@ -400,15 +400,15 @@ export function Dashboard() {
                     </h1>
                     <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                 </div>
-                <div className="flex-shrink-0 w-full max-w-xl">
-                    <div className="w-full">
-                    <p className="text-sm text-muted-foreground mb-4">Quick browse items</p>
+                <div className="flex-shrink-0 w-full">
+                    <div className="w-full text-left">
+                    <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
                     <div className="space-y-3">
                         {starterPrompts.map((prompt, index) => (
                             <Button 
                                 key={index}
                                 variant="ghost"
-                                className="w-full justify-start h-auto py-2 px-2 text-left text-base"
+                                className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-background/50 hover:bg-accent/50 pointer-events-auto rounded-lg border"
                                 onClick={() => handleStarterPrompt(prompt.query)}
                             >
                                 <Sparkle className="mr-3 text-primary" size={20}/>
