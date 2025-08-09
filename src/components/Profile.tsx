@@ -55,7 +55,7 @@ export function Profile({ user }: ProfileProps) {
 
   if (loading) {
       return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <Card>
                 <CardHeader>
                     <Skeleton className="h-5 w-2/5" />
@@ -90,12 +90,12 @@ export function Profile({ user }: ProfileProps) {
   }
 
   if (!profile) {
-    return <div>Failed to load profile. Please try again later.</div>;
+    return <div className="p-6">Failed to load profile. Please try again later.</div>;
   }
 
   return (
-    <div className="flex flex-col h-full">
-        <div className="flex-grow space-y-6 pb-6 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex-grow overflow-y-auto no-scrollbar p-6 space-y-6">
             <Card>
                 <CardHeader>
                 <CardDescription>This is how others will see you on the site.</CardDescription>
@@ -156,7 +156,7 @@ export function Profile({ user }: ProfileProps) {
                 </CardContent>
             </Card>
         </div>
-      <div className="flex-shrink-0 flex justify-end items-center gap-2 pt-4 border-t">
+      <div className="flex-shrink-0 flex justify-end items-center gap-2 p-6 border-t">
         <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
         </DialogClose>

@@ -121,8 +121,8 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </DialogTrigger>
-            <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px]">
-              <DialogHeader>
+            <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px] p-0">
+              <DialogHeader className="p-6 pb-0">
                   <DialogTitle>Profile</DialogTitle>
               </DialogHeader>
               <Profile user={user} />
