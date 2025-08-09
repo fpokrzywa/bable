@@ -37,19 +37,24 @@ export function Dashboard() {
   const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const session = localStorage.getItem('session');
-      if (session) {
-        const userEmail = JSON.parse(session).email;
-        if (userEmail) {
-          const profile = await getUserProfile(userEmail);
-          setUser(profile);
-        }
+  const fetchUser = async () => {
+    const session = localStorage.getItem('session');
+    if (session) {
+      const userEmail = JSON.parse(session).email;
+      if (userEmail) {
+        const profile = await getUserProfile(userEmail);
+        setUser(profile);
       }
     }
+  }
+
+  useEffect(() => {
     fetchUser();
   }, []);
+  
+  const handleProfileUpdate = () => {
+    fetchUser();
+  };
 
   useEffect(() => {
     try {
@@ -377,6 +382,7 @@ export function Dashboard() {
       favoritedWidgets={favorites}
       onRestoreWidget={toggleMinimizeWidget}
       onRestoreFavorite={handleRestoreFavorite}
+      onProfileUpdate={handleProfileUpdate}
     />
   );
 
@@ -469,6 +475,7 @@ export function Dashboard() {
                   favoritedWidgets={favorites}
                   onRestoreWidget={toggleMinimizeWidget}
                   onRestoreFavorite={handleRestoreFavorite}
+                  onProfileUpdate={handleProfileUpdate}
                 />
               </SheetContent>
           </Sheet>

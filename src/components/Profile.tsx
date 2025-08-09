@@ -21,9 +21,10 @@ import { Pencil } from 'lucide-react';
 
 interface ProfileProps {
     user: User | null;
+    onProfileUpdate: () => void;
 }
 
-export function Profile({ user }: ProfileProps) {
+export function Profile({ user, onProfileUpdate }: ProfileProps) {
   const [profile, setProfile] = useState<User | null>(user);
   const [loading, setLoading] = useState(!user);
   const [darkMode, setDarkMode] = useState(false);
@@ -43,6 +44,7 @@ export function Profile({ user }: ProfileProps) {
     const success = await updateUserProfile(profile);
      if (success) {
       toast({ title: 'Success', description: 'Profile updated successfully!' });
+      onProfileUpdate();
     } else {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to update profile.' });
     }

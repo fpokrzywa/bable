@@ -27,9 +27,10 @@ interface AppSidebarProps {
     favoritedWidgets: Widget[];
     onRestoreWidget: (id: string) => void;
     onRestoreFavorite: (widget: Widget) => void;
+    onProfileUpdate: () => void;
 }
 
-export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
+export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite, onProfileUpdate }: AppSidebarProps) {
   const { toggleSidebar, state } = useSidebar();
   const router = useRouter();
 
@@ -125,7 +126,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               <DialogHeader className="p-6 pb-0">
                   <DialogTitle>Profile</DialogTitle>
               </DialogHeader>
-              <Profile user={user} />
+              <Profile user={user} onProfileUpdate={onProfileUpdate} />
             </DialogContent>
           </Dialog>
           <SidebarSeparator className="my-1" />
