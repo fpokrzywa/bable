@@ -17,6 +17,7 @@ import type { User } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Pencil } from 'lucide-react';
 
 interface ProfileProps {
     user: User | null;
@@ -102,16 +103,18 @@ export function Profile({ user }: ProfileProps) {
                 </CardHeader>
                 <CardContent className="space-y-8">
                 <div className="flex items-center gap-4">
-                    <Avatar className="h-24 w-24">
-                    <AvatarImage src={profile.avatar} alt="User avatar" />
-                    <AvatarFallback>{profile.first_name?.substring(0,1)}{profile.last_name?.substring(0,1)}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative group">
+                        <Avatar className="h-24 w-24">
+                            <AvatarImage src={profile.avatar} alt="User avatar" />
+                            <AvatarFallback>{profile.first_name?.substring(0,1)}{profile.last_name?.substring(0,1)}</AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                            <Pencil className="text-white" size={32} />
+                        </div>
+                    </div>
                     <div className="grid gap-1.5">
-                    <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
-                    <p className="text-muted-foreground">{profile.email}</p>
-                    <Button size="sm" variant="outline">
-                        Change Avatar
-                    </Button>
+                        <h2 className="text-2xl font-bold">{profile.first_name} {profile.last_name}</h2>
+                        <p className="text-muted-foreground">{profile.email}</p>
                     </div>
                 </div>
                 <div className="grid gap-4">
