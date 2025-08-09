@@ -165,14 +165,12 @@ export function Profile({ user }: ProfileProps) {
             </Card>
         </div>
       <div className="flex-shrink-0 flex justify-end items-center gap-2 pt-4 border-t">
-        <div className="flex gap-2">
-            <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <DialogClose asChild>
-                <Button onClick={handleSaveChanges}>Save Changes</Button>
-            </DialogClose>
-        </div>
+        <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+        </DialogClose>
+        <DialogClose asChild>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+        </DialogClose>
       </div>
     </div>
   );
