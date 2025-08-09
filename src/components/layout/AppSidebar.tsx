@@ -13,11 +13,11 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut } from 'lucide-react';
 import type { Widget, User as UserType } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
-import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 import { Settings as SettingsPage } from '../Settings';
 
 
@@ -31,6 +31,12 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite }: AppSidebarProps) {
   const { toggleSidebar, state } = useSidebar();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('session');
+    router.push('/');
+  };
   
   return (
     <>
@@ -111,7 +117,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                   tooltip="User"
                   size="icon"
                   variant="ghost"
-                  className="bg-primary/20 text-primary hover:text-primary"
                 >
                   <User />
                   {state === 'expanded' && <span>User</span>}
@@ -127,6 +132,13 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               </div>
             </DialogContent>
           </Dialog>
+          <SidebarSeparator className="my-1" />
+           <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Logout" size="icon" variant="ghost" onClick={handleLogout}>
+              <LogOut />
+              {state === 'expanded' && <span>Logout</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </>

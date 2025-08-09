@@ -28,7 +28,6 @@ export function Profile({ user }: ProfileProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     setProfile(user);
@@ -53,11 +52,6 @@ export function Profile({ user }: ProfileProps) {
     setProfile({ ...profile, [id]: value });
   };
   
-  const handleLogout = () => {
-    localStorage.removeItem('session');
-    router.push('/');
-  };
-
 
   if (loading) {
       return (
@@ -170,10 +164,7 @@ export function Profile({ user }: ProfileProps) {
                 </CardContent>
             </Card>
         </div>
-      <div className="flex-shrink-0 flex justify-between items-center gap-2 pt-4 border-t">
-        <DialogClose asChild>
-          <Button variant="outline" onClick={handleLogout}>Logout</Button>
-        </DialogClose>
+      <div className="flex-shrink-0 flex justify-end items-center gap-2 pt-4 border-t">
         <div className="flex gap-2">
             <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
