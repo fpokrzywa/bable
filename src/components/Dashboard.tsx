@@ -407,7 +407,7 @@ export function Dashboard() {
                         {starterPrompts.map((prompt, index) => (
                             <Button 
                                 key={index}
-                                variant="ghost"
+                                variant="outline"
                                 className="w-full justify-start h-auto py-3 px-4 text-left text-base bg-background/50 hover:bg-accent/50 pointer-events-auto rounded-lg border"
                                 onClick={() => handleStarterPrompt(prompt.query)}
                             >
