@@ -400,7 +400,7 @@ export function Dashboard() {
           className="absolute inset-0 flex flex-col items-center pointer-events-none" 
           style={{ paddingLeft: sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
         >
-        {widgets.length === 0 && (
+        {normalWidgets.length === 0 && (
              <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-20">
                 <div className="flex-grow flex flex-col justify-center items-center">
                     <Image
@@ -445,4 +445,5 @@ export function Dashboard() {
     </div>
   );
 }
+
 
