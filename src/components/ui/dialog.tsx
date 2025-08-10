@@ -38,6 +38,7 @@ const dialogContentVariants = cva(
         size: {
           default: "max-w-lg left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]",
           lg: "w-full max-w-4xl left-[50%] top-[50%] -translate-y-1/2 -translate-x-1/2",
+          form: "max-w-md left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
         },
       },
       defaultVariants: {

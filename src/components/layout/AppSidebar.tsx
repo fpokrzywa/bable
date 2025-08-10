@@ -11,8 +11,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut } from 'lucide-react';
-import type { Widget, User as UserType } from '@/lib/types';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban } from 'lucide-react';
+import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
@@ -24,12 +24,14 @@ interface AppSidebarProps {
     user: UserType | null;
     minimizedWidgets: Widget[];
     favoritedWidgets: Widget[];
+    workspaces: Workspace[];
     onRestoreWidget: (id: string) => void;
     onRestoreFavorite: (widget: Widget) => void;
     onProfileUpdate: () => void;
+    onLoadWorkspace: (workspace: Workspace) => void;
 }
 
-export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite, onProfileUpdate }: AppSidebarProps) {
+export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace }: AppSidebarProps) {
   const { state } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -51,6 +53,24 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                     </SidebarMenuButton>
                 </SidebarTrigger>
             </SidebarMenuItem>
+
+          {workspaces.length > 0 && (
+            <>
+              <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+              {workspaces.map((ws) => (
+                  <SidebarMenuItem key={ws.workspaceId}>
+                    <SidebarMenuButton
+                      tooltip={ws.workspace_name}
+                      variant="ghost"
+                      onClick={() => onLoadWorkspace(ws)}
+                    >
+                      <FolderKanban />
+                      {(state === 'expanded' || isMobile) && <span className="truncate">{ws.workspace_name}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+            </>
+          )}
 
           {favoritedWidgets.length > 0 && (
             <>

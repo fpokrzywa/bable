@@ -25,6 +25,7 @@ interface ChatInputProps {
   onSave: (query: string, name: string) => void;
   loading: boolean;
   widgets: Widget[];
+  onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load') => void;
 }
 
 const commands = [
@@ -41,7 +42,7 @@ const workspaceCommands = [
   { name: 'Forget workspace', action: 'forget', description: 'Clear the saved workspace from memory', icon: Trash2 },
 ];
 
-export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps) {
+export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceAction }: ChatInputProps) {
   const [query, setQuery] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -137,9 +138,8 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
     setTokenCount(0);
   };
   
-  const handleWorkspaceAction = (action: string) => {
-    // TODO: Implement workspace actions
-    console.log(`Workspace action: ${action}`);
+  const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load') => {
+    onWorkspaceAction(action);
     setShowWorkspaceMenu(false);
     inputRef.current?.focus();
   };
@@ -238,7 +238,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
                         key={command.name}
                         type="button"
                         className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
-                        onClick={() => handleWorkspaceAction(command.action)}
+                        onClick={() => handleWorkspaceAction(command.action as 'create' | 'edit' | 'forget')}
                       >
                         <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
                         <div>

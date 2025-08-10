@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { Widget, SavedQuery, Problem, Incident, Change, User } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -15,15 +15,17 @@ import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
-import { Menu, Sparkle } from 'lucide-react';
+import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
+import { Menu, Sparkle, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
-
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -33,6 +35,7 @@ export function Dashboard() {
     { name: 'My High Priority Tasks', query: 'show my high priority tasks' },
   ]);
   const [loading, setLoading] = useState(false);
+  const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
   const { toast } = useToast();
   const { state, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
@@ -41,6 +44,14 @@ export function Dashboard() {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
+
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
+  const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState('');
+  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'forget' | 'load' | null>(null);
+  const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
+
 
   const fetchUser = async () => {
     const session = localStorage.getItem('session');
@@ -60,41 +71,62 @@ export function Dashboard() {
   const handleProfileUpdate = () => {
     fetchUser();
   };
+  
+  useEffect(() => {
+    if (user?.userId) {
+      setLoadingWorkspaces(true);
+      getWorkspaces(user.userId)
+        .then(data => {
+            setWorkspaces(data);
+            const active = data.find(ws => ws.active);
+            if (active) {
+                setActiveWorkspace(active);
+                loadWorkspace(active);
+            }
+        })
+        .finally(() => setLoadingWorkspaces(false));
+    }
+  }, [user]);
+
 
   useEffect(() => {
-    try {
-      const savedWidgets = localStorage.getItem('dashboard-widgets');
-      if (savedWidgets) {
-        const parsedWidgets: Widget[] = JSON.parse(savedWidgets);
-        setWidgets(parsedWidgets);
-        const maxZIndex = parsedWidgets.reduce((max, w) => Math.max(max, w.zIndex || 0), 0);
-        setNextZIndex(maxZIndex + 1);
-      }
-    } catch (error) {
-      console.error("Could not load widgets from localStorage", error);
+    if (!activeWorkspace) {
+        try {
+          const savedWidgets = localStorage.getItem('dashboard-widgets');
+          if (savedWidgets) {
+            const parsedWidgets: Widget[] = JSON.parse(savedWidgets);
+            setWidgets(parsedWidgets);
+            const maxZIndex = parsedWidgets.reduce((max, w) => Math.max(max, w.zIndex || 0), 0);
+            setNextZIndex(maxZIndex + 1);
+          }
+        } catch (error) {
+          console.error("Could not load widgets from localStorage", error);
+        }
     }
-  }, []);
+  }, [activeWorkspace]);
 
   useEffect(() => {
-    try {
-      const widgetsToSave = widgets.map(w => ({
-        id: w.id,
-        query: w.query,
-        data: w.data,
-        agent: w.agent,
-        type: w.type,
-        zIndex: w.zIndex,
-        isMinimized: w.isMinimized,
-        isFavorited: w.isFavorited,
-        x: w.x,
-        y: w.y,
-        isExpanded: w.isExpanded,
-      }));
-      localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
-    } catch (error) {
-        console.error("Could not save widgets to localStorage", error);
-    }
-  }, [widgets]);
+     if (!activeWorkspace) {
+        try {
+          const widgetsToSave = widgets.map(w => ({
+            id: w.id,
+            query: w.query,
+            data: w.data,
+            agent: w.agent,
+            type: w.type,
+            zIndex: w.zIndex,
+            isMinimized: w.isMinimized,
+            isFavorited: w.isFavorited,
+            x: w.x,
+            y: w.y,
+            isExpanded: w.isExpanded,
+          }));
+          localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
+        } catch (error) {
+            console.error("Could not save widgets to localStorage", error);
+        }
+     }
+  }, [widgets, activeWorkspace]);
 
 
   const bringToFront = (id: string) => {
@@ -350,6 +382,88 @@ export function Dashboard() {
       })
     );
   };
+  
+    const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load') => {
+        setWorkspaceAction(action);
+        if (action === 'create' || action === 'edit') {
+            setIsWorkspaceModalOpen(true);
+            if (action === 'edit' && activeWorkspace) {
+                setWorkspaceName(activeWorkspace.workspace_name);
+            } else {
+                setWorkspaceName('');
+            }
+        } else if (action === 'forget') {
+            handleDeleteWorkspace();
+        } else if (action === 'load') {
+            setIsWorkspaceListOpen(true);
+        }
+    };
+    
+    const handleSaveWorkspace = async () => {
+        if (!user || !workspaceName.trim()) {
+            toast({ variant: 'destructive', title: 'Error', description: 'User not found or workspace name is empty.' });
+            return;
+        }
+
+        const workspaceData = JSON.stringify(widgets);
+        const workspaceId = workspaceAction === 'edit' ? activeWorkspace?.workspaceId : undefined;
+        
+        const newWorkspace = await saveWorkspace({
+            userId: user.userId,
+            workspace_name: workspaceName,
+            workspace_data: workspaceData,
+            workspaceId: workspaceId
+        });
+
+        if (newWorkspace) {
+            setWorkspaces(prev => {
+                const existing = prev.findIndex(ws => ws.workspaceId === newWorkspace.workspaceId);
+                if (existing !== -1) {
+                    const updated = [...prev];
+                    updated[existing] = newWorkspace;
+                    return updated;
+                }
+                return [...prev, newWorkspace];
+            });
+            setActiveWorkspace(newWorkspace);
+            toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
+        }
+        setIsWorkspaceModalOpen(false);
+        setWorkspaceName('');
+    };
+    
+    const handleDeleteWorkspace = async () => {
+        if (!activeWorkspace) {
+            toast({ variant: 'destructive', title: 'Error', description: 'No active workspace to forget.' });
+            return;
+        }
+        
+        const success = await deleteWorkspace(activeWorkspace.workspaceId);
+        if (success) {
+            setWorkspaces(prev => prev.filter(ws => ws.workspaceId !== activeWorkspace.workspaceId));
+            setActiveWorkspace(null);
+            setWidgets([]);
+            localStorage.removeItem('dashboard-widgets');
+            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" has been forgotten.` });
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to forget workspace.' });
+        }
+    };
+
+    const loadWorkspace = (workspace: Workspace) => {
+        try {
+            const loadedWidgets = JSON.parse(workspace.workspace_data);
+            setWidgets(loadedWidgets);
+            setActiveWorkspace(workspace);
+            setIsWorkspaceListOpen(false);
+            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`})
+        } catch (error) {
+            console.error("Failed to parse workspace data", error);
+            toast({variant: "destructive", title: "Error", description: "Could not load workspace."})
+        }
+    }
 
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
@@ -372,6 +486,8 @@ export function Dashboard() {
       onRestoreWidget={toggleMinimizeWidget}
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
+      workspaces={workspaces}
+      onLoadWorkspace={loadWorkspace}
     />
   );
   
@@ -481,10 +597,57 @@ export function Dashboard() {
         
         <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out", isMobile ? "fixed bottom-0 left-0 right-0" : "relative")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} />
             </div>
         </div>
       </div>
+        <Dialog open={isWorkspaceModalOpen} onOpenChange={setIsWorkspaceModalOpen}>
+            <DialogContent size="form">
+                <DialogHeader>
+                    <DialogTitle>{workspaceAction === 'create' ? 'Create' : 'Edit'} Workspace</DialogTitle>
+                    <DialogDescription>
+                        Give your workspace a name to save the current layout.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="workspace-name" className="text-right">Name</Label>
+                        <Input
+                            id="workspace-name"
+                            value={workspaceName}
+                            onChange={(e) => setWorkspaceName(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                    <Button onClick={handleSaveWorkspace} disabled={!workspaceName.trim()}>Save</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        <Dialog open={isWorkspaceListOpen} onOpenChange={setIsWorkspaceListOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Load Workspace</DialogTitle>
+                    <DialogDescription>
+                        Select a saved workspace to load it onto your dashboard.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    {loadingWorkspaces ? <Loader2 className="mx-auto animate-spin" /> : (
+                        <div className="space-y-2">
+                            {workspaces.map(ws => (
+                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => loadWorkspace(ws)}>
+                                    {ws.workspace_name}
+                                </Button>
+                            ))}
+                            {workspaces.length === 0 && <p className="text-sm text-muted-foreground text-center">No saved workspaces found.</p>}
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }

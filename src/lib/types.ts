@@ -70,3 +70,11 @@ export interface User {
     bio?: string;
     avatar?: string;
 }
+
+export interface Workspace {
+    workspaceId: string;
+    userId: string;
+    workspace_name: string;
+    workspace_data: string; // JSON string of widgets
+    active: boolean;
+}
