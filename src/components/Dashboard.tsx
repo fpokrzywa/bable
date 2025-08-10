@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil } from 'lucide-react';
+import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -56,6 +56,7 @@ export function Dashboard() {
   const [workspaceToEdit, setWorkspaceToEdit] = useState<Workspace | null>(null);
   const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
+  const [lastAccessedWorkspace, setLastAccessedWorkspace] = useState<Workspace | null>(null);
   
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
@@ -96,9 +97,7 @@ export function Dashboard() {
                 setWorkspaces(data);
                 const lastAccessed = data.sort((a, b) => new Date(b.last_accessed || 0).getTime() - new Date(a.last_accessed || 0).getTime())[0];
                 if (lastAccessed) {
-                    setOpenWorkspaces([lastAccessed]);
-                    setCurrentWorkspaceId(lastAccessed.workspaceId);
-                    loadWorkspaceUI(lastAccessed);
+                    setLastAccessedWorkspace(lastAccessed);
                 }
             })
             .finally(() => setLoadingWorkspaces(false));
@@ -587,14 +586,24 @@ export function Dashboard() {
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
   const starterPrompts = [
-    { text: 'Get my incidents', query: 'Get my incidents' },
-    { text: 'Show me high priority changes', query: '@change high priority' },
-    { text: 'Are there any recurring problems?', query: '@problem recurring' },
-  ]
+    { text: 'Get my incidents', query: 'Get my incidents', icon: Sparkle },
+    { text: 'Show me high priority changes', query: '@change high priority', icon: Sparkle },
+    { text: 'Are there any recurring problems?', query: '@problem recurring', icon: Sparkle },
+  ];
+
+  if (lastAccessedWorkspace) {
+    starterPrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_WORKSPACE__', icon: Clock });
+  }
 
   const handleStarterPrompt = (query: string) => {
-    handleCreateWidget(query);
-  }
+    if (query === '__LOAD_LAST_WORKSPACE__') {
+      if (lastAccessedWorkspace) {
+        handleWorkspaceListSelect({ ...lastAccessedWorkspace });
+      }
+    } else {
+      handleCreateWidget(query);
+    }
+  };
 
   const renderSidebar = () => (
     <AppSidebar 
@@ -744,17 +753,20 @@ export function Dashboard() {
                         <div className="w-full text-left">
                             <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
                             <div className="space-y-2">
-                                {starterPrompts.map((prompt, index) => (
+                                {starterPrompts.map((prompt, index) => {
+                                  const Icon = prompt.icon;
+                                  return (
                                     <Button 
                                         key={index}
                                         variant="link"
                                         className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
                                         onClick={() => handleStarterPrompt(prompt.query)}
                                     >
-                                        <Sparkle className="mr-3 text-primary" size={20}/>
+                                        <Icon className="mr-3 text-primary" size={20}/>
                                         {prompt.text}
                                     </Button>
-                                ))}
+                                  )
+                                })}
                             </div>
                         </div>
                     </div>
@@ -828,3 +840,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
