@@ -516,12 +516,22 @@ export function Dashboard() {
             <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
               <Menu />
             </Button>
-            {/* Add other mobile header content here if needed */}
+            {activeWorkspace && (
+              <div className="text-sm font-semibold truncate px-2">
+                {activeWorkspace.workspace_name}
+              </div>
+            )}
+            <div className="w-10"></div>
           </header>
         )}
         
         <main className="flex-1 overflow-auto relative">
           <div className="absolute inset-0">
+            {!isMobile && activeWorkspace && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-md text-sm font-semibold">
+                    {activeWorkspace.workspace_name}
+                </div>
+            )}
             {isMobile ? (
               <div className="p-4 space-y-4" style={{ paddingBottom: chatInputAreaHeight }}>
                 {normalWidgets.map(widget => (
