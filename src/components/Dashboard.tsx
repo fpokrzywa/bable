@@ -409,7 +409,7 @@ export function Dashboard() {
             {isMobile ? (
               <div className="p-4 space-y-4" style={{ paddingBottom: chatInputAreaHeight }}>
                 {normalWidgets.map(widget => (
-                  <div key={widget.id} className="h-[400px]">
+                  <div key={widget.id} className="h-auto">
                     <BaseWidget
                       widget={widget}
                       removeWidget={removeWidget}
