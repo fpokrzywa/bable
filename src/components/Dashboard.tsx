@@ -417,7 +417,17 @@ export function Dashboard() {
         });
 
         if (updatedWorkspace) {
-            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.` });
+            setActiveWorkspace(updatedWorkspace);
+            setWorkspaces(prev => {
+                const existing = prev.findIndex(ws => ws.workspaceId === updatedWorkspace.workspaceId);
+                if (existing !== -1) {
+                    const updated = [...prev];
+                    updated[existing] = updatedWorkspace;
+                    return updated;
+                }
+                return [...prev, updatedWorkspace];
+            });
+            toast({ title: 'Success', description: `Workspace "${updatedWorkspace.workspace_name}" saved.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -440,6 +450,7 @@ export function Dashboard() {
         });
 
         if (newWorkspace) {
+            setActiveWorkspace(newWorkspace);
             setWorkspaces(prev => {
                 const existing = prev.findIndex(ws => ws.workspaceId === newWorkspace.workspaceId);
                 if (existing !== -1) {
@@ -449,7 +460,6 @@ export function Dashboard() {
                 }
                 return [...prev, newWorkspace];
             });
-            setActiveWorkspace(newWorkspace);
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
