@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc } from 'lucide-react';
+import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -243,13 +243,17 @@ export function Dashboard() {
           isFavorited: false,
         };
       } else {
-          const allWorkspacesData = openWorkspaces.flatMap(ws => {
+        const allWorkspacesData = openWorkspaces.flatMap(ws => {
             try {
-              return JSON.parse(ws.workspace_data);
+              // Each workspace_data is a JSON string of an array of widgets
+              const widgetsInWorkspace: Widget[] = JSON.parse(ws.workspace_data);
+              // We only care about the data within each widget for context
+              return widgetsInWorkspace.map(w => ({ type: w.type, query: w.query, data: w.data }));
             } catch (e) {
+              console.error(`Could not parse workspace data for ${ws.workspace_name}`, e);
               return [];
             }
-          }).map((w: Widget) => ({ type: w.type, query: w.query, data: w.data }));
+          });
 
           const result = await generateWidgetFromQuery({ query, workspaceData: allWorkspacesData });
           const agent = await agentSpecificWidget({ widgetData: result.answer });
@@ -667,7 +671,7 @@ export function Dashboard() {
                                 setWorkspaceToEdit(ws);
                                 setWorkspaceName(ws.workspace_name);
                                 setIsWorkspaceModalOpen(true);
-                           }}><Edit size={14} /></Button>
+                           }}><Pencil size={14} /></Button>
                         </TooltipTrigger>
                         <TooltipContent>Edit</TooltipContent>
                       </Tooltip>
