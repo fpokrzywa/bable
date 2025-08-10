@@ -394,7 +394,7 @@ export function Dashboard() {
             }
         } else if (action === 'forget') {
             handleDeleteWorkspace();
-        } else if (action === 'edit') {
+        } else if (action === 'load') {
             setIsWorkspaceListOpen(true);
         }
     };
@@ -406,7 +406,7 @@ export function Dashboard() {
         }
 
         const workspaceData = JSON.stringify(widgets);
-        const workspaceId = workspaceAction === 'edit' ? activeWorkspace?.workspaceId : undefined;
+        const workspaceId = workspaceAction === 'edit' && activeWorkspace ? activeWorkspace.workspaceId : undefined;
         
         const newWorkspace = await saveWorkspace({
             userId: user.userId,
