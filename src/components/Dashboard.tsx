@@ -642,7 +642,7 @@ export function Dashboard() {
                     >
                       {ws.workspace_name}
                     </Button>
-                    <div className="flex items-center gap-4 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
                       <Tooltip>
                         <TooltipTrigger asChild>
                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
