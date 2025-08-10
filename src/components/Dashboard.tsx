@@ -374,7 +374,10 @@ export function Dashboard() {
       onProfileUpdate={handleProfileUpdate}
     />
   );
-
+  
+  const mobileHeaderHeight = 56; // 14 * 4
+  const chatInputAreaHeight = 96; // 24 * 4
+  
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-background">
       {isMobile ? (
@@ -391,10 +394,20 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="absolute inset-0">
-          {isMobile ? (
-             <div className="absolute inset-0 top-14 bottom-24 overflow-y-auto">
-               <div className="p-4 space-y-4">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {isMobile && (
+          <header className="p-2 flex items-center justify-between" style={{ height: mobileHeaderHeight }}>
+            <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
+              <Menu />
+            </Button>
+            {/* Add other mobile header content here if needed */}
+          </header>
+        )}
+        
+        <main className="flex-1 overflow-auto relative">
+          <div className="absolute inset-0">
+            {isMobile ? (
+              <div className="p-4 space-y-4" style={{ paddingBottom: chatInputAreaHeight }}>
                 {normalWidgets.map(widget => (
                   <div key={widget.id} className="h-[400px]">
                     <BaseWidget
@@ -408,91 +421,69 @@ export function Dashboard() {
                   </div>
                 ))}
               </div>
-            </div>
-          ) : (
-            <WidgetContainer 
-              widgets={normalWidgets} 
-              removeWidget={removeWidget} 
-              updateEntity={updateEntity}
-              bringToFront={bringToFront}
-              toggleMinimizeWidget={toggleMinimizeWidget}
-              toggleFavoriteWidget={toggleFavoriteWidget}
-              updateWidgetPosition={updateWidgetPosition}
-              sidebarState={state}
-              sidebarRef={sidebarRef}
-              chatInputRef={chatInputRef}
-            />
-          )}
-      </div>
-
-      <div 
-        className="absolute inset-0 flex flex-col items-center pointer-events-none" 
-        style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
-      >
-      {normalWidgets.length === 0 && (
-          <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center pb-24">
-              <div className="flex-grow flex flex-col justify-center items-center">
-                  <Image
-                      src="/phish_logo.png"
-                      alt="BabelPhish Logo"
-                      width={100}
-                      height={100}
-                      className="opacity-80 mb-4"
-                  />
-                  <h1 className="text-4xl font-bold tracking-tight mt-2">
-                      Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
-                  </h1>
-                  <p className="text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
-              </div>
-              <div className="flex-shrink-0 w-full flex flex-col justify-end">
-                  <div className="w-full text-left">
-                      <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                      <div className="space-y-2">
-                          {starterPrompts.map((prompt, index) => (
-                              <Button 
-                                  key={index}
-                                  variant="link"
-                                  className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
-                                  onClick={() => handleStarterPrompt(prompt.query)}
-                              >
-                                  <Sparkle className="mr-3 text-primary" size={20}/>
-                                  {prompt.text}
-                              </Button>
-                          ))}
-                      </div>
-                  </div>
-              </div>
-        </div>
-      )}
-      </div>
-
-      <div className={cn("absolute top-4 left-4 z-50", isMobile ? 'block' : 'hidden')}>
-          <Sheet>
-              <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                      <Menu />
-                  </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
-                <SheetHeader>
-                  <SheetTitle className="sr-only">Menu</SheetTitle>
-                </SheetHeader>
-                <AppSidebar 
-                  user={user}
-                  minimizedWidgets={minimizedWidgets} 
-                  favoritedWidgets={favorites}
-                  onRestoreWidget={toggleMinimizeWidget}
-                  onRestoreFavorite={handleRestoreFavorite}
-                  onProfileUpdate={handleProfileUpdate}
-                />
-              </SheetContent>
-          </Sheet>
-      </div>
-      
-      <div ref={chatInputRef} className="fixed bottom-0 right-0 left-0 z-40 transition-transform duration-300 ease-in-out" style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
-          <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-              <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+            ) : (
+              <WidgetContainer 
+                widgets={normalWidgets} 
+                removeWidget={removeWidget} 
+                updateEntity={updateEntity}
+                bringToFront={bringToFront}
+                toggleMinimizeWidget={toggleMinimizeWidget}
+                toggleFavoriteWidget={toggleFavoriteWidget}
+                updateWidgetPosition={updateWidgetPosition}
+                sidebarState={state}
+                sidebarRef={sidebarRef}
+                chatInputRef={chatInputRef}
+              />
+            )}
           </div>
+          
+          <div 
+            className="absolute inset-0 flex flex-col items-center pointer-events-none" 
+            style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+          >
+            {normalWidgets.length === 0 && (
+                <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
+                    <div className="flex-grow flex flex-col justify-center items-center">
+                        <Image
+                            src="/phish_logo.png"
+                            alt="BabelPhish Logo"
+                            width={100}
+                            height={100}
+                            className="opacity-80 mb-4"
+                        />
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">
+                            Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
+                        </h1>
+                        <p className="text-xl md:text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
+                    </div>
+                    <div className="flex-shrink-0 w-full flex flex-col justify-end">
+                        <div className="w-full text-left">
+                            <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
+                            <div className="space-y-2">
+                                {starterPrompts.map((prompt, index) => (
+                                    <Button 
+                                        key={index}
+                                        variant="link"
+                                        className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
+                                        onClick={() => handleStarterPrompt(prompt.query)}
+                                    >
+                                        <Sparkle className="mr-3 text-primary" size={20}/>
+                                        {prompt.text}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+              </div>
+            )}
+          </div>
+        </main>
+        
+        <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out", isMobile ? "fixed bottom-0 left-0 right-0" : "relative")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
+                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} />
+            </div>
+        </div>
       </div>
     </div>
   );
