@@ -18,7 +18,7 @@ import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
 import { Settings as SettingsPage } from '../Settings';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import React from 'react';
 
 
@@ -37,10 +37,18 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const { state } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
+  const [isWorkspacePopoverOpen, setIsWorkspacePopoverOpen] = React.useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('session');
     router.push('/');
+  };
+
+  const popoverTriggerEvents = state === 'collapsed' ? {
+    onMouseEnter: () => setIsWorkspacePopoverOpen(true),
+    onMouseLeave: () => setIsWorkspacePopoverOpen(false),
+  } : {
+    onClick: () => setIsWorkspacePopoverOpen(o => !o)
   };
   
   return (
@@ -59,26 +67,39 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
           {workspaces.length > 0 && (
              <React.Fragment key="workspaces-section">
                 <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <SidebarMenuItem>
+                <Popover open={isWorkspacePopoverOpen} onOpenChange={setIsWorkspacePopoverOpen}>
+                    <PopoverTrigger asChild>
+                        <SidebarMenuItem {...popoverTriggerEvents} >
                             <SidebarMenuButton
-                            tooltip="My Workspaces"
-                            variant="ghost"
+                              tooltip="My Workspaces"
+                              variant="ghost"
                             >
                             <FolderKanban />
                             {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start">
+                    </PopoverTrigger>
+                    <PopoverContent 
+                        side="right" 
+                        align="start" 
+                        className="w-[200px] p-1"
+                        onMouseLeave={() => state === 'collapsed' && setIsWorkspacePopoverOpen(false)}
+                    >
                         {workspaces.map((ws) => (
-                            <DropdownMenuItem key={ws.workspaceId} onClick={() => onLoadWorkspace({ ...ws, workspaceAction: 'load' })}>
+                            <Button
+                              key={ws.workspaceId}
+                              variant="ghost"
+                              className="w-full justify-start"
+                              onClick={() => {
+                                  onLoadWorkspace({ ...ws, workspaceAction: 'load' });
+                                  setIsWorkspacePopoverOpen(false);
+                              }}
+                            >
                                 {ws.workspace_name}
-                            </DropdownMenuItem>
+                            </Button>
                         ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </PopoverContent>
+                </Popover>
             </React.Fragment>
           )}
 
