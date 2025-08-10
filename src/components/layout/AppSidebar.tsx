@@ -18,6 +18,8 @@ import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
 import { Settings as SettingsPage } from '../Settings';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import React from 'react';
 
 
 interface AppSidebarProps {
@@ -44,7 +46,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   return (
     <div className="flex flex-col h-full">
       <SidebarContent>
-        <SidebarMenu className="h-full">
+        <SidebarMenu>
             <SidebarMenuItem>
                 <SidebarTrigger asChild>
                     <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost">
@@ -55,25 +57,33 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </SidebarMenuItem>
 
           {workspaces.length > 0 && (
-            <>
-              <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
-              {workspaces.map((ws) => (
-                  <SidebarMenuItem key={ws.workspaceId}>
-                    <SidebarMenuButton
-                      tooltip={ws.workspace_name}
-                      variant="ghost"
-                      onClick={() => onLoadWorkspace(ws)}
-                    >
-                      <FolderKanban />
-                      {(state === 'expanded' || isMobile) && <span className="truncate">{ws.workspace_name}</span>}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </>
+             <React.Fragment key="workspaces-section">
+                <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                            tooltip="My Workspaces"
+                            variant="ghost"
+                            >
+                            <FolderKanban />
+                            {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" align="start">
+                        {workspaces.map((ws) => (
+                            <DropdownMenuItem key={ws.workspaceId} onClick={() => onLoadWorkspace(ws)}>
+                                {ws.workspace_name}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </React.Fragment>
           )}
 
           {favoritedWidgets.length > 0 && (
-            <>
+            <React.Fragment key="favorites-section">
               <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
               {favoritedWidgets.map((widget) => (
                   <SidebarMenuItem key={widget.id}>
@@ -87,10 +97,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
-            </>
+            </React.Fragment>
           )}
           {minimizedWidgets.length > 0 && (
-              <>
+              <React.Fragment key="minimized-section">
                 <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
@@ -104,7 +114,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
-              </>
+              </React.Fragment>
           )}
 
           <SidebarSeparator className="my-1 md:mt-auto group-data-[collapsible=icon]:hidden" />
