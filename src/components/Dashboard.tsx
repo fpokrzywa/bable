@@ -394,7 +394,7 @@ export function Dashboard() {
             }
         } else if (action === 'forget') {
             handleDeleteWorkspace();
-        } else if (action === 'load') {
+        } else if (action === 'edit') {
             setIsWorkspaceListOpen(true);
         }
     };
