@@ -473,8 +473,8 @@ export function Dashboard() {
                 setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
                 setCurrentWorkspaceId(updatedWorkspace.workspaceId);
             } else {
-                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
-                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
+                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, workspace_name: updatedWorkspace.workspace_name } : ws));
                 if (currentWorkspaceId === updatedWorkspace.workspaceId) {
                    loadWorkspaceUI(updatedWorkspace);
                 }
@@ -593,7 +593,7 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={(ws) => handleWorkspaceListSelect(ws)}
+      onLoadWorkspace={(ws) => handleWorkspaceListSelect({ ...ws, workspaceAction: 'load' })}
     />
   );
   
@@ -637,12 +637,12 @@ export function Dashboard() {
                     <Button
                       variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
                       size="sm"
-                      className="pr-2"
+                      className="pr-10"
                       onClick={() => switchWorkspace(ws.workspaceId)}
                     >
                       {ws.workspace_name}
                     </Button>
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center bg-gradient-to-l from-secondary to-transparent pl-8 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center bg-gradient-to-l from-secondary/0 to-secondary/0 pl-8 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Tooltip>
                         <TooltipTrigger asChild>
                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>

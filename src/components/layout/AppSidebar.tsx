@@ -30,7 +30,7 @@ interface AppSidebarProps {
     onRestoreWidget: (id: string) => void;
     onRestoreFavorite: (widget: Widget) => void;
     onProfileUpdate: () => void;
-    onLoadWorkspace: (workspace: Workspace) => void;
+    onLoadWorkspace: (workspace: Workspace & { workspaceAction: 'load' }) => void;
 }
 
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace }: AppSidebarProps) {
@@ -73,7 +73,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start">
                         {workspaces.map((ws) => (
-                            <DropdownMenuItem key={ws.workspaceId} onClick={() => onLoadWorkspace(ws)}>
+                            <DropdownMenuItem key={ws.workspaceId} onClick={() => onLoadWorkspace({ ...ws, workspaceAction: 'load' })}>
                                 {ws.workspace_name}
                             </DropdownMenuItem>
                         ))}
