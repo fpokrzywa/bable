@@ -44,7 +44,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     router.push('/');
   };
 
-  const popoverTriggerEvents = state === 'collapsed' ? {
+  const isCollapsed = state === 'collapsed';
+
+  const popoverTriggerEvents = isCollapsed ? {
     onMouseEnter: () => setIsWorkspacePopoverOpen(true),
     onMouseLeave: () => setIsWorkspacePopoverOpen(false),
   } : {
@@ -71,7 +73,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <PopoverTrigger asChild>
                         <SidebarMenuItem {...popoverTriggerEvents} >
                             <SidebarMenuButton
-                              tooltip="My Workspaces"
+                              tooltip={isCollapsed ? undefined : "My Workspaces"}
                               variant="ghost"
                             >
                             <FolderKanban />
