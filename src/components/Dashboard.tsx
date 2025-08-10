@@ -600,7 +600,7 @@ export function Dashboard() {
             <div className="w-10"></div>
           </header>
         ) : (
-             <div className="flex items-center gap-1 p-2 bg-background z-10 border-b">
+             <div className="flex items-center justify-center gap-1 p-2 bg-background z-10">
                 {openWorkspaces.map(ws => (
                     <Button 
                         key={ws.workspaceId}
