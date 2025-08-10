@@ -49,7 +49,7 @@ export function Dashboard() {
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
-  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'forget' | 'load' | null>(null);
+  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'forget' | 'load' | 'save' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
 
 
@@ -383,7 +383,7 @@ export function Dashboard() {
     );
   };
   
-    const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load') => {
+    const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
         setWorkspaceAction(action);
         if (action === 'create' || action === 'edit') {
             setIsWorkspaceModalOpen(true);
@@ -396,9 +396,33 @@ export function Dashboard() {
             handleDeleteWorkspace();
         } else if (action === 'load') {
             setIsWorkspaceListOpen(true);
+        } else if (action === 'save') {
+            handleQuickSaveWorkspace();
         }
     };
     
+    const handleQuickSaveWorkspace = async () => {
+        if (!activeWorkspace) {
+            handleWorkspaceAction('create');
+            return;
+        }
+        if (!user) return;
+        
+        const workspaceData = JSON.stringify(widgets);
+        const updatedWorkspace = await saveWorkspace({
+            userId: user.userId,
+            workspace_name: activeWorkspace.workspace_name,
+            workspace_data: workspaceData,
+            workspaceId: activeWorkspace.workspaceId
+        });
+
+        if (updatedWorkspace) {
+            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.` });
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
+        }
+    };
+
     const handleSaveWorkspace = async () => {
         if (!user || !workspaceName.trim()) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not found or workspace name is empty.' });

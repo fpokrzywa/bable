@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText, Server, FolderPlus, Edit, Trash2 } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText, Server, FolderPlus, Edit, Trash2, Save } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ interface ChatInputProps {
   onSave: (query: string, name: string) => void;
   loading: boolean;
   widgets: Widget[];
-  onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load') => void;
+  onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => void;
 }
 
 const commands = [
@@ -38,6 +38,7 @@ const commands = [
 
 const workspaceCommands = [
   { name: 'Create workspace', action: 'create', description: 'Save the current layout as a new workspace', icon: FolderPlus },
+  { name: 'Save workspace', action: 'save', description: 'Save changes to the current workspace', icon: Save },
   { name: 'Edit workspace', action: 'edit', description: 'Update or rename the current workspace', icon: Edit },
   { name: 'Forget workspace', action: 'forget', description: 'Clear the saved workspace from memory', icon: Trash2 },
 ];
@@ -138,7 +139,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceActio
     setTokenCount(0);
   };
   
-  const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load') => {
+  const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
     onWorkspaceAction(action);
     setShowWorkspaceMenu(false);
     inputRef.current?.focus();
@@ -238,7 +239,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceActio
                         key={command.name}
                         type="button"
                         className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
-                        onClick={() => handleWorkspaceAction(command.action as 'create' | 'edit' | 'forget')}
+                        onClick={() => handleWorkspaceAction(command.action as 'create' | 'edit' | 'forget' | 'load' | 'save')}
                       >
                         <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
                         <div>
