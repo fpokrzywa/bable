@@ -39,7 +39,8 @@ export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId'
     try {
         const response = await axios.post(webhookUrl, payload, { params: { workspaceId } });
         if (response.status === 200 || response.status === 201) {
-            return response.data.result ? response.data.result : response.data;
+            // The webhook can return the saved object directly or inside a 'result' property
+            return response.data?.result || response.data;
         }
         return null;
     } catch (error) {
