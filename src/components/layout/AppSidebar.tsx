@@ -3,11 +3,9 @@
 
 import {
   SidebarContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
   useSidebar,
   SidebarSeparator,
   SidebarTrigger,
@@ -32,7 +30,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite, onProfileUpdate }: AppSidebarProps) {
-  const { toggleSidebar, state } = useSidebar();
+  const { state } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
 
@@ -42,37 +40,38 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
   };
   
   return (
-    <>
-      <SidebarHeader className="h-16 flex items-center justify-between p-2">
-        <SidebarTrigger asChild>
-            <Button variant="ghost" size="icon">
-                <PanelLeft />
-            </Button>
-        </SidebarTrigger>
-      </SidebarHeader>
+    <div className="flex flex-col h-full">
+      <SidebarContent className="flex-grow p-2">
+        <SidebarMenu className="h-full">
+            <SidebarMenuItem>
+                <SidebarTrigger asChild>
+                    <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost">
+                        <PanelLeft />
+                        <span className="sr-only">Toggle Sidebar</span>
+                    </SidebarMenuButton>
+                </SidebarTrigger>
+            </SidebarMenuItem>
 
-      <SidebarContent className="flex-grow">
-        {favoritedWidgets.length > 0 && (
-          <>
-            <SidebarMenu className="p-2">
+          {favoritedWidgets.length > 0 && (
+            <>
+              <SidebarSeparator className="my-2" />
               {favoritedWidgets.map((widget) => (
-                <SidebarMenuItem key={widget.id}>
-                  <SidebarMenuButton
-                    tooltip={widget.query}
-                    variant="ghost"
-                    onClick={() => onRestoreFavorite(widget)}
-                  >
-                    <Heart className="text-primary fill-primary" />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            <SidebarSeparator className="my-2" />
-          </>
-        )}
-        {minimizedWidgets.length > 0 && (
-            <SidebarMenu className="p-2">
+                  <SidebarMenuItem key={widget.id}>
+                    <SidebarMenuButton
+                      tooltip={widget.query}
+                      variant="ghost"
+                      onClick={() => onRestoreFavorite(widget)}
+                    >
+                      <Heart className="text-primary fill-primary" />
+                      {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+            </>
+          )}
+          {minimizedWidgets.length > 0 && (
+              <>
+                <SidebarSeparator className="my-2" />
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
@@ -81,16 +80,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
-                             {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
+                            {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
-            </SidebarMenu>
-        )}
-      </SidebarContent>
+              </>
+          )}
 
-      <SidebarFooter>
-        <SidebarMenu className="p-2">
+          <SidebarSeparator className="my-1 mt-auto" />
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
@@ -134,7 +131,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarFooter>
-    </>
+      </SidebarContent>
+    </div>
   );
 }
