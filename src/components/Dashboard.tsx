@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon } from 'lucide-react';
+import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -243,7 +243,15 @@ export function Dashboard() {
           isFavorited: false,
         };
       } else {
-          const result = await generateWidgetFromQuery({ query });
+          const allWorkspacesData = openWorkspaces.flatMap(ws => {
+            try {
+              return JSON.parse(ws.workspace_data);
+            } catch (e) {
+              return [];
+            }
+          }).map((w: Widget) => ({ type: w.type, query: w.query, data: w.data }));
+
+          const result = await generateWidgetFromQuery({ query, workspaceData: allWorkspacesData });
           const agent = await agentSpecificWidget({ widgetData: result.answer });
     
           newWidgetDef = {
@@ -407,10 +415,12 @@ export function Dashboard() {
         setWorkspaceToEdit(null);
         setIsWorkspaceModalOpen(true);
     } else if (action === 'edit') {
+        fetchWorkspaces();
         setIsWorkspaceListOpen(true);
     } else if (action === 'forget') {
         handleDeleteWorkspace();
     } else if (action === 'load') {
+        fetchWorkspaces();
         setIsWorkspaceListOpen(true);
     } else if (action === 'save') {
         handleQuickSaveWorkspace();
@@ -515,9 +525,9 @@ export function Dashboard() {
         }
     }
     
-    const handleWorkspaceListSelect = (workspace: Workspace, action: 'load' | 'edit') => {
+    const handleWorkspaceListSelect = (workspace: Workspace) => {
         setIsWorkspaceListOpen(false);
-        if (action === 'load') {
+        if (workspaceAction === 'load') {
             if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
                 setCurrentWorkspaceId(workspace.workspaceId);
                 loadWorkspaceUI(workspace);
@@ -537,7 +547,7 @@ export function Dashboard() {
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
             toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`, duration: 2000});
-        } else if (action === 'edit') {
+        } else if (workspaceAction === 'edit') {
             setWorkspaceToEdit(workspace);
             setWorkspaceName(workspace.workspace_name);
             setIsWorkspaceModalOpen(true);
@@ -591,7 +601,10 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={(ws) => handleWorkspaceListSelect(ws, 'load')}
+      onLoadWorkspace={(ws) => {
+        setWorkspaceAction('load');
+        handleWorkspaceListSelect(ws);
+      }}
     />
   );
   
@@ -798,7 +811,7 @@ export function Dashboard() {
                     {loadingWorkspaces ? <Loader2 className="mx-auto animate-spin" /> : (
                         <div className="space-y-2">
                             {workspaces.map(ws => (
-                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceListSelect(ws, workspaceAction!)}>
+                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceListSelect(ws)}>
                                     {ws.workspace_name}
                                 </Button>
                             ))}

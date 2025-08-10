@@ -15,6 +15,7 @@ import {z} from 'genkit';
 
 const GenerateWidgetFromQueryInputSchema = z.object({
   query: z.string().describe('The user query to generate the widget.'),
+  workspaceData: z.array(z.any()).optional().describe('Data from all open workspaces to provide context.'),
 });
 export type GenerateWidgetFromQueryInput = z.infer<typeof GenerateWidgetFromQueryInputSchema>;
 
@@ -32,6 +33,12 @@ const generateWidgetFromQueryPrompt = ai.definePrompt({
   input: {schema: GenerateWidgetFromQueryInputSchema},
   output: {schema: GenerateWidgetFromQueryOutputSchema},
   prompt: `You are a ServiceNow expert. Directly answer the user's query in a clear and concise way. If you don't have a specific tool or data, provide a helpful, conversational response.
+
+  {{#if workspaceData}}
+  Use the following data from the user's open workspaces as context to answer the query if it is relevant.
+  Workspace Data:
+  {{{json workspaceData}}}
+  {{/if}}
 
   User Query: {{{query}}}`,
 });
