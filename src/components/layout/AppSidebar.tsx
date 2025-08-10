@@ -87,7 +87,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               </>
           )}
 
-          <SidebarSeparator className="my-1 mt-auto group-data-[collapsible=icon]:hidden" />
+          <SidebarSeparator className="my-1 md:mt-auto group-data-[collapsible=icon]:hidden" />
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
