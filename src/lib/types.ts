@@ -76,5 +76,6 @@ export interface Workspace {
     userId: string;
     workspace_name: string;
     workspace_data: string; // JSON string of widgets
-    active: boolean;
+    active?: boolean;
+    last_accessed?: string;
 }

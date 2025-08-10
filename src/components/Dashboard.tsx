@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2 } from 'lucide-react';
+import { Menu, Sparkle, Loader2, X as XIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -46,12 +46,16 @@ export function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
+  const [openWorkspaces, setOpenWorkspaces] = useState<Workspace[]>([]);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
+
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'forget' | 'load' | 'save' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
-
+  
+  const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
+  const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
 
   const fetchUser = async () => {
     const session = localStorage.getItem('session');
@@ -74,19 +78,20 @@ export function Dashboard() {
   
   useEffect(() => {
     if (user?.userId) {
-      setLoadingWorkspaces(true);
-      getWorkspaces(user.userId)
-        .then(data => {
-            setWorkspaces(data);
-            const active = data.find(ws => ws.active);
-            if (active) {
-                setActiveWorkspace(active);
-                loadWorkspace(active);
-            }
-        })
-        .finally(() => setLoadingWorkspaces(false));
+        setLoadingWorkspaces(true);
+        getWorkspaces(user.userId)
+            .then(data => {
+                setWorkspaces(data);
+                const lastAccessed = data.sort((a, b) => new Date(b.last_accessed || 0).getTime() - new Date(a.last_accessed || 0).getTime())[0];
+                if (lastAccessed) {
+                    setOpenWorkspaces([lastAccessed]);
+                    setCurrentWorkspaceId(lastAccessed.workspaceId);
+                    loadWorkspaceUI(lastAccessed);
+                }
+            })
+            .finally(() => setLoadingWorkspaces(false));
     }
-  }, [user]);
+}, [user]);
 
 
   useEffect(() => {
@@ -385,7 +390,7 @@ export function Dashboard() {
   
     const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
         setWorkspaceAction(action);
-        if (action === 'create' || action === 'edit') {
+        if (action === 'create' || (action === 'edit' && activeWorkspace)) {
             setIsWorkspaceModalOpen(true);
             if (action === 'edit' && activeWorkspace) {
                 setWorkspaceName(activeWorkspace.workspace_name);
@@ -417,8 +422,9 @@ export function Dashboard() {
         });
 
         if (result) {
-            setActiveWorkspace(result);
-            setWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? result : ws));
+            const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
+            setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+            setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
             toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
@@ -432,7 +438,8 @@ export function Dashboard() {
         }
 
         const workspaceData = JSON.stringify(widgets);
-        const workspaceIdToSave = workspaceAction === 'edit' && activeWorkspace ? activeWorkspace.workspaceId : undefined;
+        const isEditing = workspaceAction === 'edit' && activeWorkspace;
+        const workspaceIdToSave = isEditing ? activeWorkspace.workspaceId : undefined;
         
         const result = await saveWorkspace({
             userId: user.userId,
@@ -442,11 +449,14 @@ export function Dashboard() {
         });
 
         if (result) {
-            setActiveWorkspace(result);
-            if (workspaceIdToSave) {
-                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? result : ws));
+            const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
+            if (isEditing) {
+                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === newWorkspace.workspaceId ? newWorkspace : ws));
+                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === newWorkspace.workspaceId ? newWorkspace : ws));
             } else {
-                setWorkspaces(prev => [...prev, result]);
+                setWorkspaces(prev => [...prev, newWorkspace]);
+                setOpenWorkspaces(prev => [...prev, newWorkspace]);
+                setCurrentWorkspaceId(newWorkspace.workspaceId);
             }
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
         } else {
@@ -464,28 +474,72 @@ export function Dashboard() {
         
         const success = await deleteWorkspace(activeWorkspace.workspaceId);
         if (success) {
-            setWorkspaces(prev => prev.filter(ws => ws.workspaceId !== activeWorkspace.workspaceId));
-            setActiveWorkspace(null);
-            setWidgets([]);
-            localStorage.removeItem('dashboard-widgets');
+            const deletedId = activeWorkspace.workspaceId;
+            setWorkspaces(prev => prev.filter(ws => ws.workspaceId !== deletedId));
+            closeWorkspace(deletedId);
             toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" has been forgotten.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to forget workspace.' });
         }
     };
-
-    const loadWorkspace = (workspace: Workspace) => {
+    
+    const loadWorkspaceUI = (workspace: Workspace) => {
         try {
             const loadedWidgets = JSON.parse(workspace.workspace_data);
             setWidgets(loadedWidgets);
-            setActiveWorkspace(workspace);
-            setIsWorkspaceListOpen(false);
-            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`})
         } catch (error) {
             console.error("Failed to parse workspace data", error);
             toast({variant: "destructive", title: "Error", description: "Could not load workspace."})
         }
     }
+    
+    const handleLoadWorkspace = (workspace: Workspace) => {
+        if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
+            setCurrentWorkspaceId(workspace.workspaceId);
+            loadWorkspaceUI(workspace);
+            return;
+        }
+
+        if (openWorkspaces.length >= MAX_OPEN_SESSIONS) {
+            toast({
+                variant: 'destructive',
+                title: 'Limit Reached',
+                description: `You can only have ${MAX_OPEN_SESSIONS} workspaces open at a time.`
+            });
+            return;
+        }
+
+        setOpenWorkspaces(prev => [...prev, workspace]);
+        setCurrentWorkspaceId(workspace.workspaceId);
+        loadWorkspaceUI(workspace);
+        setIsWorkspaceListOpen(false);
+        toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`});
+    };
+
+    const switchWorkspace = (workspaceId: string) => {
+        const workspaceToSwitch = openWorkspaces.find(ws => ws.workspaceId === workspaceId);
+        if (workspaceToSwitch) {
+            setCurrentWorkspaceId(workspaceId);
+            loadWorkspaceUI(workspaceToSwitch);
+        }
+    }
+    
+    const closeWorkspace = (workspaceId: string) => {
+        const remainingWorkspaces = openWorkspaces.filter(ws => ws.workspaceId !== workspaceId);
+        setOpenWorkspaces(remainingWorkspaces);
+
+        if (currentWorkspaceId === workspaceId) {
+            if (remainingWorkspaces.length > 0) {
+                const newCurrent = remainingWorkspaces[0];
+                setCurrentWorkspaceId(newCurrent.workspaceId);
+                loadWorkspaceUI(newCurrent);
+            } else {
+                setCurrentWorkspaceId(null);
+                setWidgets([]); // Clear widgets if no workspace is open
+            }
+        }
+    };
+
 
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
@@ -509,7 +563,7 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={loadWorkspace}
+      onLoadWorkspace={handleLoadWorkspace}
     />
   );
   
@@ -533,7 +587,7 @@ export function Dashboard() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {isMobile && (
+        {isMobile ? (
           <header className="p-2 flex items-center justify-between" style={{ height: mobileHeaderHeight }}>
             <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
               <Menu />
@@ -545,15 +599,32 @@ export function Dashboard() {
             )}
             <div className="w-10"></div>
           </header>
+        ) : (
+             <div className="flex items-center gap-1 p-2 bg-background z-10 border-b">
+                {openWorkspaces.map(ws => (
+                    <Button 
+                        key={ws.workspaceId}
+                        variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
+                        size="sm"
+                        className="flex items-center gap-2"
+                        onClick={() => switchWorkspace(ws.workspaceId)}
+                    >
+                        <span>{ws.workspace_name}</span>
+                         <XIcon 
+                            size={14} 
+                            className="text-muted-foreground hover:text-foreground rounded-full"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                closeWorkspace(ws.workspaceId);
+                            }}
+                         />
+                    </Button>
+                ))}
+             </div>
         )}
         
         <main className="flex-1 overflow-auto relative">
           <div className="absolute inset-0">
-            {!isMobile && activeWorkspace && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-md text-sm font-semibold">
-                    {activeWorkspace.workspace_name}
-                </div>
-            )}
             {isMobile ? (
               <div className="p-4 space-y-4" style={{ paddingBottom: chatInputAreaHeight }}>
                 {normalWidgets.map(widget => (
@@ -670,7 +741,7 @@ export function Dashboard() {
                     {loadingWorkspaces ? <Loader2 className="mx-auto animate-spin" /> : (
                         <div className="space-y-2">
                             {workspaces.map(ws => (
-                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => loadWorkspace(ws)}>
+                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleLoadWorkspace(ws)}>
                                     {ws.workspace_name}
                                 </Button>
                             ))}
