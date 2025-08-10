@@ -30,7 +30,7 @@ interface AppSidebarProps {
     onRestoreWidget: (id: string) => void;
     onRestoreFavorite: (widget: Widget) => void;
     onProfileUpdate: () => void;
-    onLoadWorkspace: (workspace: Workspace & { workspaceAction: 'load' }) => void;
+    onLoadWorkspace: (workspace: Workspace) => void;
 }
 
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace }: AppSidebarProps) {
@@ -84,7 +84,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                               variant="ghost"
                               className="w-full justify-start"
                               onClick={() => {
-                                  onLoadWorkspace({ ...ws, workspaceAction: 'load' });
+                                  onLoadWorkspace(ws);
                                   setIsWorkspacePopoverOpen(false);
                               }}
                             >

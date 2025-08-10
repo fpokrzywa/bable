@@ -401,18 +401,16 @@ export function Dashboard() {
   };
   
   const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
+    setWorkspaceAction(action);
     if (action === 'create') {
-        setWorkspaceAction('create');
         setWorkspaceName('');
         setWorkspaceToEdit(null);
         setIsWorkspaceModalOpen(true);
     } else if (action === 'edit') {
-        setWorkspaceAction('edit');
         setIsWorkspaceListOpen(true);
     } else if (action === 'forget') {
         handleDeleteWorkspace();
     } else if (action === 'load') {
-        setWorkspaceAction('load');
         setIsWorkspaceListOpen(true);
     } else if (action === 'save') {
         handleQuickSaveWorkspace();
@@ -517,9 +515,9 @@ export function Dashboard() {
         }
     }
     
-    const handleWorkspaceListSelect = (workspace: Workspace) => {
+    const handleWorkspaceListSelect = (workspace: Workspace, action: 'load' | 'edit') => {
         setIsWorkspaceListOpen(false);
-        if (workspaceAction === 'load') {
+        if (action === 'load') {
             if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
                 setCurrentWorkspaceId(workspace.workspaceId);
                 loadWorkspaceUI(workspace);
@@ -539,7 +537,7 @@ export function Dashboard() {
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
             toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`, duration: 2000});
-        } else if (workspaceAction === 'edit') {
+        } else if (action === 'edit') {
             setWorkspaceToEdit(workspace);
             setWorkspaceName(workspace.workspace_name);
             setIsWorkspaceModalOpen(true);
@@ -593,7 +591,7 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={(ws) => handleWorkspaceListSelect({ ...ws, workspaceAction: 'load' })}
+      onLoadWorkspace={(ws) => handleWorkspaceListSelect(ws, 'load')}
     />
   );
   
@@ -800,7 +798,7 @@ export function Dashboard() {
                     {loadingWorkspaces ? <Loader2 className="mx-auto animate-spin" /> : (
                         <div className="space-y-2">
                             {workspaces.map(ws => (
-                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceListSelect(ws)}>
+                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceListSelect(ws, workspaceAction!)}>
                                     {ws.workspace_name}
                                 </Button>
                             ))}
