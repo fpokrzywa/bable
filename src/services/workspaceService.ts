@@ -43,7 +43,17 @@ export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId'
         }
         return null;
     } catch (error) {
-        console.error('Failed to save workspace:', error);
+        if (axios.isAxiosError(error)) {
+            console.error('Failed to save workspace:', {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+                url: webhookUrl,
+                sentData: payload
+            });
+        } else {
+            console.error('An unexpected error occurred during workspace save:', error);
+        }
         return null;
     }
 }
