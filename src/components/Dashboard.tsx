@@ -473,8 +473,8 @@ export function Dashboard() {
                 setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
                 setCurrentWorkspaceId(updatedWorkspace.workspaceId);
             } else {
-                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
-                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, workspace_name: updatedWorkspace.workspace_name } : ws));
+                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
+                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, workspace_name: updatedWorkspace.workspace_name } : ws));
                 if (currentWorkspaceId === updatedWorkspace.workspaceId) {
                    loadWorkspaceUI(updatedWorkspace);
                 }
@@ -630,19 +630,19 @@ export function Dashboard() {
             <div className="w-10"></div>
           </header>
         ) : (
-            <div className="flex items-center justify-center gap-2 p-2 bg-background z-10">
+            <div className="flex items-center justify-center gap-2 p-4 bg-background z-10">
               <TooltipProvider>
                 {openWorkspaces.map(ws => (
-                  <div key={ws.workspaceId} className="group relative">
+                  <div key={ws.workspaceId} className="group relative flex flex-col items-center">
                     <Button
                       variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
                       size="sm"
-                      className="pr-10"
+                      className="rounded-full px-6 py-2 h-auto"
                       onClick={() => switchWorkspace(ws.workspaceId)}
                     >
                       {ws.workspace_name}
                     </Button>
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center bg-gradient-to-l from-secondary/0 to-secondary/0 pl-8 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-4 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Tooltip>
                         <TooltipTrigger asChild>
                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
