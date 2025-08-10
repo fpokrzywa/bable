@@ -20,6 +20,9 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { BaseWidget } from './widgets/BaseWidget';
+import { ScrollArea } from './ui/scroll-area';
 
 
 export function Dashboard() {
@@ -31,7 +34,8 @@ export function Dashboard() {
   ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
+  const { state, openMobile, setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
   const [nextZIndex, setNextZIndex] = useState(1);
   const [lastRestorePosition, setLastRestorePosition] = useState({ x: 0, y: 0 });
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -388,18 +392,37 @@ export function Dashboard() {
       )}
 
       <div className="absolute inset-0">
-          <WidgetContainer 
-            widgets={normalWidgets} 
-            removeWidget={removeWidget} 
-            updateEntity={updateEntity}
-            bringToFront={bringToFront}
-            toggleMinimizeWidget={toggleMinimizeWidget}
-            toggleFavoriteWidget={toggleFavoriteWidget}
-            updateWidgetPosition={updateWidgetPosition}
-            sidebarState={state}
-            sidebarRef={sidebarRef}
-            chatInputRef={chatInputRef}
-          />
+          {isMobile ? (
+             <div className="absolute inset-0 top-14 bottom-24 overflow-y-auto">
+               <div className="p-4 space-y-4">
+                {normalWidgets.map(widget => (
+                  <div key={widget.id} className="h-[400px]">
+                    <BaseWidget
+                      widget={widget}
+                      removeWidget={removeWidget}
+                      updateEntity={updateEntity}
+                      bringToFront={bringToFront}
+                      toggleMinimizeWidget={toggleMinimizeWidget}
+                      toggleFavoriteWidget={toggleFavoriteWidget}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <WidgetContainer 
+              widgets={normalWidgets} 
+              removeWidget={removeWidget} 
+              updateEntity={updateEntity}
+              bringToFront={bringToFront}
+              toggleMinimizeWidget={toggleMinimizeWidget}
+              toggleFavoriteWidget={toggleFavoriteWidget}
+              updateWidgetPosition={updateWidgetPosition}
+              sidebarState={state}
+              sidebarRef={sidebarRef}
+              chatInputRef={chatInputRef}
+            />
+          )}
       </div>
 
       <div 
