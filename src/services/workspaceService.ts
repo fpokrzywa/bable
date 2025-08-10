@@ -39,7 +39,7 @@ export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId'
     try {
         const response = await axios.post(webhookUrl, payload, { params: { workspaceId } });
         if (response.status === 200 || response.status === 201) {
-            return response.data;
+            return response.data.result ? response.data.result : response.data;
         }
         return null;
     } catch (error) {
@@ -51,9 +51,7 @@ export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId'
 export async function deleteWorkspace(workspaceId: string): Promise<boolean> {
     const webhookUrl = getWebhookUrl();
     try {
-        // The webhook might expect a DELETE request or a POST with an 'active: false' flag.
-        // Using a POST with active: false as a safer default.
-        const response = await axios.post(webhookUrl, { workspaceId, active: false });
+        const response = await axios.delete(webhookUrl, { params: { workspaceId } });
         return response.status === 200 || response.status === 204;
     } catch (error) {
         console.error('Failed to delete workspace:', error);
