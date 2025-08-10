@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
 import { Settings as SettingsPage } from '../Settings';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 
 interface AppSidebarProps {
@@ -33,6 +34,7 @@ interface AppSidebarProps {
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestoreWidget, onRestoreFavorite, onProfileUpdate }: AppSidebarProps) {
   const { toggleSidebar, state } = useSidebar();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     localStorage.removeItem('session');
@@ -63,7 +65,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                     onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
-                    {state === 'expanded' && <span className="truncate">{widget.query}</span>}
+                    {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -83,7 +85,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
-                             {state === 'expanded' && <span className="truncate">{widget.query}</span>}
+                             {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
@@ -98,7 +100,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
                   <Settings />
-                  {state === 'expanded' && <span>Settings</span>}
+                  {(state === 'expanded' || isMobile) && <span>Settings</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </DialogTrigger>
@@ -118,7 +120,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                   variant="ghost"
                 >
                   <User />
-                  {state === 'expanded' && <span>User</span>}
+                  {(state === 'expanded' || isMobile) && <span>User</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </DialogTrigger>
@@ -133,7 +135,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
            <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" size="icon" variant="ghost" onClick={handleLogout}>
               <LogOut />
-              {state === 'expanded' && <span>Logout</span>}
+              {(state === 'expanded' || isMobile) && <span>Logout</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
