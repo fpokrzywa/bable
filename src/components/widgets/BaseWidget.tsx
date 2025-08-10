@@ -13,6 +13,7 @@ import { EntityWidget } from './EntityWidget';
 import { cn } from '@/lib/utils';
 import { ChatPanel } from './ChatPanel';
 import { WIDGET_EXPANDED_WIDTH, WIDGET_INITIAL_WIDTH } from './WidgetContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BaseWidgetProps {
   widget: Widget;
@@ -31,6 +32,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const [chatPanelWidth, setChatPanelWidth] = useState(375);
   const [isResizing, setIsResizing] = useState(false);
   const [selectedEntityForChat, setSelectedEntityForChat] = useState<Incident | Problem | Change | null>(null);
+  const isMobile = useIsMobile();
 
 
   useEffect(() => {
@@ -157,11 +159,16 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
   return (
     <Card 
-      className="resizable-widget w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden"
+      className={cn(
+        "w-full h-full flex flex-col bg-card/80 backdrop-blur-sm overflow-hidden",
+        !isMobile && "resizable-widget"
+      )}
       ref={widgetRef}
-      style={{ width: isChatOpen ? WIDGET_EXPANDED_WIDTH : WIDGET_INITIAL_WIDTH }}
+      style={{ 
+        width: !isMobile ? (isChatOpen ? WIDGET_EXPANDED_WIDTH : WIDGET_INITIAL_WIDTH) : '100%',
+      }}
     >
-      <div className="drag-handle cursor-move" onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
+      <div className={cn(!isMobile && "drag-handle cursor-move")} onDoubleClick={() => toggleMinimizeWidget(widget.id)}>
         <CardHeader className="flex flex-row items-start justify-between p-4">
             <div className="flex-1">
             <CardTitle className="text-lg @[400px]:text-xl @[500px]:text-2xl">{widget.query}</CardTitle>
