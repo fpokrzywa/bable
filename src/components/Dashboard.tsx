@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
@@ -16,6 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
+import { saveSession } from '@/services/sessionService';
 import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -50,6 +51,7 @@ export function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [openWorkspaces, setOpenWorkspaces] = useState<Workspace[]>([]);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
@@ -68,6 +70,9 @@ export function Dashboard() {
       if (userEmail) {
         const profile = await getUserProfile(userEmail);
         setUser(profile);
+        if (profile) {
+            setSessionId(`sess_${profile.userId}_${Date.now()}`);
+        }
       }
     }
   }
@@ -75,6 +80,31 @@ export function Dashboard() {
   useEffect(() => {
     fetchUser();
   }, []);
+
+    const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
+        const callback = useCallback(effect, deps);
+        useEffect(() => {
+            const handler = setTimeout(() => {
+                callback();
+            }, delay);
+
+            return () => {
+                clearTimeout(handler);
+            };
+        }, [callback, delay]);
+    };
+
+    useDebouncedEffect(() => {
+        if (user && sessionId && openWorkspaces.length > 0) {
+            const openWorkspaceIds = openWorkspaces.map(ws => ws.workspaceId);
+            saveSession({
+                sessionId,
+                userId: user.userId,
+                workspace_data: JSON.stringify(openWorkspaceIds),
+                active: true,
+            });
+        }
+    }, [user, sessionId, openWorkspaces], 1000);
   
   const handleProfileUpdate = () => {
     fetchUser();
@@ -841,7 +871,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
-
-    

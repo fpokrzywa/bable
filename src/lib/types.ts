@@ -79,3 +79,10 @@ export interface Workspace {
     active?: boolean;
     last_accessed?: string;
 }
+
+export interface Session {
+    sessionId: string;
+    userId: string;
+    workspace_data: string; // JSON string of open workspaces
+    active: boolean;
+}
