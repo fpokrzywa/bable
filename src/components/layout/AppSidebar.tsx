@@ -43,15 +43,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     localStorage.removeItem('session');
     router.push('/');
   };
-
-  const isCollapsed = state === 'collapsed';
-
-  const popoverTriggerEvents = isCollapsed ? {
-    onMouseEnter: () => setIsWorkspacePopoverOpen(true),
-    onMouseLeave: () => setIsWorkspacePopoverOpen(false),
-  } : {
-    onClick: () => setIsWorkspacePopoverOpen(o => !o)
-  };
   
   return (
     <div className="flex flex-col h-full">
@@ -71,10 +62,11 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
                 <Popover open={isWorkspacePopoverOpen} onOpenChange={setIsWorkspacePopoverOpen}>
                     <PopoverTrigger asChild>
-                        <SidebarMenuItem {...popoverTriggerEvents} >
+                        <SidebarMenuItem>
                             <SidebarMenuButton
-                              tooltip={isCollapsed ? undefined : "My Workspaces"}
+                              tooltip="My Workspaces"
                               variant="ghost"
+                              onClick={() => setIsWorkspacePopoverOpen(o => !o)}
                             >
                             <FolderKanban />
                             {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
@@ -85,7 +77,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         side="right" 
                         align="start" 
                         className="w-[200px] p-1"
-                        onMouseLeave={() => state === 'collapsed' && setIsWorkspacePopoverOpen(false)}
                     >
                         {workspaces.map((ws) => (
                             <Button
