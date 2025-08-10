@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2, MoreHorizontal, Save, Edit, X as XIcon } from 'lucide-react';
+import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,8 @@ import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -438,7 +439,7 @@ export function Dashboard() {
         if (result) {
             const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
             setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
-            setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+            setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
             toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.`, duration: 2000 });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
@@ -630,39 +631,45 @@ export function Dashboard() {
           </header>
         ) : (
             <div className="flex items-center justify-center gap-2 p-2 bg-background z-10">
-              {openWorkspaces.map(ws => (
-                  <DropdownMenu key={ws.workspaceId}>
-                      <DropdownMenuTrigger asChild>
-                          <Button
-                              variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
-                              size="sm"
-                              className="group relative"
-                              onClick={() => switchWorkspace(ws.workspaceId)}
-                          >
-                              {ws.workspace_name}
-                          </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                          <DropdownMenuItem onClick={handleQuickSaveWorkspace}>
-                              <Save className="mr-2 h-4 w-4" />
-                              <span>Save</span>
-                          </DropdownMenuItem>
-                           <DropdownMenuItem onClick={() => {
+              <TooltipProvider>
+                {openWorkspaces.map(ws => (
+                  <div key={ws.workspaceId} className="group relative">
+                    <Button
+                      variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
+                      size="sm"
+                      className="pr-2"
+                      onClick={() => switchWorkspace(ws.workspaceId)}
+                    >
+                      {ws.workspace_name}
+                    </Button>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center bg-gradient-to-l from-secondary to-transparent pl-8 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Save</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                                 setWorkspaceAction('edit');
                                 setWorkspaceToEdit(ws);
                                 setWorkspaceName(ws.workspace_name);
                                 setIsWorkspaceModalOpen(true);
-                           }}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              <span>Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => closeWorkspace(ws.workspaceId)}>
-                              <XIcon className="mr-2 h-4 w-4" />
-                              <span>Close</span>
-                          </DropdownMenuItem>
-                      </DropdownMenuContent>
-                  </DropdownMenu>
-              ))}
+                           }}><Edit size={14} /></Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => closeWorkspace(ws.workspaceId)}><XIcon size={14} /></Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Close</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                ))}
+              </TooltipProvider>
             </div>
         )}
         
@@ -806,5 +813,7 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
 
     
