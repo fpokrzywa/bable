@@ -43,7 +43,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
   
   return (
     <>
-      <SidebarHeader className="h-16 flex items-center justify-end p-2">
+      <SidebarHeader className="h-16 flex items-center justify-between p-2">
         <SidebarTrigger asChild>
             <Button variant="ghost" size="icon">
                 <PanelLeft />
@@ -51,7 +51,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
         </SidebarTrigger>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow flex flex-col items-center">
+      <SidebarContent className="p-2 flex-grow flex flex-col">
         {favoritedWidgets.length > 0 && (
           <>
             <SidebarMenu>
@@ -59,9 +59,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                 <SidebarMenuItem key={widget.id}>
                   <SidebarMenuButton
                     tooltip={widget.query}
-                    size="icon"
                     variant="ghost"
-                    className="rounded-full"
                     onClick={() => onRestoreFavorite(widget)}
                   >
                     <Heart className="text-primary fill-primary" />
@@ -79,9 +77,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
                             tooltip={widget.query}
-                            size="icon"
                             variant="ghost"
-                            className="rounded-full"
                             onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
@@ -94,11 +90,11 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="p-2 flex flex-col items-center gap-2">
+        <SidebarMenu className="p-2 flex flex-col gap-2">
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings" size="icon" variant="ghost">
+                <SidebarMenuButton tooltip="Settings" variant="ghost">
                   <Settings />
                   {(state === 'expanded' || isMobile) && <span>Settings</span>}
                 </SidebarMenuButton>
@@ -116,7 +112,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="User"
-                  size="icon"
                   variant="ghost"
                 >
                   <User />
@@ -133,7 +128,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
           </Dialog>
           <SidebarSeparator className="my-1" />
            <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout" size="icon" variant="ghost" onClick={handleLogout}>
+            <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
               {(state === 'expanded' || isMobile) && <span>Logout</span>}
             </SidebarMenuButton>
