@@ -409,25 +409,17 @@ export function Dashboard() {
         if (!user) return;
         
         const workspaceData = JSON.stringify(widgets);
-        const updatedWorkspace = await saveWorkspace({
+        const result = await saveWorkspace({
             userId: user.userId,
             workspace_name: activeWorkspace.workspace_name,
             workspace_data: workspaceData,
             workspaceId: activeWorkspace.workspaceId
         });
 
-        if (updatedWorkspace) {
-            setActiveWorkspace(updatedWorkspace);
-            setWorkspaces(prev => {
-                const existing = prev.findIndex(ws => ws.workspaceId === updatedWorkspace.workspaceId);
-                if (existing !== -1) {
-                    const updated = [...prev];
-                    updated[existing] = updatedWorkspace;
-                    return updated;
-                }
-                return [...prev, updatedWorkspace];
-            });
-            toast({ title: 'Success', description: `Workspace "${updatedWorkspace.workspace_name}" saved.` });
+        if (result) {
+            setActiveWorkspace(result);
+            setWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? result : ws));
+            toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -440,26 +432,22 @@ export function Dashboard() {
         }
 
         const workspaceData = JSON.stringify(widgets);
-        const workspaceId = workspaceAction === 'edit' && activeWorkspace ? activeWorkspace.workspaceId : undefined;
+        const workspaceIdToSave = workspaceAction === 'edit' && activeWorkspace ? activeWorkspace.workspaceId : undefined;
         
-        const newWorkspace = await saveWorkspace({
+        const result = await saveWorkspace({
             userId: user.userId,
             workspace_name: workspaceName,
             workspace_data: workspaceData,
-            workspaceId: workspaceId
+            workspaceId: workspaceIdToSave
         });
 
-        if (newWorkspace) {
-            setActiveWorkspace(newWorkspace);
-            setWorkspaces(prev => {
-                const existing = prev.findIndex(ws => ws.workspaceId === newWorkspace.workspaceId);
-                if (existing !== -1) {
-                    const updated = [...prev];
-                    updated[existing] = newWorkspace;
-                    return updated;
-                }
-                return [...prev, newWorkspace];
-            });
+        if (result) {
+            setActiveWorkspace(result);
+            if (workspaceIdToSave) {
+                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? result : ws));
+            } else {
+                setWorkspaces(prev => [...prev, result]);
+            }
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
