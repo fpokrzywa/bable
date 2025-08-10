@@ -598,6 +598,7 @@ export function Dashboard() {
   const handleStarterPrompt = (query: string) => {
     if (query === '__LOAD_LAST_WORKSPACE__') {
       if (lastAccessedWorkspace) {
+        setWorkspaceAction('load');
         handleWorkspaceListSelect({ ...lastAccessedWorkspace });
       }
     } else {
@@ -840,5 +841,7 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
 
     
