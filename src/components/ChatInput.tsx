@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText, Server } from 'lucide-react';
+import { Send, Mic, Bookmark, Loader2, Sparkles, AlertCircle, FileWarning, GitBranch, BookText, Server, FolderPlus, Edit, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -35,6 +35,12 @@ const commands = [
   { name: 'Fetch ServiceNow', query: '@servicenow', description: 'Fetch data from ServiceNow', icon: Server },
 ];
 
+const workspaceCommands = [
+  { name: 'Create workspace', action: 'create', description: 'Save the current layout as a new workspace', icon: FolderPlus },
+  { name: 'Edit workspace', action: 'edit', description: 'Update or rename the current workspace', icon: Edit },
+  { name: 'Forget workspace', action: 'forget', description: 'Clear the saved workspace from memory', icon: Trash2 },
+];
+
 export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps) {
   const [query, setQuery] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
@@ -42,6 +48,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [thinkingDots, setThinkingDots] = useState('.');
 
@@ -129,6 +136,13 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
     setQuery('');
     setTokenCount(0);
   };
+  
+  const handleWorkspaceAction = (action: string) => {
+    // TODO: Implement workspace actions
+    console.log(`Workspace action: ${action}`);
+    setShowWorkspaceMenu(false);
+    inputRef.current?.focus();
+  };
 
   const isSummaryDisabled = widgets.length === 0;
 
@@ -163,45 +177,81 @@ export function ChatInput({ onSubmit, onSave, loading, widgets }: ChatInputProps
           </Popover>
       </form>
       <div className="flex justify-between items-center px-4">
-        <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
-            <PopoverTrigger asChild>
-                <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Use Commands</Button>
-            </PopoverTrigger>
-            <PopoverContent 
-                className="w-[400px] p-2 mb-2" 
-                align="start"
-                onCloseAutoFocus={(e) => {
-                  e.preventDefault();
-                  inputRef.current?.focus();
-                }}
-            >
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground px-2">Commands</p>
-                {commands.map((command) => {
-                  const Icon = command.icon;
-                  const isDisabled = command.query === '@summary' && isSummaryDisabled;
-                  return (
-                    <button
-                      key={command.name}
-                      type="button"
-                      className={cn(
-                        "w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3",
-                        isDisabled && "opacity-50 cursor-not-allowed"
-                      )}
-                      onClick={() => handleCommandSelect(command.query)}
-                      disabled={isDisabled}
-                    >
-                      <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
-                      <div>
-                        <p className="font-medium text-sm">{command.name}</p>
-                        <p className="text-xs text-muted-foreground">{command.description}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </PopoverContent>
-        </Popover>
+        <div className="flex items-center gap-4">
+          <Popover open={showCommandMenu} onOpenChange={setShowCommandMenu}>
+              <PopoverTrigger asChild>
+                  <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Use Commands</Button>
+              </PopoverTrigger>
+              <PopoverContent 
+                  className="w-[400px] p-2 mb-2" 
+                  align="start"
+                  onCloseAutoFocus={(e) => {
+                    e.preventDefault();
+                    inputRef.current?.focus();
+                  }}
+              >
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground px-2">Commands</p>
+                  {commands.map((command) => {
+                    const Icon = command.icon;
+                    const isDisabled = command.query === '@summary' && isSummaryDisabled;
+                    return (
+                      <button
+                        key={command.name}
+                        type="button"
+                        className={cn(
+                          "w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3",
+                          isDisabled && "opacity-50 cursor-not-allowed"
+                        )}
+                        onClick={() => handleCommandSelect(command.query)}
+                        disabled={isDisabled}
+                      >
+                        <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                        <div>
+                          <p className="font-medium text-sm">{command.name}</p>
+                          <p className="text-xs text-muted-foreground">{command.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+          </Popover>
+          <Popover open={showWorkspaceMenu} onOpenChange={setShowWorkspaceMenu}>
+              <PopoverTrigger asChild>
+                  <Button variant="link" className="text-xs text-muted-foreground self-start p-0 h-auto">Workspace</Button>
+              </PopoverTrigger>
+              <PopoverContent 
+                  className="w-[400px] p-2 mb-2" 
+                  align="start"
+                  onCloseAutoFocus={(e) => {
+                    e.preventDefault();
+                    inputRef.current?.focus();
+                  }}
+              >
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground px-2">Workspace Actions</p>
+                  {workspaceCommands.map((command) => {
+                    const Icon = command.icon;
+                    return (
+                      <button
+                        key={command.name}
+                        type="button"
+                        className="w-full text-left p-2 rounded-md hover:bg-accent flex items-start gap-3"
+                        onClick={() => handleWorkspaceAction(command.action)}
+                      >
+                        <Icon className="w-8 h-8 p-1.5 bg-muted rounded-md mt-0.5" />
+                        <div>
+                          <p className="font-medium text-sm">{command.name}</p>
+                          <p className="text-xs text-muted-foreground">{command.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+          </Popover>
+        </div>
       </div>
     </div>
   );
