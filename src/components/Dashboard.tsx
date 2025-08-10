@@ -51,7 +51,8 @@ export function Dashboard() {
 
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
-  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'forget' | 'load' | 'save' | null>(null);
+  const [workspaceToEdit, setWorkspaceToEdit] = useState<Workspace | null>(null);
+  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
   
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
@@ -76,6 +77,15 @@ export function Dashboard() {
     fetchUser();
   };
   
+  const fetchWorkspaces = async () => {
+      if (user?.userId) {
+          setLoadingWorkspaces(true);
+          getWorkspaces(user.userId)
+              .then(data => setWorkspaces(data))
+              .finally(() => setLoadingWorkspaces(false));
+      }
+  };
+
   useEffect(() => {
     if (user?.userId) {
         setLoadingWorkspaces(true);
@@ -388,23 +398,24 @@ export function Dashboard() {
     );
   };
   
-    const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
-        setWorkspaceAction(action);
-        if (action === 'create' || (action === 'edit' && activeWorkspace)) {
-            setIsWorkspaceModalOpen(true);
-            if (action === 'edit' && activeWorkspace) {
-                setWorkspaceName(activeWorkspace.workspace_name);
-            } else {
-                setWorkspaceName('');
-            }
-        } else if (action === 'forget') {
-            handleDeleteWorkspace();
-        } else if (action === 'load') {
-            setIsWorkspaceListOpen(true);
-        } else if (action === 'save') {
-            handleQuickSaveWorkspace();
-        }
-    };
+  const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
+    if (action === 'create') {
+        setWorkspaceAction('create');
+        setWorkspaceName('');
+        setWorkspaceToEdit(null);
+        setIsWorkspaceModalOpen(true);
+    } else if (action === 'edit') {
+        setWorkspaceAction('edit');
+        setIsWorkspaceListOpen(true);
+    } else if (action === 'forget') {
+        handleDeleteWorkspace();
+    } else if (action === 'load') {
+        setWorkspaceAction('load');
+        setIsWorkspaceListOpen(true);
+    } else if (action === 'save') {
+        handleQuickSaveWorkspace();
+    }
+  };
     
     const handleQuickSaveWorkspace = async () => {
         if (!activeWorkspace) {
@@ -413,6 +424,7 @@ export function Dashboard() {
         }
         if (!user) return;
         
+        setLoading(true);
         const workspaceData = JSON.stringify(widgets);
         const result = await saveWorkspace({
             userId: user.userId,
@@ -420,6 +432,7 @@ export function Dashboard() {
             workspace_data: workspaceData,
             workspaceId: activeWorkspace.workspaceId
         });
+        setLoading(false);
 
         if (result) {
             const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
@@ -437,9 +450,11 @@ export function Dashboard() {
             return;
         }
 
-        const workspaceData = JSON.stringify(widgets);
-        const isEditing = workspaceAction === 'edit' && activeWorkspace;
-        const workspaceIdToSave = isEditing ? activeWorkspace.workspaceId : undefined;
+        setLoading(true);
+        const isCreating = workspaceAction === 'create';
+        
+        const workspaceData = isCreating ? JSON.stringify(widgets) : workspaceToEdit!.workspace_data;
+        const workspaceIdToSave = isCreating ? undefined : workspaceToEdit!.workspaceId;
         
         const result = await saveWorkspace({
             userId: user.userId,
@@ -447,16 +462,17 @@ export function Dashboard() {
             workspace_data: workspaceData,
             workspaceId: workspaceIdToSave
         });
+        setLoading(false);
 
         if (result) {
-            const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
-            if (isEditing) {
-                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === newWorkspace.workspaceId ? newWorkspace : ws));
-                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === newWorkspace.workspaceId ? newWorkspace : ws));
+            const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
+            if (isCreating) {
+                setWorkspaces(prev => [...prev, updatedWorkspace]);
+                setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
+                setCurrentWorkspaceId(updatedWorkspace.workspaceId);
             } else {
-                setWorkspaces(prev => [...prev, newWorkspace]);
-                setOpenWorkspaces(prev => [...prev, newWorkspace]);
-                setCurrentWorkspaceId(newWorkspace.workspaceId);
+                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
             }
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
         } else {
@@ -464,6 +480,7 @@ export function Dashboard() {
         }
         setIsWorkspaceModalOpen(false);
         setWorkspaceName('');
+        setWorkspaceToEdit(null);
     };
     
     const handleDeleteWorkspace = async () => {
@@ -472,7 +489,9 @@ export function Dashboard() {
             return;
         }
         
+        setLoading(true);
         const success = await deleteWorkspace(activeWorkspace.workspaceId);
+        setLoading(false);
         if (success) {
             const deletedId = activeWorkspace.workspaceId;
             setWorkspaces(prev => prev.filter(ws => ws.workspaceId !== deletedId));
@@ -493,27 +512,33 @@ export function Dashboard() {
         }
     }
     
-    const handleLoadWorkspace = (workspace: Workspace) => {
-        if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
+    const handleWorkspaceListSelect = (workspace: Workspace) => {
+        setIsWorkspaceListOpen(false);
+        if (workspaceAction === 'load') {
+            if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
+                setCurrentWorkspaceId(workspace.workspaceId);
+                loadWorkspaceUI(workspace);
+                return;
+            }
+
+            if (openWorkspaces.length >= MAX_OPEN_SESSIONS) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Limit Reached',
+                    description: `You can only have ${MAX_OPEN_SESSIONS} workspaces open at a time.`
+                });
+                return;
+            }
+
+            setOpenWorkspaces(prev => [...prev, workspace]);
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
-            return;
+            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`});
+        } else if (workspaceAction === 'edit') {
+            setWorkspaceToEdit(workspace);
+            setWorkspaceName(workspace.workspace_name);
+            setIsWorkspaceModalOpen(true);
         }
-
-        if (openWorkspaces.length >= MAX_OPEN_SESSIONS) {
-            toast({
-                variant: 'destructive',
-                title: 'Limit Reached',
-                description: `You can only have ${MAX_OPEN_SESSIONS} workspaces open at a time.`
-            });
-            return;
-        }
-
-        setOpenWorkspaces(prev => [...prev, workspace]);
-        setCurrentWorkspaceId(workspace.workspaceId);
-        loadWorkspaceUI(workspace);
-        setIsWorkspaceListOpen(false);
-        toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`});
     };
 
     const switchWorkspace = (workspaceId: string) => {
@@ -563,7 +588,7 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={handleLoadWorkspace}
+      onLoadWorkspace={(ws) => handleWorkspaceListSelect(ws)}
     />
   );
   
@@ -709,7 +734,10 @@ export function Dashboard() {
                 <DialogHeader>
                     <DialogTitle>{workspaceAction === 'create' ? 'Create' : 'Edit'} Workspace</DialogTitle>
                     <DialogDescription>
-                        Give your workspace a name to save the current layout.
+                        {workspaceAction === 'create' 
+                            ? "Give your workspace a name to save the current layout."
+                            : `Renaming workspace: ${workspaceToEdit?.workspace_name}`
+                        }
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -725,23 +753,29 @@ export function Dashboard() {
                 </div>
                 <DialogFooter>
                     <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                    <Button onClick={handleSaveWorkspace} disabled={!workspaceName.trim()}>Save</Button>
+                    <Button onClick={handleSaveWorkspace} disabled={!workspaceName.trim() || loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
         <Dialog open={isWorkspaceListOpen} onOpenChange={setIsWorkspaceListOpen}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Load Workspace</DialogTitle>
+                    <DialogTitle>{workspaceAction === 'load' ? 'Load Workspace' : 'Edit Workspace'}</DialogTitle>
                     <DialogDescription>
-                        Select a saved workspace to load it onto your dashboard.
+                        {workspaceAction === 'load' 
+                            ? "Select a saved workspace to load it onto your dashboard."
+                            : "Select a workspace to edit its name."
+                        }
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
                     {loadingWorkspaces ? <Loader2 className="mx-auto animate-spin" /> : (
                         <div className="space-y-2">
                             {workspaces.map(ws => (
-                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleLoadWorkspace(ws)}>
+                                <Button key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceListSelect(ws)}>
                                     {ws.workspace_name}
                                 </Button>
                             ))}
@@ -754,3 +788,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
