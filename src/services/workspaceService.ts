@@ -4,7 +4,15 @@
 import axios from 'axios';
 import type { Workspace } from '@/lib/types';
 
-const getWebhookUrl = () => {
+const getWorkspaceWebhookUrl = () => {
+    const url = process.env.WORKSPACE_WEBHOOK_URL;
+    if (!url) {
+        throw new Error('WORKSPACE_WEBHOOK_URL is not configured in .env file.');
+    }
+    return url;
+};
+
+const getUserWorkspacesWebhookUrl = () => {
     const url = process.env.USER_WORKSPACE_WEBHOOK_URL;
     if (!url) {
         throw new Error('USER_WORKSPACE_WEBHOOK_URL is not configured in .env file.');
@@ -13,7 +21,7 @@ const getWebhookUrl = () => {
 };
 
 export async function getWorkspaces(userId: string): Promise<Workspace[]> {
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = getUserWorkspacesWebhookUrl();
     try {
         const response = await axios.get(webhookUrl, { params: { userId, workspaceId: 'all' } });
         if (response.status === 200 && response.data) {
@@ -28,7 +36,7 @@ export async function getWorkspaces(userId: string): Promise<Workspace[]> {
 
 
 export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId' | 'active'> & { workspaceId?: string }): Promise<Workspace | null> {
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = getWorkspaceWebhookUrl();
     const workspaceId = workspaceData.workspaceId || `ws_${Date.now()}`;
     const payload = {
         ...workspaceData,
@@ -60,7 +68,7 @@ export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId'
 }
 
 export async function deleteWorkspace(workspaceId: string): Promise<boolean> {
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = getWorkspaceWebhookUrl();
     try {
         const response = await axios.delete(webhookUrl, { params: { workspaceId } });
         return response.status === 200 || response.status === 204;
