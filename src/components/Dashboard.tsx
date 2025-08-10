@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { Menu, Sparkle, Loader2, X as XIcon } from 'lucide-react';
+import { Menu, Sparkle, Loader2, MoreHorizontal, Save, Edit, X as XIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,7 @@ import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 export function Dashboard() {
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -471,10 +472,10 @@ export function Dashboard() {
                 setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
                 setCurrentWorkspaceId(updatedWorkspace.workspaceId);
             } else {
-                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
-                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
+                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
                 if (currentWorkspaceId === updatedWorkspace.workspaceId) {
-                    loadWorkspaceUI(updatedWorkspace);
+                   loadWorkspaceUI(updatedWorkspace);
                 }
             }
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
@@ -628,27 +629,41 @@ export function Dashboard() {
             <div className="w-10"></div>
           </header>
         ) : (
-             <div className="flex items-center justify-center gap-1 p-2 bg-background z-10">
-                {openWorkspaces.map(ws => (
-                    <Button 
-                        key={ws.workspaceId}
-                        variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
-                        size="sm"
-                        className="flex items-center gap-2"
-                        onClick={() => switchWorkspace(ws.workspaceId)}
-                    >
-                        <span>{ws.workspace_name}</span>
-                         <XIcon 
-                            size={14} 
-                            className="text-muted-foreground hover:text-foreground rounded-full"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                closeWorkspace(ws.workspaceId);
-                            }}
-                         />
-                    </Button>
-                ))}
-             </div>
+            <div className="flex items-center justify-center gap-2 p-2 bg-background z-10">
+              {openWorkspaces.map(ws => (
+                  <DropdownMenu key={ws.workspaceId}>
+                      <DropdownMenuTrigger asChild>
+                          <Button
+                              variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
+                              size="sm"
+                              className="group relative"
+                              onClick={() => switchWorkspace(ws.workspaceId)}
+                          >
+                              {ws.workspace_name}
+                          </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                          <DropdownMenuItem onClick={handleQuickSaveWorkspace}>
+                              <Save className="mr-2 h-4 w-4" />
+                              <span>Save</span>
+                          </DropdownMenuItem>
+                           <DropdownMenuItem onClick={() => {
+                                setWorkspaceAction('edit');
+                                setWorkspaceToEdit(ws);
+                                setWorkspaceName(ws.workspace_name);
+                                setIsWorkspaceModalOpen(true);
+                           }}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              <span>Edit</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => closeWorkspace(ws.workspaceId)}>
+                              <XIcon className="mr-2 h-4 w-4" />
+                              <span>Close</span>
+                          </DropdownMenuItem>
+                      </DropdownMenuContent>
+                  </DropdownMenu>
+              ))}
+            </div>
         )}
         
         <main className="flex-1 overflow-auto relative">
