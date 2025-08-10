@@ -41,7 +41,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
   
   return (
     <div className="flex flex-col h-full">
-      <SidebarContent className="flex-grow p-2">
+      <SidebarContent>
         <SidebarMenu className="h-full">
             <SidebarMenuItem>
                 <SidebarTrigger asChild>
@@ -54,7 +54,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
 
           {favoritedWidgets.length > 0 && (
             <>
-              <SidebarSeparator className="my-2" />
+              <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
               {favoritedWidgets.map((widget) => (
                   <SidebarMenuItem key={widget.id}>
                     <SidebarMenuButton
@@ -71,7 +71,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
           )}
           {minimizedWidgets.length > 0 && (
               <>
-                <SidebarSeparator className="my-2" />
+                <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
@@ -87,7 +87,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               </>
           )}
 
-          <SidebarSeparator className="my-1 mt-auto" />
+          <SidebarSeparator className="my-1 mt-auto group-data-[collapsible=icon]:hidden" />
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
@@ -123,7 +123,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
               <Profile user={user} onProfileUpdate={onProfileUpdate} />
             </DialogContent>
           </Dialog>
-          <SidebarSeparator className="my-1" />
+          <SidebarSeparator className="my-1 group-data-[collapsible=icon]:hidden" />
            <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
