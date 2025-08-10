@@ -438,7 +438,7 @@ export function Dashboard() {
             const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
             setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
             setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
-            toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.` });
+            toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.`, duration: 2000 });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -453,7 +453,7 @@ export function Dashboard() {
         setLoading(true);
         const isCreating = workspaceAction === 'create';
         
-        const workspaceData = isCreating ? JSON.stringify(widgets) : workspaceToEdit!.workspace_data;
+        const workspaceData = isCreating ? JSON.stringify(widgets) : (workspaceToEdit ? workspaceToEdit.workspace_data : JSON.stringify(widgets));
         const workspaceIdToSave = isCreating ? undefined : workspaceToEdit!.workspaceId;
         
         const result = await saveWorkspace({
@@ -473,8 +473,11 @@ export function Dashboard() {
             } else {
                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
+                if (currentWorkspaceId === updatedWorkspace.workspaceId) {
+                    loadWorkspaceUI(updatedWorkspace);
+                }
             }
-            toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.` });
+            toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -496,7 +499,7 @@ export function Dashboard() {
             const deletedId = activeWorkspace.workspaceId;
             setWorkspaces(prev => prev.filter(ws => ws.workspaceId !== deletedId));
             closeWorkspace(deletedId);
-            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" has been forgotten.` });
+            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" has been forgotten.`, duration: 2000 });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to forget workspace.' });
         }
@@ -533,7 +536,7 @@ export function Dashboard() {
             setOpenWorkspaces(prev => [...prev, workspace]);
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
-            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`});
+            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`, duration: 2000});
         } else if (workspaceAction === 'edit') {
             setWorkspaceToEdit(workspace);
             setWorkspaceName(workspace.workspace_name);
