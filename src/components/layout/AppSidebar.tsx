@@ -51,7 +51,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
         </SidebarTrigger>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow flex flex-col">
+      <SidebarContent className="p-2 flex-grow">
         {favoritedWidgets.length > 0 && (
           <>
             <SidebarMenu>
@@ -90,7 +90,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="p-2 flex flex-col gap-2">
+        <SidebarMenu className="p-2">
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
