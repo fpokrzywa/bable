@@ -473,7 +473,7 @@ export function Dashboard() {
                 setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
                 setCurrentWorkspaceId(updatedWorkspace.workspaceId);
             } else {
-                setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
+                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, workspace_name: updatedWorkspace.workspace_name } : ws));
                 if (currentWorkspaceId === updatedWorkspace.workspaceId) {
                    loadWorkspaceUI(updatedWorkspace);
@@ -637,7 +637,7 @@ export function Dashboard() {
                     <Button
                       variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
                       size="sm"
-                      className="rounded-full px-6 py-2 h-auto"
+                      className="rounded-full px-6 py-2 h-auto shadow-lg"
                       onClick={() => switchWorkspace(ws.workspaceId)}
                     >
                       {ws.workspace_name}
@@ -813,7 +813,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
-
-    
