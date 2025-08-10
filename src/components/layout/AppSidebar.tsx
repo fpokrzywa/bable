@@ -51,10 +51,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
         </SidebarTrigger>
       </SidebarHeader>
 
-      <SidebarContent className="p-2 flex-grow">
+      <SidebarContent className="flex-grow">
         {favoritedWidgets.length > 0 && (
           <>
-            <SidebarMenu>
+            <SidebarMenu className="p-2">
               {favoritedWidgets.map((widget) => (
                 <SidebarMenuItem key={widget.id}>
                   <SidebarMenuButton
@@ -72,7 +72,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, onRestore
           </>
         )}
         {minimizedWidgets.length > 0 && (
-            <SidebarMenu>
+            <SidebarMenu className="p-2">
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
