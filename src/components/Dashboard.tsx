@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace, Session } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -16,7 +16,7 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { saveSession } from '@/services/sessionService';
+import { saveSession, getUserSession } from '@/services/sessionService';
 import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -58,7 +58,7 @@ export function Dashboard() {
   const [workspaceToEdit, setWorkspaceToEdit] = useState<Workspace | null>(null);
   const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
-  const [lastAccessedWorkspace, setLastAccessedWorkspace] = useState<Workspace | null>(null);
+  const [lastSession, setLastSession] = useState<Session | null>(null);
   
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
@@ -122,15 +122,17 @@ export function Dashboard() {
   useEffect(() => {
     if (user?.userId) {
         setLoadingWorkspaces(true);
-        getWorkspaces(user.userId)
-            .then(data => {
-                setWorkspaces(data);
-                const lastAccessed = data.sort((a, b) => new Date(b.last_accessed || 0).getTime() - new Date(a.last_accessed || 0).getTime())[0];
-                if (lastAccessed) {
-                    setLastAccessedWorkspace(lastAccessed);
-                }
-            })
-            .finally(() => setLoadingWorkspaces(false));
+        Promise.all([
+            getWorkspaces(user.userId),
+            getUserSession(user.userId)
+        ]).then(([workspacesData, sessionData]) => {
+            setWorkspaces(workspacesData);
+            if (sessionData) {
+                setLastSession(sessionData);
+            }
+        }).finally(() => {
+            setLoadingWorkspaces(false);
+        });
     }
 }, [user]);
 
@@ -274,9 +276,7 @@ export function Dashboard() {
       } else {
         const allWorkspacesData = openWorkspaces.flatMap(ws => {
             try {
-              // Each workspace_data is a JSON string of an array of widgets
               const widgetsInWorkspace: Widget[] = JSON.parse(ws.workspace_data);
-              // We only care about the data within each widget for context
               return widgetsInWorkspace.map(w => ({ type: w.type, query: w.query, data: w.data }));
             } catch (e) {
               console.error(`Could not parse workspace data for ${ws.workspace_name}`, e);
@@ -621,15 +621,29 @@ export function Dashboard() {
     { text: 'Are there any recurring problems?', query: '@problem recurring', icon: Sparkle },
   ];
 
-  if (lastAccessedWorkspace) {
-    starterPrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_WORKSPACE__', icon: Clock });
+  if (lastSession) {
+    starterPrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_SESSION__', icon: Clock });
   }
 
   const handleStarterPrompt = (query: string) => {
-    if (query === '__LOAD_LAST_WORKSPACE__') {
-      if (lastAccessedWorkspace) {
-        setWorkspaceAction('load');
-        handleWorkspaceListSelect({ ...lastAccessedWorkspace });
+    if (query === '__LOAD_LAST_SESSION__') {
+      if (lastSession) {
+          try {
+              const workspaceIdsToLoad: string[] = JSON.parse(lastSession.workspace_data);
+              const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.includes(ws.workspaceId));
+              
+              setOpenWorkspaces(workspacesToLoad);
+
+              if (workspacesToLoad.length > 0) {
+                  const firstWorkspace = workspacesToLoad[0];
+                  setCurrentWorkspaceId(firstWorkspace.workspaceId);
+                  loadWorkspaceUI(firstWorkspace);
+              }
+              setLastSession(null);
+          } catch(e) {
+              console.error("Failed to parse last session data", e);
+              toast({variant: "destructive", title: "Error", description: "Could not load last session."});
+          }
       }
     } else {
       handleCreateWidget(query);

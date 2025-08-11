@@ -38,3 +38,28 @@ export async function saveSession(sessionData: Session): Promise<boolean> {
         return false;
     }
 }
+
+export async function getUserSession(userId: string): Promise<Session | null> {
+    const webhookUrl = getSessionWebhookUrl();
+    if (!webhookUrl) {
+        return null;
+    }
+
+    try {
+        const response = await axios.get(webhookUrl, { params: { userId, active: true } });
+        if (response.status === 200 && response.data) {
+            const sessions = Array.isArray(response.data) ? response.data : [response.data];
+            // Assuming the webhook returns the most recent active session first
+            // Or if it returns multiple, we can find the most relevant one
+            return sessions[0] || null;
+        }
+        return null;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            // This is not an error, just no active session found.
+            return null;
+        }
+        console.error('Failed to get user session:', error);
+        return null;
+    }
+}
