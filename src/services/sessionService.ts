@@ -21,7 +21,9 @@ export async function saveSession(sessionData: Session): Promise<boolean> {
     }
 
     try {
-        const response = await axios.post(webhookUrl, sessionData, { params: { sessionId: sessionData.sessionId } });
+        // The sessionId is now part of the body (sessionData), which is standard for POST/PUT.
+        // Removed it from params.
+        const response = await axios.post(webhookUrl, sessionData);
         return response.status === 200 || response.status === 201;
     } catch (error) {
         if (axios.isAxiosError(error)) {
