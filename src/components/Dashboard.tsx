@@ -713,7 +713,7 @@ export function Dashboard() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-         <main className="absolute inset-0 z-20">
+         <main className="absolute inset-0 z-0">
              {isMobile ? (
                 <div className="p-4 space-y-4" style={{ paddingTop: mobileHeaderHeight, paddingBottom: chatInputAreaHeight }}>
                     {normalWidgets.map(widget => (
@@ -802,7 +802,7 @@ export function Dashboard() {
                 <div className="w-10"></div>
             </header>
          ) : (
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-10 pointer-events-none">
+            <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-30 pointer-events-none">
               <div className="flex items-center justify-center gap-2 pointer-events-auto">
                 <TooltipProvider>
                     {openWorkspaces.map(ws => (
@@ -915,3 +915,4 @@ export function Dashboard() {
 
     
 
+    
