@@ -64,23 +64,44 @@ export function Dashboard() {
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
 
-  const fetchUser = async () => {
+  const fetchUserAndSessionData = async () => {
     const session = localStorage.getItem('session');
-    if (session) {
-      const userEmail = JSON.parse(session).email;
-      if (userEmail) {
-        const profile = await getUserProfile(userEmail);
-        setUser(profile);
-        if (profile) {
-            setSessionId(`sess_${profile.userId}_${Date.now()}`);
-            fetchWorkspaces(profile.userId);
-        }
-      }
-    }
-  }
+    if (!session) return;
+    const userEmail = JSON.parse(session).email;
+    if (!userEmail) return;
 
+    setLoadingWorkspaces(true);
+    const profile = await getUserProfile(userEmail);
+    setUser(profile);
+
+    if (profile) {
+        try {
+            const [workspacesData, sessionData] = await Promise.all([
+                getWorkspaces(profile.userId),
+                getUserSession(profile.userId)
+            ]);
+
+            setWorkspaces(workspacesData);
+            if (sessionData) {
+                setLastSession(sessionData);
+                setSessionId(sessionData.sessionId);
+            } else {
+                setSessionId(`sess_${profile.userId}_${Date.now()}`);
+            }
+        } catch (error) {
+            console.error("Failed to fetch initial data:", error);
+            // If session/workspace fetch fails, still generate a new session ID
+            setSessionId(`sess_${profile.userId}_${Date.now()}`);
+        } finally {
+            setLoadingWorkspaces(false);
+        }
+    } else {
+        setLoadingWorkspaces(false);
+    }
+  };
+  
   useEffect(() => {
-    fetchUser();
+    fetchUserAndSessionData();
   }, []);
 
     const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
@@ -119,7 +140,7 @@ export function Dashboard() {
     }, [widgets, activeWorkspace, user], 1000);
   
   const handleProfileUpdate = () => {
-    fetchUser();
+    fetchUserAndSessionData();
   };
   
   const fetchWorkspaces = async (userId: string) => {
@@ -130,23 +151,6 @@ export function Dashboard() {
             .finally(() => setLoadingWorkspaces(false));
     }
   };
-
-  useEffect(() => {
-    if (user?.userId) {
-        setLoadingWorkspaces(true);
-        Promise.all([
-            getWorkspaces(user.userId),
-            getUserSession(user.userId)
-        ]).then(([workspacesData, sessionData]) => {
-            setWorkspaces(workspacesData);
-            if (sessionData) {
-                setLastSession(sessionData);
-            }
-        }).finally(() => {
-            setLoadingWorkspaces(false);
-        });
-    }
-}, [user]);
 
 
   useEffect(() => {
@@ -504,7 +508,7 @@ export function Dashboard() {
             if (!silent) {
                 toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
             }
-            fetchWorkspaces(user.userId);
+            if (user) fetchWorkspaces(user.userId);
         } else {
             if (!silent) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
@@ -534,7 +538,7 @@ export function Dashboard() {
 
         if (result) {
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
-            fetchWorkspaces(user.userId);
+            if (user) fetchWorkspaces(user.userId);
             if (isCreating) {
                 const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
                 setOpenWorkspaces(prev => [...prev, newWorkspace]);
@@ -916,5 +920,6 @@ export function Dashboard() {
     
 
     
+
 
 
