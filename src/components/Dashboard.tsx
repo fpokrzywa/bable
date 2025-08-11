@@ -495,7 +495,7 @@ export function Dashboard() {
             const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
             setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
             setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
-            toast({ title: 'Success', description: `Workspace "${result.workspace_name}" saved.`, duration: 2000 });
+            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
