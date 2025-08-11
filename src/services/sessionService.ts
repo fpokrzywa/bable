@@ -13,6 +13,15 @@ const getSessionWebhookUrl = () => {
     return url;
 };
 
+const getGetUserSessionWebhookUrl = () => {
+    const url = process.env.GET_USER_SESSION_WEBHOOK_URL;
+    if (!url) {
+        console.warn('GET_USER_SESSION_WEBHOOK_URL is not configured in .env file.');
+        return null;
+    }
+    return url;
+}
+
 export async function saveSession(sessionData: Session): Promise<boolean> {
     const webhookUrl = getSessionWebhookUrl();
     if (!webhookUrl) {
@@ -42,7 +51,7 @@ export async function saveSession(sessionData: Session): Promise<boolean> {
 }
 
 export async function getUserSession(userId: string): Promise<Session | null> {
-    const webhookUrl = getSessionWebhookUrl();
+    const webhookUrl = getGetUserSessionWebhookUrl();
     if (!webhookUrl) {
         return null;
     }
