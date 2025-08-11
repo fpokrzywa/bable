@@ -12,6 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import axios from 'axios';
 
 const GenerateWidgetFromQueryInputSchema = z.object({
   query: z.string().describe('The user query to generate the widget.'),
@@ -29,36 +30,45 @@ export async function generateWidgetFromQuery(input: GenerateWidgetFromQueryInpu
   return generateWidgetFromQueryFlow(input);
 }
 
-const generateWidgetFromQueryPrompt = ai.definePrompt({
-  name: 'generateWidgetFromQueryPrompt',
-  input: {schema: GenerateWidgetFromQueryInputSchema},
-  output: {schema: GenerateWidgetFromQueryOutputSchema},
-  prompt: `You are a ServiceNow expert. Your primary job is to answer user queries.
-
-If the user's query is a request to open, load, or view a workspace, identify the name of the workspace they want to open and put it in the 'workspace_to_load' field. Also provide a confirmation message in the 'answer' field. For example, if the user says "open my incident workspace", set 'workspace_to_load' to "incident" and 'answer' to "Loading your incident workspace."
-
-Otherwise, directly answer the user's query in a clear and concise way. If you don't have a specific tool or data, provide a helpful, conversational response.
-
-{{#if workspaceData}}
-Use the following data from the user's open workspaces as context to answer the query if it is relevant.
-Workspace Data:
-{{{json workspaceData}}}
-{{/if}}
-
-User Query: {{{query}}}`,
-});
-
 const generateWidgetFromQueryFlow = ai.defineFlow(
   {
     name: 'generateWidgetFromQueryFlow',
     inputSchema: GenerateWidgetFromQueryInputSchema,
     outputSchema: GenerateWidgetFromQueryOutputSchema,
   },
-  async input => {
-    const {output} = await generateWidgetFromQueryPrompt(input);
-    if (!output) {
-      return { answer: "I'm sorry, I could not process that request. Please try again." };
+  async (input) => {
+    const webhookUrl = process.env.APP_LLM_WEBHOOK_URL;
+    const llmConfig = process.env.APP_LLM_CONFIG;
+
+    if (!webhookUrl) {
+      throw new Error('APP_LLM_WEBHOOK_URL is not configured in the .env file.');
     }
-    return output;
+
+    try {
+      const response = await axios.get(webhookUrl, {
+        params: {
+          llm: llmConfig?.toLowerCase(),
+          input: input.query,
+        },
+      });
+
+      if (response.status === 200 && response.data) {
+        // Assuming the webhook returns an object with an 'answer' property
+        // or a plain string.
+        const answer = typeof response.data === 'object' ? response.data.answer : response.data;
+        return { answer: answer || "I received a response, but it was empty." };
+      } else {
+        return { answer: `The webhook responded with status: ${response.status}` };
+      }
+    } catch (error) {
+      console.error('Error calling LLM webhook:', error);
+      let errorMessage = 'An error occurred while contacting the LLM webhook.';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = `Webhook error: ${error.response.status} - ${error.response.statusText}`;
+      } else if (axios.isAxiosError(error)) {
+        errorMessage = `Webhook request failed: ${error.message}`;
+      }
+      return { answer: errorMessage };
+    }
   }
 );
