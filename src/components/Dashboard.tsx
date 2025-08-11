@@ -527,7 +527,7 @@ export function Dashboard() {
                 setOpenWorkspaces(prev => [...prev, newWorkspace]);
                 setCurrentWorkspaceId(newWorkspace.workspaceId);
             } else {
-                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? {...ws, workspace_name: result.workspace_name} : ws));
+                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? {...ws, workspace_name: workspaceName} : ws));
             }
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
