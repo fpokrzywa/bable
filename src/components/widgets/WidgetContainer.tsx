@@ -51,11 +51,12 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
         const node = nodeRefs.current.get(widget.id)?.current;
         if (node) {
             const currentWidth = node.offsetWidth;
+            const currentHeight = node.offsetHeight;
             newBounds[widget.id] = {
               left: sidebarWidth,
               top: 0,
               right: containerWidth - currentWidth,
-              bottom: Math.max(0, containerHeight - WIDGET_HEIGHT - chatInputHeight),
+              bottom: Math.max(0, containerHeight - currentHeight - chatInputHeight),
             };
         }
       });
