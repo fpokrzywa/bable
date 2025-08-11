@@ -144,6 +144,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       case 'incident':
       case 'problem':
       case 'change':
+        if (!Array.isArray(widget.data)) {
+          return <GenericWidget data="Data is not in the correct format." />;
+        }
         const entities = widget.data.map((e: any) => 
             Object.entries(e).reduce((acc, [key, value]) => {
                 acc[key] = typeof value === 'object' && value !== null && 'value' in value ? (value as any).value : value;
