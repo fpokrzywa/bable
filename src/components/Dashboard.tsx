@@ -700,142 +700,142 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {isMobile ? (
-          <header className="p-2 flex items-center justify-between" style={{ height: mobileHeaderHeight }}>
-            <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
-              <Menu />
-            </Button>
-            {activeWorkspace && (
-              <div className="text-sm font-semibold truncate px-2">
-                {activeWorkspace.workspace_name}
-              </div>
-            )}
-            <div className="w-10"></div>
-          </header>
-        ) : (
-            <div className="flex items-center justify-center gap-2 p-4 bg-background z-10">
-              <TooltipProvider>
-                {openWorkspaces.map(ws => (
-                  <div key={ws.workspaceId} className="group relative flex flex-col items-center">
-                    <Button
-                      variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded-full px-6 py-2 h-auto shadow-lg"
-                      onClick={() => switchWorkspace(ws.workspaceId)}
-                    >
-                      {ws.workspace_name}
-                    </Button>
-                    <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Save</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
-                                setWorkspaceAction('edit');
-                                setWorkspaceToEdit(ws);
-                                setWorkspaceName(ws.workspace_name);
-                                setIsWorkspaceModalOpen(true);
-                           }}><Pencil size={14} /></Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Edit</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => closeWorkspace(ws.workspaceId)}><XIcon size={14} /></Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Close</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-                ))}
-              </TooltipProvider>
-            </div>
-        )}
-        
-        <main className="flex-1 overflow-auto relative">
-          <div className="absolute inset-0">
-            {isMobile ? (
-              <div className="p-4 space-y-4" style={{ paddingBottom: chatInputAreaHeight }}>
-                {normalWidgets.map(widget => (
-                  <div key={widget.id} className="h-auto">
-                    <BaseWidget
-                      widget={widget}
-                      removeWidget={removeWidget}
-                      updateEntity={updateEntity}
-                      bringToFront={bringToFront}
-                      toggleMinimizeWidget={toggleMinimizeWidget}
-                      toggleFavoriteWidget={toggleFavoriteWidget}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <WidgetContainer 
-                widgets={normalWidgets} 
-                removeWidget={removeWidget} 
-                updateEntity={updateEntity}
-                bringToFront={bringToFront}
-                toggleMinimizeWidget={toggleMinimizeWidget}
-                toggleFavoriteWidget={toggleFavoriteWidget}
-                updateWidgetPosition={updateWidgetPosition}
-                sidebarState={state}
-                sidebarRef={sidebarRef}
-                chatInputRef={chatInputRef}
-              />
-            )}
-          </div>
-          
-          <div 
-            className="absolute inset-0 flex flex-col items-center pointer-events-none" 
-            style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
-          >
-            {normalWidgets.length === 0 && (
-                <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
-                    <div className="flex-grow flex flex-col justify-center items-center">
-                        <Image
-                            src="/phish_logo.png"
-                            alt="BabelPhish Logo"
-                            width={100}
-                            height={100}
-                            className="opacity-80 mb-4"
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+         <main className="absolute inset-0">
+             {isMobile ? (
+                <div className="p-4 space-y-4" style={{ paddingTop: mobileHeaderHeight, paddingBottom: chatInputAreaHeight }}>
+                    {normalWidgets.map(widget => (
+                    <div key={widget.id} className="h-auto">
+                        <BaseWidget
+                        widget={widget}
+                        removeWidget={removeWidget}
+                        updateEntity={updateEntity}
+                        bringToFront={bringToFront}
+                        toggleMinimizeWidget={toggleMinimizeWidget}
+                        toggleFavoriteWidget={toggleFavoriteWidget}
                         />
-                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">
-                            Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
-                        </h1>
-                        <p className="text-xl md:text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
                     </div>
-                    <div className="flex-shrink-0 w-full flex flex-col justify-end">
-                        <div className="w-full text-left">
-                            <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                            <div className="space-y-2">
-                                {starterPrompts.map((prompt, index) => {
-                                  const Icon = prompt.icon;
-                                  return (
-                                    <Button 
-                                        key={index}
-                                        variant="link"
-                                        className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
-                                        onClick={() => handleStarterPrompt(prompt.query)}
-                                    >
-                                        <Icon className="mr-3 text-primary" size={20}/>
-                                        {prompt.text}
-                                    </Button>
-                                  )
-                                })}
+                    ))}
+                </div>
+             ) : (
+                <WidgetContainer 
+                    widgets={normalWidgets} 
+                    removeWidget={removeWidget} 
+                    updateEntity={updateEntity}
+                    bringToFront={bringToFront}
+                    toggleMinimizeWidget={toggleMinimizeWidget}
+                    toggleFavoriteWidget={toggleFavoriteWidget}
+                    updateWidgetPosition={updateWidgetPosition}
+                    sidebarState={state}
+                    sidebarRef={sidebarRef}
+                    chatInputRef={chatInputRef}
+                />
+             )}
+            
+            <div 
+                className="absolute inset-0 flex flex-col items-center pointer-events-none" 
+                style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+            >
+                {normalWidgets.length === 0 && (
+                    <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
+                        <div className="flex-grow flex flex-col justify-center items-center">
+                            <Image
+                                src="/phish_logo.png"
+                                alt="BabelPhish Logo"
+                                width={100}
+                                height={100}
+                                className="opacity-80 mb-4"
+                            />
+                            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">
+                                Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
+                            </h1>
+                            <p className="text-xl md:text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
+                        </div>
+                        <div className="flex-shrink-0 w-full flex flex-col justify-end">
+                            <div className="w-full text-left">
+                                <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
+                                <div className="space-y-2">
+                                    {starterPrompts.map((prompt, index) => {
+                                    const Icon = prompt.icon;
+                                    return (
+                                        <Button 
+                                            key={index}
+                                            variant="link"
+                                            className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
+                                            onClick={() => handleStarterPrompt(prompt.query)}
+                                        >
+                                            <Icon className="mr-3 text-primary" size={20}/>
+                                            {prompt.text}
+                                        </Button>
+                                    )
+                                    })}
+                                </div>
                             </div>
                         </div>
+                </div>
+                )}
+            </div>
+         </main>
+         
+         {isMobile ? (
+            <header className="absolute top-0 left-0 right-0 p-2 flex items-center justify-between z-10" style={{ height: mobileHeaderHeight }}>
+                <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
+                <Menu />
+                </Button>
+                {activeWorkspace && (
+                <div className="text-sm font-semibold truncate px-2">
+                    {activeWorkspace.workspace_name}
+                </div>
+                )}
+                <div className="w-10"></div>
+            </header>
+         ) : (
+            <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-10 pointer-events-none">
+              <div className="flex items-center justify-center gap-2 pointer-events-auto">
+                <TooltipProvider>
+                    {openWorkspaces.map(ws => (
+                    <div key={ws.workspaceId} className="group relative flex flex-col items-center">
+                        <Button
+                        variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
+                        size="sm"
+                        className="rounded-full px-6 py-2 h-auto shadow-lg"
+                        onClick={() => switchWorkspace(ws.workspaceId)}
+                        >
+                        {ws.workspace_name}
+                        </Button>
+                        <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Save</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                                    setWorkspaceAction('edit');
+                                    setWorkspaceToEdit(ws);
+                                    setWorkspaceName(ws.workspace_name);
+                                    setIsWorkspaceModalOpen(true);
+                            }}><Pencil size={14} /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => closeWorkspace(ws.workspaceId)}><XIcon size={14} /></Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Close</TooltipContent>
+                        </Tooltip>
+                        </div>
                     </div>
+                    ))}
+                </TooltipProvider>
               </div>
-            )}
-          </div>
-        </main>
+            </div>
+         )}
         
-        <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out", isMobile ? "fixed bottom-0 left-0 right-0" : "relative")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+        <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out absolute bottom-0 left-0 right-0")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
                 <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} />
             </div>

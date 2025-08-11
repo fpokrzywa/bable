@@ -41,7 +41,6 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
 
     const updateBounds = () => {
       const sidebarWidth = sidebarState === 'expanded' ? (sidebarRef.current?.offsetWidth ?? 0) : 0;
-      const chatInputHeight = chatInputRef.current?.offsetHeight ?? 0;
       
       const containerWidth = container.offsetWidth;
       const containerHeight = container.offsetHeight;
@@ -53,10 +52,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
             const currentWidth = node.offsetWidth;
             const currentHeight = node.offsetHeight;
             newBounds[widget.id] = {
-              left: sidebarWidth,
+              left: 0,
               top: 0,
               right: containerWidth - currentWidth,
-              bottom: Math.max(0, containerHeight - currentHeight - chatInputHeight),
+              bottom: containerHeight - currentHeight,
             };
         }
       });
