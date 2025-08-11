@@ -639,7 +639,7 @@ export function Dashboard() {
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
-  const starterPrompts = [
+  let starterPrompts = [
     { text: 'Get my incidents', query: '@incident', icon: Sparkle },
     { text: 'Show me high priority changes', query: '@change high priority', icon: Sparkle },
     { text: 'Are there any recurring problems?', query: '@problem recurring', icon: Sparkle },
@@ -920,6 +920,7 @@ export function Dashboard() {
     
 
     
+
 
 
 
