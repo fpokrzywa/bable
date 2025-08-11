@@ -492,10 +492,8 @@ export function Dashboard() {
         setLoading(false);
 
         if (result) {
-            const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
-            setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? updatedWorkspace : ws));
-            setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
             toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
+            fetchWorkspaces(user.userId);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -522,19 +520,13 @@ export function Dashboard() {
         setLoading(false);
 
         if (result) {
-            const updatedWorkspace = { ...result, last_accessed: new Date().toISOString() };
-            if (isCreating) {
-                setWorkspaces(prev => [...prev, updatedWorkspace]);
-                setOpenWorkspaces(prev => [...prev, updatedWorkspace]);
-                setCurrentWorkspaceId(updatedWorkspace.workspaceId);
-            } else {
-                 setWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, ...updatedWorkspace } : ws));
-                setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === updatedWorkspace.workspaceId ? { ...ws, workspace_name: updatedWorkspace.workspace_name } : ws));
-                if (currentWorkspaceId === updatedWorkspace.workspaceId) {
-                   loadWorkspaceUI(updatedWorkspace);
-                }
-            }
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
+            fetchWorkspaces(user.userId);
+            if (isCreating) {
+                const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
+                setOpenWorkspaces(prev => [...prev, newWorkspace]);
+                setCurrentWorkspaceId(newWorkspace.workspaceId);
+            }
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
         }
@@ -589,7 +581,7 @@ export function Dashboard() {
                 });
                 return;
             }
-
+            
             setOpenWorkspaces(prev => [...prev, workspace]);
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
