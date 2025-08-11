@@ -28,7 +28,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { Sheet, SheetContent } from './ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 
 
 export function Dashboard() {
@@ -683,6 +683,12 @@ export function Dashboard() {
       {isMobile ? (
         <Sheet open={openMobile} onOpenChange={setOpenMobile}>
           <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
+            <SheetHeader>
+                <SheetTitle className="sr-only">Main Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                    Navigate through workspaces, favorites, and settings.
+                </SheetDescription>
+            </SheetHeader>
             {renderSidebar()}
           </SheetContent>
         </Sheet>
@@ -894,3 +900,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
