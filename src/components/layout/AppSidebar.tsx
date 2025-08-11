@@ -78,7 +78,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                             <SidebarMenuButton
                                 tooltip="My Workspaces"
                                 variant="ghost"
-                                onClick={() => setIsWorkspacePopoverOpen(o => !o)}
                             >
                                 <FolderKanban />
                                 {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
