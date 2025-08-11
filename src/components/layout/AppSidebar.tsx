@@ -85,7 +85,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         </SidebarMenuItem>
                     </PopoverTrigger>
                     <PopoverContent
-                        side="right"
+                        side={isMobile ? 'left' : 'right'}
                         align="start"
                         className="w-[200px] p-1"
                     >
