@@ -224,7 +224,7 @@ export function Dashboard() {
     let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
-      if (lowerCaseQuery.includes('@servicenow') || lowerCaseQuery === 'get my incidents' || lowerCaseQuery === "get my incidents") {
+      if (lowerCaseQuery.includes('@servicenow') || lowerCaseQuery === 'get my incidents') {
         const incidentData = await getIncidents();
         newWidgetDef = {
           query: 'ServiceNow Records',
