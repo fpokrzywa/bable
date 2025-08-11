@@ -53,10 +53,16 @@ const generateWidgetFromQueryFlow = ai.defineFlow(
       });
 
       if (response.status === 200 && response.data) {
-        // Assuming the webhook returns an object with an 'answer' property
-        // or a plain string.
-        const answer = typeof response.data === 'object' ? response.data.answer : response.data;
-        return { answer: answer || "I received a response, but it was empty." };
+        if (typeof response.data === 'object' && response.data !== null) {
+          return {
+            answer: response.data.answer || "I received a response, but it was empty.",
+            workspace_to_load: response.data.workspace_to_load
+          };
+        }
+        // Handle plain string response for backward compatibility
+        return {
+          answer: response.data,
+        };
       } else {
         return { answer: `The webhook responded with status: ${response.status}` };
       }
