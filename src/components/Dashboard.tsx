@@ -86,12 +86,12 @@ export function Dashboard() {
                 setLastSession(sessionData);
                 setSessionId(sessionData.sessionId);
             } else {
-                setSessionId(`sess_${profile.userId}_${Date.now()}`);
+                setSessionId(`sess_${Date.now()}`);
             }
         } catch (error) {
             console.error("Failed to fetch initial data:", error);
             // If session/workspace fetch fails, still generate a new session ID
-            setSessionId(`sess_${profile.userId}_${Date.now()}`);
+            setSessionId(`sess_${Date.now()}`);
         } finally {
             setLoadingWorkspaces(false);
         }
