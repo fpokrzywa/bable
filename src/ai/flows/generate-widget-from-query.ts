@@ -53,15 +53,22 @@ const generateWidgetFromQueryFlow = ai.defineFlow(
       });
 
       if (response.status === 200 && response.data) {
-        if (typeof response.data === 'object' && response.data !== null) {
+        let responseData = response.data;
+        // Handle if response is an array
+        if (Array.isArray(responseData) && responseData.length > 0) {
+          responseData = responseData[0];
+        }
+
+        if (typeof responseData === 'object' && responseData !== null) {
           return {
-            answer: response.data.answer || "I received a response, but it was empty.",
-            workspace_to_load: response.data.workspace_to_load
+            answer: responseData.answer || responseData.output || "I received a response, but it was empty.",
+            workspace_to_load: responseData.workspace_to_load
           };
         }
+        
         // Handle plain string response for backward compatibility
         return {
-          answer: response.data,
+          answer: responseData,
         };
       } else {
         return { answer: `The webhook responded with status: ${response.status}` };
