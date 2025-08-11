@@ -593,7 +593,6 @@ export function Dashboard() {
             setOpenWorkspaces(prev => [...prev, workspace]);
             setCurrentWorkspaceId(workspace.workspaceId);
             loadWorkspaceUI(workspace);
-            toast({title: "Success", description: `Workspace "${workspace.workspace_name}" loaded.`, duration: 2000});
         } else if (workspaceAction === 'edit') {
             setWorkspaceToEdit(workspace);
             setWorkspaceName(workspace.workspace_name);
