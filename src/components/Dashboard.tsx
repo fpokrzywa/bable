@@ -107,6 +107,16 @@ export function Dashboard() {
             });
         }
     }, [user, sessionId, openWorkspaces], 1000);
+    
+    // Debounced auto-save for workspace changes
+    useDebouncedEffect(() => {
+        if (activeWorkspace && user) {
+            // Check if there are widgets to save to avoid saving an empty layout unnecessarily
+            if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
+                handleQuickSaveWorkspace(true); // Pass true for silent save
+            }
+        }
+    }, [widgets, activeWorkspace, user], 1000);
   
   const handleProfileUpdate = () => {
     fetchUser();
@@ -475,14 +485,13 @@ export function Dashboard() {
     }
   };
     
-    const handleQuickSaveWorkspace = async () => {
+    const handleQuickSaveWorkspace = async (silent = false) => {
         if (!activeWorkspace) {
-            handleWorkspaceAction('create');
+            if (!silent) handleWorkspaceAction('create');
             return;
         }
         if (!user) return;
         
-        setLoading(true);
         const workspaceData = JSON.stringify(widgets);
         const result = await saveWorkspace({
             userId: user.userId,
@@ -490,13 +499,16 @@ export function Dashboard() {
             workspace_data: workspaceData,
             workspaceId: activeWorkspace.workspaceId
         });
-        setLoading(false);
 
         if (result) {
-            toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
+            if (!silent) {
+                toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
+            }
             fetchWorkspaces(user.userId);
         } else {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
+            if (!silent) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
+            }
         }
     };
 
@@ -701,7 +713,7 @@ export function Dashboard() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-         <main className="absolute inset-0">
+         <main className="absolute inset-0 z-20">
              {isMobile ? (
                 <div className="p-4 space-y-4" style={{ paddingTop: mobileHeaderHeight, paddingBottom: chatInputAreaHeight }}>
                     {normalWidgets.map(widget => (
@@ -778,7 +790,7 @@ export function Dashboard() {
          </main>
          
          {isMobile ? (
-            <header className="absolute top-0 left-0 right-0 p-2 flex items-center justify-between z-10" style={{ height: mobileHeaderHeight }}>
+            <header className="absolute top-0 left-0 right-0 p-2 flex items-center justify-between z-30" style={{ height: mobileHeaderHeight }}>
                 <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
                 <Menu />
                 </Button>
@@ -806,7 +818,7 @@ export function Dashboard() {
                         <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleQuickSaveWorkspace}><Save size={14} /></Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleQuickSaveWorkspace()}><Save size={14} /></Button>
                             </TooltipTrigger>
                             <TooltipContent>Save</TooltipContent>
                         </Tooltip>
@@ -902,3 +914,4 @@ export function Dashboard() {
 }
 
     
+
