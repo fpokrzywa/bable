@@ -50,12 +50,13 @@ const generateWidgetFromQueryFlow = ai.defineFlow(
         context: input.workspaceData,
       };
 
-      const response = await axios.get(webhookUrl, {
-        params: {
-          llm: llmConfig?.toLowerCase(),
-          input: JSON.stringify(fullInput),
-        },
-      });
+      const payload = {
+        llm: llmConfig?.toLowerCase(),
+        input: fullInput,
+      };
+
+      // Use POST to send data in the body, avoiding URL length limits.
+      const response = await axios.post(webhookUrl, payload);
 
       if (response.status === 200 && response.data) {
         let responseData = response.data;
