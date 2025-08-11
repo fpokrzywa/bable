@@ -45,10 +45,15 @@ const generateWidgetFromQueryFlow = ai.defineFlow(
     }
 
     try {
+      const fullInput = {
+        query: input.query,
+        context: input.workspaceData,
+      };
+
       const response = await axios.get(webhookUrl, {
         params: {
           llm: llmConfig?.toLowerCase(),
-          input: input.query,
+          input: JSON.stringify(fullInput),
         },
       });
 
