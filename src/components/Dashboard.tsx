@@ -97,7 +97,7 @@ export function Dashboard() {
     };
 
     useDebouncedEffect(() => {
-        if (user && sessionId && openWorkspaces.length > 0) {
+        if (user && sessionId) {
             const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
             saveSession({
                 sessionId,
@@ -649,8 +649,8 @@ export function Dashboard() {
     if (query === '__LOAD_LAST_SESSION__') {
       if (lastSession) {
           try {
-              const workspaceIdsToLoad: string[] = JSON.parse(lastSession.workspace_data);
-              const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.includes(ws.workspaceId));
+              const workspaceIdsToLoad: {workspaceId: string}[] = JSON.parse(lastSession.workspace_data);
+              const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.some(item => item.workspaceId === ws.workspaceId));
               
               setOpenWorkspaces(workspacesToLoad);
 
@@ -916,3 +916,4 @@ export function Dashboard() {
     
 
     
+
