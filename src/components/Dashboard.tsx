@@ -28,6 +28,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Sheet, SheetContent } from './ui/sheet';
 
 
 export function Dashboard() {
