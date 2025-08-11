@@ -677,6 +677,7 @@ export function Dashboard() {
         setWorkspaceAction('load');
         handleWorkspaceListSelect(ws);
       }}
+      onWorkspaceAction={handleWorkspaceAction}
     />
   );
   

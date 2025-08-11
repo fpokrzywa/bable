@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
@@ -31,9 +31,10 @@ interface AppSidebarProps {
     onRestoreFavorite: (widget: Widget) => void;
     onProfileUpdate: () => void;
     onLoadWorkspace: (workspace: Workspace) => void;
+    onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => void;
 }
 
-export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace }: AppSidebarProps) {
+export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace, onWorkspaceAction }: AppSidebarProps) {
   const { state } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -56,45 +57,56 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     </SidebarMenuButton>
                 </SidebarTrigger>
             </SidebarMenuItem>
+            
+            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-          {workspaces.length > 0 && (
-             <React.Fragment key="workspaces-section">
-                <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+            {workspaces.length === 0 ? (
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        tooltip="Create Workspace"
+                        variant="ghost"
+                        onClick={() => onWorkspaceAction('create')}
+                    >
+                        <FolderPlus />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">Create Workspace</span>}
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            ) : (
                 <Popover open={isWorkspacePopoverOpen} onOpenChange={setIsWorkspacePopoverOpen}>
                     <PopoverTrigger asChild>
                         <SidebarMenuItem>
                             <SidebarMenuButton
-                              tooltip="My Workspaces"
-                              variant="ghost"
-                              onClick={() => setIsWorkspacePopoverOpen(o => !o)}
+                                tooltip="My Workspaces"
+                                variant="ghost"
+                                onClick={() => setIsWorkspacePopoverOpen(o => !o)}
                             >
-                            <FolderKanban />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
+                                <FolderKanban />
+                                {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </PopoverTrigger>
-                    <PopoverContent 
-                        side="right" 
-                        align="start" 
+                    <PopoverContent
+                        side="right"
+                        align="start"
                         className="w-[200px] p-1"
                     >
                         {workspaces.map((ws) => (
                             <Button
-                              key={ws.workspaceId}
-                              variant="ghost"
-                              className="w-full justify-start"
-                              onClick={() => {
-                                  onLoadWorkspace(ws);
-                                  setIsWorkspacePopoverOpen(false);
-                              }}
+                                key={ws.workspaceId}
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => {
+                                    onLoadWorkspace(ws);
+                                    setIsWorkspacePopoverOpen(false);
+                                }}
                             >
                                 {ws.workspace_name}
                             </Button>
                         ))}
                     </PopoverContent>
                 </Popover>
-            </React.Fragment>
-          )}
+            )}
+
 
           {favoritedWidgets.length > 0 && (
             <React.Fragment key="favorites-section">
