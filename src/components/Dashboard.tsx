@@ -98,11 +98,11 @@ export function Dashboard() {
 
     useDebouncedEffect(() => {
         if (user && sessionId && openWorkspaces.length > 0) {
-            const openWorkspaceIds = openWorkspaces.map(ws => ws.workspaceId);
+            const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
             saveSession({
                 sessionId,
                 userId: user.userId,
-                workspace_data: JSON.stringify(openWorkspaceIds),
+                workspace_data: JSON.stringify(openWorkspaceData),
                 active: true,
             });
         }
