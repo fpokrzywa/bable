@@ -118,7 +118,7 @@ export function Dashboard() {
     };
 
     useDebouncedEffect(() => {
-        if (user && sessionId) {
+        if (user && sessionId && !loadingWorkspaces) {
             const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
             saveSession({
                 sessionId,
@@ -127,17 +127,17 @@ export function Dashboard() {
                 active: true,
             });
         }
-    }, [user, sessionId, openWorkspaces], 1000);
+    }, [user, sessionId, openWorkspaces, loadingWorkspaces], 1000);
     
     // Debounced auto-save for workspace changes
     useDebouncedEffect(() => {
-        if (activeWorkspace && user) {
+        if (activeWorkspace && user && !loadingWorkspaces) {
             // Check if there are widgets to save to avoid saving an empty layout unnecessarily
             if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
                 handleQuickSaveWorkspace(true); // Pass true for silent save
             }
         }
-    }, [widgets, activeWorkspace, user], 1000);
+    }, [widgets, activeWorkspace, user, loadingWorkspaces], 1000);
   
   const handleProfileUpdate = () => {
     fetchUserAndSessionData();
@@ -916,3 +916,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
