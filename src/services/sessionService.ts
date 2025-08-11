@@ -46,12 +46,12 @@ export async function getUserSession(userId: string): Promise<Session | null> {
     }
 
     try {
-        const response = await axios.get(webhookUrl, { params: { userId, active: true } });
+        const response = await axios.get(webhookUrl, { params: { userId } });
         if (response.status === 200 && response.data) {
             const sessions = Array.isArray(response.data) ? response.data : [response.data];
-            // Assuming the webhook returns the most recent active session first
-            // Or if it returns multiple, we can find the most relevant one
-            return sessions[0] || null;
+            // Find the active session from the results
+            const activeSession = sessions.find(s => s.active);
+            return activeSession || null;
         }
         return null;
     } catch (error) {
