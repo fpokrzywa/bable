@@ -72,6 +72,7 @@ export function Dashboard() {
         setUser(profile);
         if (profile) {
             setSessionId(`sess_${profile.userId}_${Date.now()}`);
+            fetchWorkspaces(profile.userId);
         }
       }
     }
@@ -110,13 +111,13 @@ export function Dashboard() {
     fetchUser();
   };
   
-  const fetchWorkspaces = async () => {
-      if (user?.userId) {
-          setLoadingWorkspaces(true);
-          getWorkspaces(user.userId)
-              .then(data => setWorkspaces(data))
-              .finally(() => setLoadingWorkspaces(false));
-      }
+  const fetchWorkspaces = async (userId: string) => {
+    if (userId) {
+        setLoadingWorkspaces(true);
+        getWorkspaces(userId)
+            .then(data => setWorkspaces(data))
+            .finally(() => setLoadingWorkspaces(false));
+    }
   };
 
   useEffect(() => {
@@ -461,12 +462,12 @@ export function Dashboard() {
         setWorkspaceToEdit(null);
         setIsWorkspaceModalOpen(true);
     } else if (action === 'edit') {
-        fetchWorkspaces();
+        if (user) fetchWorkspaces(user.userId);
         setIsWorkspaceListOpen(true);
     } else if (action === 'forget') {
         handleDeleteWorkspace();
     } else if (action === 'load') {
-        fetchWorkspaces();
+        if (user) fetchWorkspaces(user.userId);
         setIsWorkspaceListOpen(true);
     } else if (action === 'save') {
         handleQuickSaveWorkspace();
