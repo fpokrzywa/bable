@@ -21,6 +21,7 @@ export type GenerateWidgetFromQueryInput = z.infer<typeof GenerateWidgetFromQuer
 
 const GenerateWidgetFromQueryOutputSchema = z.object({
   answer: z.string().describe('A natural language answer to the user query.'),
+  workspace_to_load: z.string().optional().describe('If the user wants to open a workspace, this is the name of the workspace to load.'),
 });
 export type GenerateWidgetFromQueryOutput = z.infer<typeof GenerateWidgetFromQueryOutputSchema>;
 
@@ -32,15 +33,19 @@ const generateWidgetFromQueryPrompt = ai.definePrompt({
   name: 'generateWidgetFromQueryPrompt',
   input: {schema: GenerateWidgetFromQueryInputSchema},
   output: {schema: GenerateWidgetFromQueryOutputSchema},
-  prompt: `You are a ServiceNow expert. Directly answer the user's query in a clear and concise way. If you don't have a specific tool or data, provide a helpful, conversational response.
+  prompt: `You are a ServiceNow expert. Your primary job is to answer user queries.
 
-  {{#if workspaceData}}
-  Use the following data from the user's open workspaces as context to answer the query if it is relevant.
-  Workspace Data:
-  {{{json workspaceData}}}
-  {{/if}}
+If the user's query is a request to open, load, or view a workspace, identify the name of the workspace they want to open and put it in the 'workspace_to_load' field. Also provide a confirmation message in the 'answer' field. For example, if the user says "open my incident workspace", set 'workspace_to_load' to "incident" and 'answer' to "Loading your incident workspace."
 
-  User Query: {{{query}}}`,
+Otherwise, directly answer the user's query in a clear and concise way. If you don't have a specific tool or data, provide a helpful, conversational response.
+
+{{#if workspaceData}}
+Use the following data from the user's open workspaces as context to answer the query if it is relevant.
+Workspace Data:
+{{{json workspaceData}}}
+{{/if}}
+
+User Query: {{{query}}}`,
 });
 
 const generateWidgetFromQueryFlow = ai.defineFlow(

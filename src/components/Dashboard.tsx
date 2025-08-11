@@ -285,6 +285,17 @@ export function Dashboard() {
           });
 
           const result = await generateWidgetFromQuery({ query, workspaceData: allWorkspacesData });
+          
+          if (result.workspace_to_load) {
+            const workspaceToLoad = workspaces.find(ws => ws.workspace_name.toLowerCase().includes(result.workspace_to_load!.toLowerCase()));
+            if (workspaceToLoad) {
+              setWorkspaceAction('load');
+              handleWorkspaceListSelect(workspaceToLoad);
+            } else {
+              toast({ variant: 'destructive', title: 'Not Found', description: `Workspace "${result.workspace_to_load}" not found.` });
+            }
+          }
+          
           const agent = await agentSpecificWidget({ widgetData: result.answer });
     
           newWidgetDef = {
@@ -425,6 +436,7 @@ export function Dashboard() {
     setWidgets(prevWidgets =>
       prevWidgets.map(widget => {
         if (widget.id === widgetId && (widget.type === 'problem' || widget.type === 'incident' || widget.type === 'change')) {
+          if (!Array.isArray(widget.data)) return widget;
           return { ...widget, data: updateInData(widget.data) };
         }
         return widget;
@@ -434,6 +446,7 @@ export function Dashboard() {
     setFavorites(prevFavorites =>
       prevFavorites.map(fav => {
         if (fav.id === widgetId && (fav.type === 'problem' || fav.type === 'incident' || fav.type === 'change')) {
+          if (!Array.isArray(fav.data)) return fav;
           return { ...fav, data: updateInData(fav.data) };
         }
         return fav;
