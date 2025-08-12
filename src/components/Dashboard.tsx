@@ -105,11 +105,9 @@ export function Dashboard() {
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
       if (activeWorkspace && user && !loading) {
-          if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
-              handleQuickSaveWorkspace(true);
-          }
+        handleQuickSaveWorkspace(true);
       }
-  }, [widgets, openWorkspaces, activeWorkspace, user, loading]);
+  }, [widgets, activeWorkspace, user]);
   
   const handleProfileUpdate = () => {
     fetchUserData();
@@ -169,14 +167,18 @@ export function Dashboard() {
   }, [widgets, activeWorkspace]);
 
 
-  const bringToFront = (id: string) => {
+  const bringToFront = (id: string, isSummaryOrChat?: boolean) => {
     setWidgets(prevWidgets => {
       const widget = prevWidgets.find(w => w.id === id);
       const currentMaxZ = prevWidgets.reduce((max, w) => Math.max(max, w.zIndex), 0) || 1;
       
-      if (widget && widget.zIndex < currentMaxZ) {
-        const newZIndex = currentMaxZ + 1;
-        setNextZIndex(newZIndex);
+      let newZIndex = nextZIndex;
+      if (isSummaryOrChat) {
+        newZIndex = 100;
+      }
+      
+      if (widget && widget.zIndex < newZIndex) {
+        setNextZIndex(newZIndex + 1);
         return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
       }
       return prevWidgets;
@@ -559,8 +561,12 @@ export function Dashboard() {
     
     const loadWorkspaceUI = (workspace: Workspace) => {
         try {
-            const loadedWidgets = JSON.parse(workspace.workspace_data);
-            setWidgets(loadedWidgets);
+            if (workspace.workspace_data && workspace.workspace_data.trim() !== '') {
+              const loadedWidgets = JSON.parse(workspace.workspace_data);
+              setWidgets(loadedWidgets);
+            } else {
+              setWidgets([]);
+            }
         } catch (error) {
             console.error("Failed to parse workspace data", error);
             toast({variant: "destructive", title: "Error", description: "Could not load workspace."})
