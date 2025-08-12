@@ -660,7 +660,7 @@ export function Dashboard() {
     if (query === '__LOAD_LAST_SESSION__') {
       if (lastSession) {
           try {
-              if (lastSession.workspace_data) {
+              if (lastSession.workspace_data && lastSession.workspace_data.trim() !== '') {
                 const workspaceIdsToLoad: {workspaceId: string}[] = JSON.parse(lastSession.workspace_data);
                 const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.some(item => item.workspaceId === ws.workspaceId));
                 
@@ -925,3 +925,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
