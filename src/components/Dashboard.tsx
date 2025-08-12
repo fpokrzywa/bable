@@ -657,15 +657,17 @@ export function Dashboard() {
     if (query === '__LOAD_LAST_SESSION__') {
       if (lastSession) {
           try {
-              const workspaceIdsToLoad: {workspaceId: string}[] = JSON.parse(lastSession.workspace_data);
-              const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.some(item => item.workspaceId === ws.workspaceId));
-              
-              setOpenWorkspaces(workspacesToLoad);
+              if (lastSession.workspace_data) {
+                const workspaceIdsToLoad: {workspaceId: string}[] = JSON.parse(lastSession.workspace_data);
+                const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.some(item => item.workspaceId === ws.workspaceId));
+                
+                setOpenWorkspaces(workspacesToLoad);
 
-              if (workspacesToLoad.length > 0) {
-                  const firstWorkspace = workspacesToLoad[0];
-                  setCurrentWorkspaceId(firstWorkspace.workspaceId);
-                  loadWorkspaceUI(firstWorkspace);
+                if (workspacesToLoad.length > 0) {
+                    const firstWorkspace = workspacesToLoad[0];
+                    setCurrentWorkspaceId(firstWorkspace.workspaceId);
+                    loadWorkspaceUI(firstWorkspace);
+                }
               }
               setLastSession(null);
           } catch(e) {
@@ -924,3 +926,4 @@ export function Dashboard() {
     
 
     
+
