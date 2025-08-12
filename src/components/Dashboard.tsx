@@ -100,21 +100,8 @@ export function Dashboard() {
     fetchUserAndSessionData();
   }, []);
 
-    const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
-        const callback = useCallback(effect, deps);
-        useEffect(() => {
-            const handler = setTimeout(() => {
-                callback();
-            }, delay);
-
-            return () => {
-                clearTimeout(handler);
-            };
-        }, [callback, delay]);
-    };
-
     const triggerSaveSession = useCallback(() => {
-        if (user && !loadingWorkspaces) {
+        if (user) {
             const currentSessionId = sessionId || `sess_${Date.now()}`;
             if (!sessionId) {
                 setSessionId(currentSessionId);
@@ -127,17 +114,28 @@ export function Dashboard() {
                 active: true,
             });
         }
-    }, [user, sessionId, openWorkspaces, loadingWorkspaces]);
+    }, [user, sessionId, openWorkspaces]);
 
+    const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
+        const callback = useCallback(effect, deps);
+        useEffect(() => {
+            if (loadingWorkspaces) return;
 
+            const handler = setTimeout(() => {
+                callback();
+            }, delay);
+
+            return () => {
+                clearTimeout(handler);
+            };
+        }, [callback, delay, loadingWorkspaces]);
+    };
+    
     useDebouncedEffect(() => {
-        // Only save session if it has been initialized.
-        // The session is initialized either by finding an existing one or creating a new one on first interaction.
-        if (sessionId) {
+        if (user && sessionId) {
             triggerSaveSession();
         }
-    }, [openWorkspaces, sessionId], 1000);
-    
+    }, [openWorkspaces, sessionId, user, triggerSaveSession], 1000);
     
     // Debounced auto-save for workspace changes
     useDebouncedEffect(() => {
@@ -657,7 +655,9 @@ export function Dashboard() {
   ];
 
   if (lastSession) {
-    starterPrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_SESSION__', icon: Clock });
+    const mutablePrompts = [...starterPrompts];
+    mutablePrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_SESSION__', icon: Clock });
+    starterPrompts = mutablePrompts;
   }
 
   const handleStarterPrompt = (query: string) => {
@@ -927,5 +927,7 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
 
     
