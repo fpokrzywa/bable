@@ -104,15 +104,14 @@ export function Dashboard() {
   }, []);
 
   const triggerSaveSession = useCallback(() => {
-      if (user && sessionId) {
-          const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
-          saveSession({
-              sessionId: sessionId,
-              userId: user.userId,
-              workspace_data: JSON.stringify(openWorkspaceData),
-              active: true,
-          });
-      }
+      if (!user || !sessionId) return;
+      const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
+      saveSession({
+          sessionId: sessionId,
+          userId: user.userId,
+          workspace_data: JSON.stringify(openWorkspaceData),
+          active: true,
+      });
   }, [user, sessionId, openWorkspaces]);
 
   const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
@@ -146,11 +145,15 @@ export function Dashboard() {
   };
   
   const fetchWorkspaces = async (userId: string) => {
-    if (userId) {
-        setLoadingWorkspaces(true);
-        getWorkspaces(userId)
-            .then(data => setWorkspaces(data))
-            .finally(() => setLoadingWorkspaces(false));
+    if (!userId) return;
+    setLoadingWorkspaces(true);
+    try {
+        const data = await getWorkspaces(userId);
+        setWorkspaces(data);
+    } catch (error) {
+        console.error("Failed to fetch workspaces", error);
+    } finally {
+        setLoadingWorkspaces(false);
     }
   };
 
@@ -922,8 +925,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
-
-    
-
