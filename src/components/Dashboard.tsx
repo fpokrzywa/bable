@@ -39,7 +39,7 @@ export function Dashboard() {
     { name: 'My High Priority Tasks', query: 'show my high priority tasks' },
   ]);
   const [loading, setLoading] = useState(false);
-  const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
+  const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
   const { toast } = useToast();
   const { state, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
@@ -85,13 +85,9 @@ export function Dashboard() {
             if (sessionData) {
                 setLastSession(sessionData);
                 setSessionId(sessionData.sessionId);
-            } else {
-                setSessionId(`sess_${Date.now()}`);
             }
         } catch (error) {
             console.error("Failed to fetch initial data:", error);
-            // If session/workspace fetch fails, still generate a new session ID
-            setSessionId(`sess_${Date.now()}`);
         } finally {
             setLoadingWorkspaces(false);
         }
@@ -117,24 +113,37 @@ export function Dashboard() {
         }, [callback, delay]);
     };
 
-    useDebouncedEffect(() => {
-        if (user && sessionId && !loadingWorkspaces) {
+    const triggerSaveSession = useCallback(() => {
+        if (user && !loadingWorkspaces) {
+            const currentSessionId = sessionId || `sess_${Date.now()}`;
+            if (!sessionId) {
+                setSessionId(currentSessionId);
+            }
             const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
             saveSession({
-                sessionId,
+                sessionId: currentSessionId,
                 userId: user.userId,
                 workspace_data: JSON.stringify(openWorkspaceData),
                 active: true,
             });
         }
-    }, [user, sessionId, openWorkspaces, loadingWorkspaces], 1000);
+    }, [user, sessionId, openWorkspaces, loadingWorkspaces]);
+
+
+    useDebouncedEffect(() => {
+        // Only save session if it has been initialized.
+        // The session is initialized either by finding an existing one or creating a new one on first interaction.
+        if (sessionId) {
+            triggerSaveSession();
+        }
+    }, [openWorkspaces, sessionId], 1000);
+    
     
     // Debounced auto-save for workspace changes
     useDebouncedEffect(() => {
         if (activeWorkspace && user && !loadingWorkspaces) {
-            // Check if there are widgets to save to avoid saving an empty layout unnecessarily
             if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
-                handleQuickSaveWorkspace(true); // Pass true for silent save
+                handleQuickSaveWorkspace(true);
             }
         }
     }, [widgets, activeWorkspace, user, loadingWorkspaces], 1000);
@@ -206,6 +215,7 @@ export function Dashboard() {
   };
   
   const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'zIndex' | 'isMinimized'>, id?: string) => {
+    if (!sessionId) triggerSaveSession();
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -471,6 +481,7 @@ export function Dashboard() {
   };
   
   const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
+    if (!sessionId) triggerSaveSession();
     setWorkspaceAction(action);
     if (action === 'create') {
         setWorkspaceName('');
