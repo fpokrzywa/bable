@@ -67,7 +67,7 @@ export function Dashboard() {
     const userEmail = JSON.parse(session).email;
     if (!userEmail) return;
 
-    setLoadingWorkspaces(true);
+    setLoading(true);
     const profile = await getUserProfile(userEmail);
     setUser(profile);
 
@@ -78,10 +78,10 @@ export function Dashboard() {
         } catch (error) {
             console.error("Failed to fetch initial data:", error);
         } finally {
-            setLoadingWorkspaces(false);
+            setLoading(false);
         }
     } else {
-        setLoadingWorkspaces(false);
+        setLoading(false);
     }
   };
   
@@ -104,12 +104,12 @@ export function Dashboard() {
     
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
-      if (activeWorkspace && user && !loadingWorkspaces) {
+      if (activeWorkspace && user && !loading) {
           if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
               handleQuickSaveWorkspace(true);
           }
       }
-  }, [widgets, activeWorkspace, user, loadingWorkspaces]);
+  }, [widgets, openWorkspaces, activeWorkspace, user, loading]);
   
   const handleProfileUpdate = () => {
     fetchUserData();
@@ -172,8 +172,10 @@ export function Dashboard() {
   const bringToFront = (id: string) => {
     setWidgets(prevWidgets => {
       const widget = prevWidgets.find(w => w.id === id);
-      if (widget && widget.zIndex < nextZIndex) {
-        const newZIndex = nextZIndex + 1;
+      const currentMaxZ = prevWidgets.reduce((max, w) => Math.max(max, w.zIndex), 0) || 1;
+      
+      if (widget && widget.zIndex < currentMaxZ) {
+        const newZIndex = currentMaxZ + 1;
         setNextZIndex(newZIndex);
         return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
       }
@@ -199,7 +201,7 @@ export function Dashboard() {
     const newWidget: Widget = {
       ...widgetDef,
       id: id || Date.now().toString(),
-      zIndex: newZIndex,
+      zIndex: widgetDef.zIndex ?? newZIndex,
       isMinimized: false,
       x: widgetDef.x ?? initialX,
       y: widgetDef.y ?? initialY,
@@ -213,7 +215,7 @@ export function Dashboard() {
     setLoading(true);
     const lowerCaseQuery = query.toLowerCase();
 
-    let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
+    let newWidgetDef: Omit<Widget, 'id' | 'isMinimized'> | null = null;
     
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
@@ -223,6 +225,7 @@ export function Dashboard() {
           data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
+          zIndex: nextZIndex,
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@incident')) {
@@ -232,6 +235,7 @@ export function Dashboard() {
           data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
+          zIndex: nextZIndex,
           isFavorited: false,
         };
 
@@ -242,6 +246,7 @@ export function Dashboard() {
           data: changeData,
           agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
           type: 'change',
+          zIndex: nextZIndex,
           isFavorited: false,
         };
 
@@ -252,6 +257,7 @@ export function Dashboard() {
           data: problemData,
           agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
           type: 'problem',
+          zIndex: nextZIndex,
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@summary')) {
@@ -263,6 +269,7 @@ export function Dashboard() {
           data: result.summary,
           agent: { agentType: 'Summary Agent', agentBehavior: 'Provides a summary of all open widgets.' },
           type: 'generic',
+          zIndex: 100, // High z-index for summary
           isFavorited: false,
         };
       } else {
@@ -295,6 +302,7 @@ export function Dashboard() {
             data: result.answer,
             agent: agent,
             type: 'generic',
+            zIndex: nextZIndex,
             isFavorited: false,
           };
       }
@@ -867,5 +875,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    

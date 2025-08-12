@@ -76,6 +76,9 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   }, [isResizing, handleResize, handleResizeEnd]);
   
   const toggleChat = () => {
+    if (!isChatOpen) {
+      bringToFront(widget.id);
+    }
     setIsChatOpen(prev => {
         if (!prev === false) {
             setSelectedEntityForChat(null);
