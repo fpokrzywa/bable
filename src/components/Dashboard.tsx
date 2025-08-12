@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace, Session } from '@/lib/types';
+import type { Widget, SavedQuery, Problem, Incident, Change, User, Workspace } from '@/lib/types';
 import { generateWidgetFromQuery } from '@/ai/flows/generate-widget-from-query';
 import { agentSpecificWidget } from '@/ai/flows/agent-specific-widget';
 import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
@@ -16,7 +16,6 @@ import { getIncidents } from '@/services/servicenow';
 import { getUserProfile } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import { saveSession, getUserSession } from '@/services/sessionService';
 import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -52,19 +51,17 @@ export function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [openWorkspaces, setOpenWorkspaces] = useState<Workspace[]>([]);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaceToEdit, setWorkspaceToEdit] = useState<Workspace | null>(null);
   const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
-  const [lastSession, setLastSession] = useState<Session | null>(null);
   
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
 
-  const fetchUserAndSessionData = async () => {
+  const fetchUserData = async () => {
     const session = localStorage.getItem('session');
     if (!session) return;
     const userEmail = JSON.parse(session).email;
@@ -76,21 +73,10 @@ export function Dashboard() {
 
     if (profile) {
         try {
-            const [workspacesData, sessionData] = await Promise.all([
-                getWorkspaces(profile.userId),
-                getUserSession(profile.userId)
-            ]);
-
+            const workspacesData = await getWorkspaces(profile.userId);
             setWorkspaces(workspacesData);
-            if (sessionData) {
-                setLastSession(sessionData);
-                setSessionId(sessionData.sessionId);
-            } else {
-                setSessionId(`sess_${Date.now()}`);
-            }
         } catch (error) {
             console.error("Failed to fetch initial data:", error);
-            setSessionId(`sess_${Date.now()}`);
         } finally {
             setLoadingWorkspaces(false);
         }
@@ -100,25 +86,12 @@ export function Dashboard() {
   };
   
   useEffect(() => {
-    fetchUserAndSessionData();
+    fetchUserData();
   }, []);
-
-  const triggerSaveSession = useCallback(() => {
-      if (!user || !sessionId) return;
-      const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
-      saveSession({
-          sessionId: sessionId,
-          userId: user.userId,
-          workspace_data: JSON.stringify(openWorkspaceData),
-          active: true,
-      });
-  }, [user, sessionId, openWorkspaces]);
 
   const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
       const callback = useCallback(effect, deps);
       useEffect(() => {
-          if (loadingWorkspaces) return;
-
           const handler = setTimeout(() => {
               callback();
           }, delay);
@@ -126,10 +99,8 @@ export function Dashboard() {
           return () => {
               clearTimeout(handler);
           };
-      }, [callback, delay, loadingWorkspaces]);
+      }, [callback, delay]);
   };
-    
-  useDebouncedEffect(triggerSaveSession, [openWorkspaces, sessionId, user], 1000);
     
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
@@ -138,10 +109,10 @@ export function Dashboard() {
               handleQuickSaveWorkspace(true);
           }
       }
-  }, [widgets, activeWorkspace, user], 1000);
+  }, [widgets, activeWorkspace, user, loadingWorkspaces]);
   
   const handleProfileUpdate = () => {
-    fetchUserAndSessionData();
+    fetchUserData();
   };
   
   const fetchWorkspaces = async (userId: string) => {
@@ -644,43 +615,14 @@ export function Dashboard() {
   const normalWidgets = widgets.filter(w => !w.isMinimized);
   const minimizedWidgets = widgets.filter(w => w.isMinimized && !favorites.some(fav => fav.id === w.id));
 
-  let starterPrompts = [
+  const starterPrompts = [
     { text: 'Get my incidents', query: '@incident', icon: Sparkle },
     { text: 'Show me high priority changes', query: '@change high priority', icon: Sparkle },
     { text: 'Are there any recurring problems?', query: '@problem recurring', icon: Sparkle },
   ];
 
-  if (lastSession) {
-    const mutablePrompts = [...starterPrompts];
-    mutablePrompts.unshift({ text: 'Do you want to pick up where you left off last?', query: '__LOAD_LAST_SESSION__', icon: Clock });
-    starterPrompts = mutablePrompts;
-  }
-
   const handleStarterPrompt = (query: string) => {
-    if (query === '__LOAD_LAST_SESSION__') {
-      if (lastSession) {
-          try {
-              if (lastSession.workspace_data && lastSession.workspace_data.trim() !== '') {
-                const workspaceIdsToLoad: {workspaceId: string}[] = JSON.parse(lastSession.workspace_data);
-                const workspacesToLoad = workspaces.filter(ws => workspaceIdsToLoad.some(item => item.workspaceId === ws.workspaceId));
-                
-                setOpenWorkspaces(workspacesToLoad);
-
-                if (workspacesToLoad.length > 0) {
-                    const firstWorkspace = workspacesToLoad[0];
-                    setCurrentWorkspaceId(firstWorkspace.workspaceId);
-                    loadWorkspaceUI(firstWorkspace);
-                }
-              }
-              setLastSession(null);
-          } catch(e) {
-              console.error("Failed to parse last session data", e);
-              toast({variant: "destructive", title: "Error", description: "Could not load last session."});
-          }
-      }
-    } else {
-      handleCreateWidget(query);
-    }
+    handleCreateWidget(query);
   };
 
   const renderSidebar = () => (
