@@ -19,7 +19,7 @@ interface BaseWidgetProps {
   widget: Widget;
   removeWidget: (id: string) => void;
   updateEntity: (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => void;
-  bringToFront: (id: string) => void;
+  bringToFront: (id: string, isSummaryOrChat?: boolean) => void;
   toggleMinimizeWidget: (id: string) => void;
   toggleFavoriteWidget: (id: string) => void;
 }
@@ -77,7 +77,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   
   const toggleChat = () => {
     if (!isChatOpen) {
-      bringToFront(widget.id);
+      bringToFront(widget.id, true);
     }
     setIsChatOpen(prev => {
         if (!prev === false) {
