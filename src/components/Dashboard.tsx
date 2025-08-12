@@ -169,23 +169,14 @@ export function Dashboard() {
 
   const bringToFront = (id: string, isSummaryOrChat?: boolean) => {
     setWidgets(prevWidgets => {
-      const widget = prevWidgets.find(w => w.id === id);
       const currentMaxZ = prevWidgets.reduce((max, w) => Math.max(max, w.zIndex), 0) || 1;
-      
-      let newZIndex = nextZIndex;
-      if (isSummaryOrChat) {
-        newZIndex = 100;
-      }
-      
-      if (widget && widget.zIndex < newZIndex) {
-        setNextZIndex(newZIndex + 1);
-        return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
-      }
-      return prevWidgets;
+      const newZIndex = isSummaryOrChat ? 100 : currentMaxZ + 1;
+  
+      return prevWidgets.map(w => w.id === id ? { ...w, zIndex: newZIndex } : w);
     });
   };
   
-  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'zIndex' | 'isMinimized'>, id?: string) => {
+  const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'id' | 'isMinimized'>, id?: string) => {
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -203,7 +194,6 @@ export function Dashboard() {
     const newWidget: Widget = {
       ...widgetDef,
       id: id || Date.now().toString(),
-      zIndex: widgetDef.zIndex ?? newZIndex,
       isMinimized: false,
       x: widgetDef.x ?? initialX,
       y: widgetDef.y ?? initialY,
@@ -217,7 +207,7 @@ export function Dashboard() {
     setLoading(true);
     const lowerCaseQuery = query.toLowerCase();
 
-    let newWidgetDef: Omit<Widget, 'id' | 'isMinimized'> | null = null;
+    let newWidgetDef: Omit<Widget, 'id' | 'zIndex' | 'isMinimized'> | null = null;
     
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
@@ -227,7 +217,6 @@ export function Dashboard() {
           data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
-          zIndex: nextZIndex,
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@incident')) {
@@ -237,7 +226,6 @@ export function Dashboard() {
           data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
-          zIndex: nextZIndex,
           isFavorited: false,
         };
 
@@ -248,7 +236,6 @@ export function Dashboard() {
           data: changeData,
           agent: { agentType: 'Change Agent', agentBehavior: 'Manages and tracks change requests.' },
           type: 'change',
-          zIndex: nextZIndex,
           isFavorited: false,
         };
 
@@ -259,7 +246,6 @@ export function Dashboard() {
           data: problemData,
           agent: { agentType: 'Problem Agent', agentBehavior: 'Manages and resolves problems.' },
           type: 'problem',
-          zIndex: nextZIndex,
           isFavorited: false,
         };
       } else if (lowerCaseQuery.includes('@summary')) {
@@ -271,7 +257,6 @@ export function Dashboard() {
           data: result.summary,
           agent: { agentType: 'Summary Agent', agentBehavior: 'Provides a summary of all open widgets.' },
           type: 'generic',
-          zIndex: 100, // High z-index for summary
           isFavorited: false,
         };
       } else {
@@ -304,13 +289,16 @@ export function Dashboard() {
             data: result.answer,
             agent: agent,
             type: 'generic',
-            zIndex: nextZIndex,
             isFavorited: false,
           };
       }
 
       if (newWidgetDef) {
-        createWidgetFromDefinition(newWidgetDef);
+        const fullWidgetDef = {
+          ...newWidgetDef,
+          zIndex: newWidgetDef.type === 'generic' ? 100 : nextZIndex,
+        };
+        createWidgetFromDefinition(fullWidgetDef);
       }
     } catch (error) {
       console.error('Failed to create widget:', error);
@@ -881,3 +869,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+    
