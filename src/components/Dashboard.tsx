@@ -85,9 +85,12 @@ export function Dashboard() {
             if (sessionData) {
                 setLastSession(sessionData);
                 setSessionId(sessionData.sessionId);
+            } else {
+                setSessionId(`sess_${Date.now()}`);
             }
         } catch (error) {
             console.error("Failed to fetch initial data:", error);
+            setSessionId(`sess_${Date.now()}`);
         } finally {
             setLoadingWorkspaces(false);
         }
@@ -100,51 +103,43 @@ export function Dashboard() {
     fetchUserAndSessionData();
   }, []);
 
-    const triggerSaveSession = useCallback(() => {
-        if (user) {
-            const currentSessionId = sessionId || `sess_${Date.now()}`;
-            if (!sessionId) {
-                setSessionId(currentSessionId);
-            }
-            const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
-            saveSession({
-                sessionId: currentSessionId,
-                userId: user.userId,
-                workspace_data: JSON.stringify(openWorkspaceData),
-                active: true,
-            });
-        }
-    }, [user, sessionId, openWorkspaces]);
+  const triggerSaveSession = useCallback(() => {
+      if (user && sessionId) {
+          const openWorkspaceData = openWorkspaces.map(ws => ({ workspaceId: ws.workspaceId }));
+          saveSession({
+              sessionId: sessionId,
+              userId: user.userId,
+              workspace_data: JSON.stringify(openWorkspaceData),
+              active: true,
+          });
+      }
+  }, [user, sessionId, openWorkspaces]);
 
-    const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
-        const callback = useCallback(effect, deps);
-        useEffect(() => {
-            if (loadingWorkspaces) return;
+  const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
+      const callback = useCallback(effect, deps);
+      useEffect(() => {
+          if (loadingWorkspaces) return;
 
-            const handler = setTimeout(() => {
-                callback();
-            }, delay);
+          const handler = setTimeout(() => {
+              callback();
+          }, delay);
 
-            return () => {
-                clearTimeout(handler);
-            };
-        }, [callback, delay, loadingWorkspaces]);
-    };
+          return () => {
+              clearTimeout(handler);
+          };
+      }, [callback, delay, loadingWorkspaces]);
+  };
     
-    useDebouncedEffect(() => {
-        if (user && sessionId) {
-            triggerSaveSession();
-        }
-    }, [openWorkspaces, sessionId, user, triggerSaveSession], 1000);
+  useDebouncedEffect(triggerSaveSession, [openWorkspaces, sessionId, user], 1000);
     
-    // Debounced auto-save for workspace changes
-    useDebouncedEffect(() => {
-        if (activeWorkspace && user && !loadingWorkspaces) {
-            if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
-                handleQuickSaveWorkspace(true);
-            }
-        }
-    }, [widgets, activeWorkspace, user, loadingWorkspaces], 1000);
+  // Debounced auto-save for workspace changes
+  useDebouncedEffect(() => {
+      if (activeWorkspace && user && !loadingWorkspaces) {
+          if (widgets.length > 0 || JSON.parse(activeWorkspace.workspace_data || '[]').length > 0) {
+              handleQuickSaveWorkspace(true);
+          }
+      }
+  }, [widgets, activeWorkspace, user], 1000);
   
   const handleProfileUpdate = () => {
     fetchUserAndSessionData();
@@ -213,7 +208,6 @@ export function Dashboard() {
   };
   
   const createWidgetFromDefinition = (widgetDef: Omit<Widget, 'zIndex' | 'isMinimized'>, id?: string) => {
-    if (!sessionId) triggerSaveSession();
     const newZIndex = nextZIndex;
     setNextZIndex(newZIndex + 1);
 
@@ -479,7 +473,6 @@ export function Dashboard() {
   };
   
   const handleWorkspaceAction = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
-    if (!sessionId) triggerSaveSession();
     setWorkspaceAction(action);
     if (action === 'create') {
         setWorkspaceName('');
