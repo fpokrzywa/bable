@@ -143,7 +143,7 @@ export function AIStore() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAndSortedAssistants.map(assistant => (
             <Card key={assistant.id} className="flex flex-col hover:shadow-lg transition-shadow">
-              <CardHeader>
+              <CardHeader className="p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${assistant.iconBg}`}>
@@ -152,17 +152,17 @@ export function AIStore() {
                         assistant.icon
                       }
                     </div>
-                    <CardTitle className="text-base font-semibold">{assistant.name}</CardTitle>
+                    <CardTitle className="text-sm font-semibold">{assistant.name}</CardTitle>
                   </div>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleFavorite(assistant.id)}>
                     <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-primary text-primary")} />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1">
-                <CardDescription>{assistant.description}</CardDescription>
+              <CardContent className="flex-1 p-4 pt-0">
+                <CardDescription className="text-xs">{assistant.description}</CardDescription>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="p-4 pt-0">
                 <div className="text-xs bg-gray-100 dark:bg-gray-800 text-muted-foreground rounded-full px-2 py-0.5">
                   {assistant.version}
                 </div>
