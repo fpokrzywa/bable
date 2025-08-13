@@ -13,7 +13,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, Store, Library, Bot, Briefcase, Users, ChevronDown } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, Store, Library, Bot, Briefcase, Users, ChevronRight } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { useRouter, usePathname } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,6 +21,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
     user: UserType | null;
@@ -48,7 +49,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     if (savedState) {
       setOpenAccordionItem(savedState);
     } else {
-        // Default open section based on path
         if (pathname.startsWith('/ai')) setOpenAccordionItem('ai-tools');
         else if (pathname.startsWith('/dashboard')) setOpenAccordionItem('workspace');
         else if (pathname.startsWith('/profile') || pathname.startsWith('/settings')) setOpenAccordionItem('user');
@@ -70,125 +70,78 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     if(isMobile) setOpenMobile(false);
   }
 
-  const handleActionClick = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
-      onWorkspaceAction(action);
-      if(isMobile) setOpenMobile(false);
-  }
-
   const mainContent = (
-    <Accordion type="single" collapsible className="w-full" value={openAccordionItem} onValueChange={handleAccordionChange}>
+    <Accordion type="single" collapsible className="w-full space-y-1" value={openAccordionItem} onValueChange={handleAccordionChange}>
         <AccordionItem value="ai-tools">
             <AccordionTrigger>
-                <div className="flex flex-1 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Bot />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </div>
+                <Bot />
+                <span>AI Tools</span>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="ml-7 flex flex-col gap-1 pl-2">
-                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                        <Link href="/ai-store" className="w-full">
-                            <SidebarMenuButton tooltip="AI Store" variant="ghost" className="w-full justify-start">
-                                <Store />
-                                <span className="truncate">AI Store</span>
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                        <Link href="/prompt-catalog" className="w-full">
-                            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" className="w-full justify-start">
-                                <Library />
-                                <span className="truncate">Prompt Catalog</span>
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-                </div>
+                <Link href="/ai-store" passHref>
+                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/ai-store'}>
+                       <Store />
+                       <span>AI Store</span>
+                    </SidebarMenuButton>
+                </Link>
+                <Link href="/prompt-catalog" passHref>
+                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/prompt-catalog'}>
+                       <Library />
+                       <span>Prompt Catalog</span>
+                    </SidebarMenuButton>
+                </Link>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="workspace">
             <AccordionTrigger>
-                 <div className="flex flex-1 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Briefcase />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </div>
+                <Briefcase />
+                <span>Workspace</span>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="ml-7 flex flex-col gap-1 pl-2">
-                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                        <Link href="/dashboard" className="w-full">
-                            <SidebarMenuButton tooltip="Main Dashboard" variant="ghost" className="w-full justify-start">
-                                <LayoutGrid />
-                                <span className="truncate">Main Dashboard</span>
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-                    {workspaces.map((ws) => (
-                        <SidebarMenuItem key={ws.workspaceId} onClick={() => handleWorkspaceClick(ws)}>
-                            <SidebarMenuButton tooltip={ws.workspace_name} variant="ghost" className="w-full justify-start">
-                                <FolderKanban />
-                                <span className="truncate">{ws.workspace_name}</span>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </div>
+                <Link href="/dashboard" passHref>
+                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/dashboard'}>
+                        <LayoutGrid />
+                        <span>Main Dashboard</span>
+                    </SidebarMenuButton>
+                </Link>
+                {workspaces.map((ws) => (
+                    <SidebarMenuButton key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceClick(ws)}>
+                        <FolderKanban />
+                        <span className="truncate">{ws.workspace_name}</span>
+                    </SidebarMenuButton>
+                ))}
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="user">
             <AccordionTrigger>
-                <div className="flex flex-1 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <User />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </div>
+                <User />
+                <span>User</span>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="ml-7 flex flex-col gap-1 pl-2">
-                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                        <Link href="/profile" className="w-full">
-                            <SidebarMenuButton tooltip="Profile" variant="ghost" className="w-full justify-start">
-                            <User />
-                            {(state === 'expanded' || isMobile) && <span>Profile</span>}
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                        <Link href="/settings" className="w-full">
-                            <SidebarMenuButton tooltip="Settings" variant="ghost" className="w-full justify-start">
-                            <Settings />
-                            {(state === 'expanded' || isMobile) && <span>Settings</span>}
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-                </div>
+                <Link href="/profile" passHref>
+                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/profile'}>
+                        <User />
+                        <span>Profile</span>
+                    </SidebarMenuButton>
+                </Link>
+                 <Link href="/settings" passHref>
+                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/settings'}>
+                        <Settings />
+                        <span>Settings</span>
+                    </SidebarMenuButton>
+                </Link>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="admin">
             <AccordionTrigger>
-                <div className="flex flex-1 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Users />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </div>
+                <Users />
+                <span>Administration</span>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="ml-7 flex flex-col gap-1 pl-2">
-                    <SidebarMenuItem>
-                        <SidebarMenuButton tooltip="User Management" variant="ghost" className="w-full justify-start">
-                            <Users />
-                            <span className="truncate">User Management</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </div>
+                 <SidebarMenuButton variant="ghost" className="w-full justify-start">
+                    <Users />
+                    <span>User Management</span>
+                </SidebarMenuButton>
             </AccordionContent>
         </AccordionItem>
     </Accordion>
@@ -198,14 +151,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
           <Link href="/ai-store" className="w-full">
-            <SidebarMenuButton tooltip="AI Store" variant="ghost">
+            <SidebarMenuButton tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
                 <Store />
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
           <Link href="/prompt-catalog" className="w-full">
-            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost">
+            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
                 <Library />
             </SidebarMenuButton>
           </Link>
@@ -235,14 +188,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </DropdownMenu>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
             <Link href="/profile" className="w-full">
-                <SidebarMenuButton tooltip="Profile" variant="ghost">
+                <SidebarMenuButton tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
                 <User />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
             <Link href="/settings" className="w-full">
-                <SidebarMenuButton tooltip="Settings" variant="ghost">
+                <SidebarMenuButton tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
                 <Settings />
                 </SidebarMenuButton>
             </Link>
@@ -254,11 +207,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <div className="flex flex-col h-full">
       <SidebarContent>
         <SidebarMenu>
-            <div className="flex items-center justify-between p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:group-data-[state=expanded]:justify-between">
-              <Link href="/home">
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:inline">
+            <div className="flex items-center justify-between p-2 mb-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:group-data-[state=expanded]:justify-between">
+              <Link href="/home" className="font-semibold text-lg group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:inline">
                   <span>Babel</span><span className="text-primary">Phish</span>
-                </span>
               </Link>
               <SidebarTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8">
@@ -268,50 +219,19 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </SidebarTrigger>
             </div>
             
-            {(state === 'expanded' || isMobile) ? mainContent : nonAccordionContent}
+            <div className="px-2 space-y-1">
+                {(state === 'expanded' || isMobile) ? mainContent : nonAccordionContent}
+            </div>
             
-          {favoritedWidgets.length > 0 && (
-            <React.Fragment key="favorites-section">
-              {favoritedWidgets.map((widget) => (
-                  <SidebarMenuItem key={widget.id}>
-                    <SidebarMenuButton
-                      tooltip={widget.query}
-                      variant="ghost"
-                      onClick={() => onRestoreFavorite(widget)}
-                    >
-                      <Heart className="text-primary fill-primary" />
-                      {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </React.Fragment>
-          )}
-          {minimizedWidgets.length > 0 && (
-              <React.Fragment key="minimized-section">
-                {minimizedWidgets.map((widget) => (
-                    <SidebarMenuItem key={widget.id}>
-                        <SidebarMenuButton
-                            tooltip={widget.query}
-                            variant="ghost"
-                            onClick={() => onRestoreWidget(widget.id)}
-                        >
-                            <LayoutGrid />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
-              </React.Fragment>
-          )}
-
         </SidebarMenu>
       </SidebarContent>
-       <div className="mt-auto p-2">
-            <div className="p-2 text-sm text-muted-foreground group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:block">
-                {(state === 'expanded' || isMobile) && <span className="truncate">{user?.email || 'User'}</span>}
+       <div className="mt-auto p-4">
+            <div className="text-sm text-muted-foreground mb-2 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:block truncate">
+                {user?.email || 'User'}
             </div>
-           <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
+           <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout} className="w-full justify-start">
               <LogOut />
-              {(state === 'expanded' || isMobile) && <span>Logout</span>}
+              <span className="group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:inline">Logout</span>
            </SidebarMenuButton>
         </div>
     </div>

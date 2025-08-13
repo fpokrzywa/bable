@@ -7,8 +7,8 @@ import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { getUserProfile } from '@/services/userService';
-import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
-import type { Widget, User, Workspace } from '@/lib/types';
+import { getWorkspaces } from '@/services/workspaceService';
+import type { User, Workspace } from '@/lib/types';
 import { AIStore } from '@/components/AIStore';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,48 +21,46 @@ function AIStorePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
-  const { state, openMobile, setOpenMobile, width } = useSidebar();
+  const { state, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   
-  const fetchUserData = async () => {
+  const fetchInitialData = async () => {
     const session = localStorage.getItem('session');
-    if (!session) return;
+    if (!session) {
+        router.push('/');
+        return;
+    }
     const userEmail = JSON.parse(session).email;
-    if (!userEmail) return;
-
+    if (!userEmail) {
+        router.push('/');
+        return;
+    }
+    setIsAuthenticated(true);
     setLoading(true);
-    const profile = await getUserProfile(userEmail);
-    setUser(profile);
 
-    if (profile) {
-        try {
-            const workspacesData = await getWorkspaces(profile.userId);
-            setWorkspaces(workspacesData);
-        } catch (error) {
-            console.error("Failed to fetch initial data:", error);
-        } finally {
-            setLoading(false);
-        }
-    } else {
+    try {
+        const [profile, workspacesData] = await Promise.all([
+            getUserProfile(userEmail),
+            getWorkspaces(userEmail)
+        ]);
+        setUser(profile);
+        setWorkspaces(workspacesData);
+    } catch (error) {
+        console.error("Failed to fetch initial data:", error);
+        toast({ variant: "destructive", title: "Error", description: "Could not load user data." });
+    } finally {
         setLoading(false);
     }
   };
 
   useEffect(() => {
-    const session = localStorage.getItem('session');
-    if (!session) {
-      router.push('/');
-    } else {
-      setIsAuthenticated(true);
-      fetchUserData();
-    }
+    fetchInitialData();
   }, [router]);
   
-  if (!isAuthenticated) {
+  if (!isAuthenticated || loading) {
     return null; // or a loading spinner
   }
   
@@ -73,7 +71,7 @@ function AIStorePage() {
       favoritedWidgets={[]}
       onRestoreWidget={() => {}}
       onRestoreFavorite={() => {}}
-      onProfileUpdate={fetchUserData}
+      onProfileUpdate={fetchInitialData}
       workspaces={workspaces}
       onLoadWorkspace={(ws) => {
         router.push('/dashboard');
@@ -94,7 +92,7 @@ function AIStorePage() {
     if (state === 'expanded') {
         return `var(--sidebar-width)`;
     }
-    return `calc(var(--sidebar-width-icon, 3.5rem) + 1rem)`;
+    return `calc(var(--sidebar-width-icon, 3.5rem))`;
   }
 
 
@@ -113,7 +111,7 @@ function AIStorePage() {
           </SheetContent>
         </Sheet>
       ) : (
-        <div ref={sidebarRef} className="z-50 h-full">
+        <div className="z-50 h-full">
             <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
               {renderSidebar()}
             </Sidebar>
