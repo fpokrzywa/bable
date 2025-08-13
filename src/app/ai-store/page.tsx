@@ -21,7 +21,7 @@ function AIStorePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
-  const { state, openMobile, setOpenMobile } = useSidebar();
+  const { state, openMobile, setOpenMobile, width } = useSidebar();
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -91,8 +91,8 @@ function AIStorePage() {
 
   const calculatePadding = () => {
     if (isMobile) return '0px';
-    if (state === 'expanded' && sidebarRef.current) {
-        return `${sidebarRef.current.offsetWidth}px`;
+    if (state === 'expanded') {
+        return `${width}px`;
     }
     // Corresponds to --sidebar-width-icon + p-2 on each side from floating variant
     return `calc(3.5rem + 1rem)`;
@@ -143,7 +143,7 @@ function AIStorePage() {
 
 // Wrapping the page with SidebarProvider to provide context to child components
 const AIStorePageWithProvider = () => (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
         <AIStorePage />
     </SidebarProvider>
 );

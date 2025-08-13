@@ -25,7 +25,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <SidebarProvider defaultOpen={false}>
+      <SidebarProvider defaultOpen={true}>
         <Dashboard />
       </SidebarProvider>
     </div>

@@ -21,7 +21,7 @@ function PromptCatalogPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
-  const { state, openMobile, setOpenMobile } = useSidebar();
+  const { state, openMobile, setOpenMobile, width } = useSidebar();
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -90,8 +90,8 @@ function PromptCatalogPage() {
 
   const calculatePadding = () => {
     if (isMobile) return '0px';
-    if (state === 'expanded' && sidebarRef.current) {
-        return `${sidebarRef.current.offsetWidth}px`;
+    if (state === 'expanded') {
+        return `${width}px`;
     }
     return `calc(3.5rem + 1rem)`;
   }
@@ -140,7 +140,7 @@ function PromptCatalogPage() {
 }
 
 const PromptCatalogPageWithProvider = () => (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
         <PromptCatalogPage />
     </SidebarProvider>
 );
