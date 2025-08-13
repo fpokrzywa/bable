@@ -51,7 +51,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         <SidebarMenu>
             <div className="flex items-center justify-between p-2 group-data-[collapsible=icon]:justify-center">
               <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
-                BabelPhish
+                <span>Babel</span><span className="text-primary">Phish</span>
               </span>
               <SidebarTrigger asChild>
                   <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost" className="h-8 w-8">
