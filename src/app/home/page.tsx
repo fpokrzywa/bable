@@ -26,17 +26,17 @@ export default function Home() {
     { name: 'Community Discord', href: '#' },
     { name: 'YouTube', href: 'https://www.youtube.com/c/jhaddix' },
     { name: 'Jason\'s Twitter', href: 'https://x.com/jhaddix' },
-    { name: 'AgenticWeaver\'s Twitter', href: 'https://x.com/agenticweaver' },
+    { name: 'BabelPhish\'s Twitter', href: 'https://x.com/agenticweaver' },
     { name: 'Executive Offense Newsletter', href: 'https://executiveoffense.beehiiv.com/' },
   ]
 
   const tools = [
-    { name: 'AgenticWeaver Cyber Security Bot', href: 'https://chatgpt.com/g/g-HTsfg2w2z-arcanum-cyber-security-bot' },
-    { name: 'AgenticWeaver OSQuery Bot', href: 'https://chatgpt.com/g/g-L83SalWgy-arcanum-osquery-bot' },
-    { name: 'AgenticWeaver Yara Bot', href: 'https://chatgpt.com/g/g-Wi5N17rtj-arcanum-yara-bot' },
-    { name: 'AgenticWeaver Suricata Bot', href: 'https://chatgpt.com/g/g-QEmiJUdcM-arcanum-suricata-bot' },
-    { name: 'AgenticWeaver Splunk Bot', href: 'https://chatgpt.com/g/g-dEmq4h2Ao-arcanum-splun-k-bot' },
-    { name: 'AgenticWeaver SOC Manager Incident Coordination Bot', href: 'https://chatgpt.com/g/g-18cUZU00i-arcanum-soc-manager-incident-coordination-bot' },
+    { name: 'BabelPhish Cyber Security Bot', href: 'https://chatgpt.com/g/g-HTsfg2w2z-arcanum-cyber-security-bot' },
+    { name: 'BabelPhish OSQuery Bot', href: 'https://chatgpt.com/g/g-L83SalWgy-arcanum-osquery-bot' },
+    { name: 'BabelPhish Yara Bot', href: 'https://chatgpt.com/g/g-Wi5N17rtj-arcanum-yara-bot' },
+    { name: 'BabelPhish Suricata Bot', href: 'https://chatgpt.com/g/g-QEmiJUdcM-arcanum-suricata-bot' },
+    { name: 'BabelPhish Splunk Bot', href: 'https://chatgpt.com/g/g-dEmq4h2Ao-arcanum-splun-k-bot' },
+    { name: 'BabelPhish SOC Manager Incident Coordination Bot', href: 'https://chatgpt.com/g/g-18cUZU00i-arcanum-soc-manager-incident-coordination-bot' },
   ]
 
   const clientLogos = [
@@ -58,8 +58,8 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center hover:scale-105 transition-transform duration-200 cursor-pointer">
-              <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="AgenticWeaver" className="h-8 w-8 mr-2 animate-pulse" />
-              <span className="text-xl font-bold text-blue-600">AgenticWeaver</span>
+              <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2 animate-pulse" />
+              <span className="text-xl font-bold text-blue-600">BabelPhish</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -77,7 +77,7 @@ export default function Home() {
                 >
                   <div className="p-4">
                     <h4 className="font-semibold mb-2">Training</h4>
-                    <p className="text-sm text-gray-600 mb-4">Sign up for industry leading training from the AgenticWeaver crew!</p>
+                    <p className="text-sm text-gray-600 mb-4">Sign up for industry leading training from the BabelPhish crew!</p>
                     <div className="space-y-2">
                       {training.map((item) => (
                         <a key={item.name} href={item.href} className="block p-2 hover:bg-gray-50 rounded text-sm hover:text-blue-600 transition-colors">
@@ -152,7 +152,7 @@ export default function Home() {
                 >
                   <div className="p-4">
                     <h4 className="font-semibold mb-2">Tools</h4>
-                    <p className="text-sm text-gray-600 mb-4">Get tools and resources built by AgenticWeaver's team!</p>
+                    <p className="text-sm text-gray-600 mb-4">Get tools and resources built by BabelPhish's team!</p>
                     <div className="space-y-2">
                       {tools.map((item) => (
                         <a key={item.name} href={item.href} className="block p-2 hover:bg-gray-50 rounded text-sm hover:text-blue-600 transition-colors">
@@ -251,7 +251,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
                 <div className="relative z-10 animate-float">
-                  <img src="https://app.bablephish.com/_next/image?url=%2Fphish_logo.png&w=128&q=75" alt="AgenticWeaver Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
+                  <img src="https://app.bablephish.com/_next/image?url=%2Fphish_logo.png&w=128&q=75" alt="BabelPhish Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
                 </div>
               </div>
             </div>
@@ -357,8 +357,8 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="AgenticWeaver" className="h-8 w-8 mr-2" />
-                <span className="text-xl font-bold">AgenticWeaver</span>
+                <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2" />
+                <span className="text-xl font-bold">BabelPhish</span>
               </div>
               <p className="text-gray-400">Modern cybersecurity through cutting-edge training and consulting.</p>
             </div>
@@ -398,7 +398,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 AgenticWeaver. All rights reserved.</p>
+            <p>&copy; 2024 BabelPhish. All rights reserved.</p>
           </div>
         </div>
       </footer>
