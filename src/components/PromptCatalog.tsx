@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Heart, RefreshCw, Loader2 } from 'lucide-react';
+import { Search, Heart, RefreshCw, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from './ui/badge';
@@ -78,7 +78,7 @@ export function PromptCatalog() {
   const renderPromptGrid = (promptList: DisplayPrompt[]) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {promptList.map(prompt => (
-        <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
+        <Card key={prompt.id} className="group relative flex flex-col hover:shadow-lg transition-shadow">
           <CardHeader className="p-4">
             <div className="flex justify-between items-start">
               <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
@@ -91,10 +91,20 @@ export function PromptCatalog() {
           <CardContent className="flex-1 p-4 pt-0">
             <CardDescription className="text-xs">{prompt.description}</CardDescription>
           </CardContent>
-          <CardFooter className="p-4 pt-0 flex-wrap gap-2">
-            {prompt.tags.map(tag => (
-              <Badge key={tag} variant="secondary">{tag}</Badge>
-            ))}
+          <CardFooter className="p-4 pt-0 flex justify-between items-end">
+            <div className="flex-wrap gap-2 flex">
+                {prompt.tags.map(tag => (
+                <Badge key={tag} variant="secondary">{tag}</Badge>
+                ))}
+            </div>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <Pencil className="h-4 w-4" />
+                </Button>
+            </div>
           </CardFooter>
         </Card>
       ))}
