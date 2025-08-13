@@ -115,7 +115,7 @@ export function PromptCatalog() {
       <Tabs defaultValue="common-prompts" className="flex-grow flex flex-col">
         <div className='flex justify-between items-center border-b'>
             <TabsList className="bg-transparent p-0">
-                <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">BabelPhish Common Prompts</TabsTrigger>
+                <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Common Prompts</TabsTrigger>
                 <TabsTrigger value="your-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Your Prompts</TabsTrigger>
             </TabsList>
             <Button variant="ghost">
