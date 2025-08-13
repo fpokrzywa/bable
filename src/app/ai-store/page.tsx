@@ -91,11 +91,13 @@ function AIStorePage() {
 
   const calculatePadding = () => {
     if (isMobile) return '0px';
+    // This calculation is now based on the CSS variables used by the sidebar component
+    // --sidebar-width for expanded and --sidebar-width-icon for collapsed.
+    // The floating variant in collapsed state has a margin, which is included.
     if (state === 'expanded') {
-        return `${width}px`;
+        return `var(--sidebar-width)`;
     }
-    // Corresponds to --sidebar-width-icon + p-2 on each side from floating variant
-    return `calc(3.5rem + 1rem)`;
+    return `calc(var(--sidebar-width-icon, 3.5rem) + 1rem)`;
   }
 
 
@@ -115,7 +117,7 @@ function AIStorePage() {
         </Sheet>
       ) : (
         <div ref={sidebarRef} className="z-50 h-full">
-            <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
+            <Sidebar side="left" collapsible="icon" variant={'sidebar'}>
               {renderSidebar()}
             </Sidebar>
         </div>
