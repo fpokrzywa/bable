@@ -10,21 +10,20 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
-import { DialogClose } from './ui/dialog';
 import { cn } from '@/lib/utils';
 import { updateUserProfile } from '@/services/userService';
 import type { User } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 
 interface ProfileProps {
     user: User | null;
     onProfileUpdate: () => void;
+    isPage?: boolean;
 }
 
-export function Profile({ user, onProfileUpdate }: ProfileProps) {
+export function Profile({ user, onProfileUpdate, isPage = false }: ProfileProps) {
   const [profile, setProfile] = useState<User | null>(user);
   const [loading, setLoading] = useState(!user);
   const [darkMode, setDarkMode] = useState(false);
@@ -75,7 +74,7 @@ export function Profile({ user, onProfileUpdate }: ProfileProps) {
 
   if (loading) {
       return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <Skeleton className="h-5 w-2/5" />
@@ -110,17 +109,22 @@ export function Profile({ user, onProfileUpdate }: ProfileProps) {
   }
 
   if (!profile) {
-    return <div className="p-6">Failed to load profile. Please try again later.</div>;
+    return <div>Failed to load profile. Please try again later.</div>;
   }
+  
+  const ProfileHeader = () => (
+     <CardHeader>
+        <CardTitle>Profile</CardTitle>
+        <CardDescription>This is how others will see you on the site.</CardDescription>
+    </CardHeader>
+  );
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-        <div className="flex-grow overflow-y-auto no-scrollbar p-6 space-y-6">
+    <div className={cn(!isPage && "flex flex-col h-full overflow-hidden")}>
+        <div className={cn(!isPage && "flex-grow overflow-y-auto no-scrollbar p-6 space-y-6")}>
             <Card>
-                <CardHeader>
-                <CardDescription>This is how others will see you on the site.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-8">
+                {isPage && <ProfileHeader />}
+                <CardContent className={cn("space-y-8", isPage && "pt-6")}>
                 <div className="flex items-center gap-4">
                     <div className="relative group" onClick={handleAvatarClick}>
                         <Avatar className="h-24 w-24">
@@ -155,38 +159,18 @@ export function Profile({ user, onProfileUpdate }: ProfileProps) {
                 </div>
                 </CardContent>
             </Card>
-            <Card>
-                <CardHeader>
-                <CardTitle>Preferences</CardTitle>
-                <CardDescription>Manage your account preferences and settings.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div className={cn('transition-opacity', !darkMode && 'opacity-50')}>
-                    <Label htmlFor="dark-mode">Dark Mode</Label>
-                    <p className="text-sm text-muted-foreground">Enable dark theme for the application.</p>
-                    </div>
-                    <Switch id="dark-mode" checked={darkMode} onCheckedChange={setDarkMode} className={cn('transition-opacity', !darkMode && 'opacity-50')} />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                    <div className={cn('transition-opacity', !emailNotifications && 'opacity-50')}>
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications about your account via email.</p>
-                    </div>
-                    <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} className={cn('transition-opacity', !emailNotifications && 'opacity-50')} />
-                </div>
-                </CardContent>
-            </Card>
         </div>
-      <div className="flex-shrink-0 flex justify-end items-center gap-2 p-6 bg-background/80 backdrop-blur-sm">
-        <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <DialogClose asChild>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
-        </DialogClose>
-      </div>
+        {!isPage && (
+            <div className="flex-shrink-0 flex justify-end items-center gap-2 p-6 bg-background/80 backdrop-blur-sm">
+                <Button variant="outline">Cancel</Button>
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
+            </div>
+        )}
+         {isPage && (
+            <div className="flex justify-end mt-6">
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
+            </div>
+        )}
     </div>
   );
 }

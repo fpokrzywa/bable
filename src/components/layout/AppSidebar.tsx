@@ -16,10 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase, Users, ChevronDown } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
-import { Settings as SettingsPage } from '../Settings';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React from 'react';
 import Link from 'next/link';
@@ -61,7 +58,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const mainContent = (
     <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="ai-tools">
-            <AccordionTrigger className="hover:no-underline px-2 py-0">
+            <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
                     <SidebarMenuButton asChild tooltip="AI Tools" variant="ghost" className="w-full justify-start">
                         <div>
@@ -72,7 +69,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pb-0">
+            <AccordionContent>
                 <div className="ml-7 flex flex-col gap-1 pl-2">
                     <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
                         <Link href="/ai-store" className="w-full">
@@ -94,7 +91,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="workspace">
-            <AccordionTrigger className="hover:no-underline px-2 py-0">
+            <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
                     <SidebarMenuButton asChild tooltip="Workspace" variant="ghost" className="w-full justify-start">
                         <div>
@@ -105,7 +102,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pb-0">
+            <AccordionContent>
                 <div className="ml-7 flex flex-col gap-1 pl-2">
                     <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
                         <Link href="/dashboard" className="w-full">
@@ -127,7 +124,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="user">
-            <AccordionTrigger className="hover:no-underline px-2 py-0">
+            <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
                     <SidebarMenuButton asChild tooltip="User" variant="ghost" className="w-full justify-start">
                         <div>
@@ -138,45 +135,29 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pb-0">
+            <AccordionContent>
                 <div className="ml-7 flex flex-col gap-1 pl-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Profile" variant="ghost" className="w-full justify-start">
-                                <User />
-                                {(state === 'expanded' || isMobile) && <span>Profile</span>}
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </DialogTrigger>
-                        <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px] p-0">
-                            <DialogHeader className="p-6 pb-0">
-                                <DialogTitle>Profile</DialogTitle>
-                            </DialogHeader>
-                            <Profile user={user} onProfileUpdate={onProfileUpdate} />
-                        </DialogContent>
-                    </Dialog>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Settings" variant="ghost" className="w-full justify-start">
-                                <Settings />
-                                {(state === 'expanded' || isMobile) && <span>Settings</span>}
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </DialogTrigger>
-                        <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px]">
-                            <DialogHeader>
-                                <DialogTitle>Settings</DialogTitle>
-                            </DialogHeader>
-                            <SettingsPage />
-                        </DialogContent>
-                    </Dialog>
+                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+                        <Link href="/profile" className="w-full">
+                            <SidebarMenuButton tooltip="Profile" variant="ghost" className="w-full justify-start">
+                            <User />
+                            {(state === 'expanded' || isMobile) && <span>Profile</span>}
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+                        <Link href="/settings" className="w-full">
+                            <SidebarMenuButton tooltip="Settings" variant="ghost" className="w-full justify-start">
+                            <Settings />
+                            {(state === 'expanded' || isMobile) && <span>Settings</span>}
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
                 </div>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="admin">
-            <AccordionTrigger className="hover:no-underline px-2 py-0">
+            <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
                     <SidebarMenuButton asChild tooltip="Administration" variant="ghost" className="w-full justify-start">
                         <div>
@@ -187,7 +168,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pb-0">
+            <AccordionContent>
                 <div className="ml-7 flex flex-col gap-1 pl-2">
                     <SidebarMenuItem>
                         <SidebarMenuButton tooltip="User Management" variant="ghost" className="w-full justify-start">

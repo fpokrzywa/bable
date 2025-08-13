@@ -7,11 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
-import { DialogClose } from './ui/dialog';
 import { cn } from '@/lib/utils';
 import { Input } from './ui/input';
 
-export function Settings() {
+interface SettingsProps {
+    isPage?: boolean;
+}
+
+export function Settings({ isPage = false }: SettingsProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
@@ -21,9 +24,17 @@ export function Settings() {
     console.log('Saving settings:', { darkMode, emailNotifications, pushNotifications });
   };
 
+  const SettingsHeader = () => (
+    <CardHeader>
+        <CardTitle>Settings</CardTitle>
+        <CardDescription>Manage your account settings and set e-mail preferences.</CardDescription>
+    </CardHeader>
+  );
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6 pb-6">
+    <div className={cn(!isPage && "flex flex-col h-full")}>
+      <div className={cn(!isPage && "flex-grow space-y-6 pb-6")}>
+         {isPage && <SettingsHeader />}
         <Card>
           <CardHeader>
             <CardTitle>Display</CardTitle>
@@ -63,14 +74,17 @@ export function Settings() {
           </CardContent>
         </Card>
       </div>
-      <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
-        <DialogClose asChild>
+      {!isPage && (
+        <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <DialogClose asChild>
             <Button onClick={handleSaveChanges}>Save Changes</Button>
-        </DialogClose>
-      </div>
+        </div>
+      )}
+       {isPage && (
+        <div className="flex justify-end mt-6">
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+        </div>
+    )}
     </div>
   );
 }
