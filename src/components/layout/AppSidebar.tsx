@@ -57,14 +57,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const mainContent = (
     <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="ai-tools">
-            <AccordionTrigger className="hover:no-underline">
+            <AccordionTrigger className="hover:no-underline px-2">
                 <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start">
                     <Bot />
                     {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
                 </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
-                <div className="ml-7 flex flex-col gap-1 border-l pl-2">
+                <div className="ml-7 flex flex-col gap-1 pl-2">
                     <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
                         <Link href="/ai-store" className="w-full">
                             <SidebarMenuButton tooltip="AI Store" variant="ghost" className="w-full justify-start">
@@ -85,14 +85,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="workspace">
-            <AccordionTrigger className="hover:no-underline">
+            <AccordionTrigger className="hover:no-underline px-2">
                  <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start">
                     <Briefcase />
                     {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
                 </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
-                <div className="ml-7 flex flex-col gap-1 border-l pl-2">
+                <div className="ml-7 flex flex-col gap-1 pl-2">
                     <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
                         <Link href="/dashboard" className="w-full">
                             <SidebarMenuButton tooltip="Main Dashboard" variant="ghost" className="w-full justify-start">
@@ -145,8 +145,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
           </Link>
         </SidebarMenuItem>
 
-        <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
-
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
             <Link href="/dashboard" className="w-full">
                 <SidebarMenuButton tooltip="Back to Dashboard" variant="ghost">
@@ -196,15 +194,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </SidebarTrigger>
             </div>
             
-            <SidebarSeparator className="my-2" />
-
             {state === 'expanded' && !isMobile ? mainContent : nonAccordionContent}
             
-            {(state === 'expanded' && !isMobile) ? <SidebarSeparator className="my-2"/> : null}
-
           {favoritedWidgets.length > 0 && (
             <React.Fragment key="favorites-section">
-              <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
               {favoritedWidgets.map((widget) => (
                   <SidebarMenuItem key={widget.id}>
                     <SidebarMenuButton
@@ -221,7 +214,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
           )}
           {minimizedWidgets.length > 0 && (
               <React.Fragment key="minimized-section">
-                <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
@@ -273,7 +265,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               <Profile user={user} onProfileUpdate={onProfileUpdate} />
             </DialogContent>
           </Dialog>
-          <SidebarSeparator className="my-1" />
            <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
