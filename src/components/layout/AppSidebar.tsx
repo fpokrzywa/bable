@@ -123,17 +123,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            tooltip="Create Workspace"
-                            variant="ghost"
-                            onClick={() => handleActionClick('create')}
-                            className="w-full justify-start"
-                        >
-                            <FolderPlus />
-                            <span className="truncate">Create Workspace</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
                 </div>
             </AccordionContent>
         </AccordionItem>
@@ -249,10 +238,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         <span>{ws.workspace_name}</span>
                     </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem onClick={() => handleActionClick('create')} className="cursor-pointer">
-                    <FolderPlus className="mr-2 h-4 w-4" />
-                    <span>Create Workspace</span>
-                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     </>
