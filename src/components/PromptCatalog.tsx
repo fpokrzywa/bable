@@ -64,6 +64,10 @@ export function PromptCatalog() {
       return searchMatch && assistantMatch && taskMatch && functionalAreaMatch;
     });
   }, [prompts, searchTerm, selectedAssistant, selectedTask, selectedFunctionalArea]);
+  
+  const favoritedPrompts = useMemo(() => {
+    return prompts.filter(p => p.isFavorited);
+  }, [prompts]);
 
   return (
     <div className="h-full flex flex-col p-6 bg-background text-foreground">
@@ -80,7 +84,7 @@ export function PromptCatalog() {
         <div className='flex justify-between items-center border-b'>
             <TabsList className="bg-transparent p-0">
                 <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Common Prompts</TabsTrigger>
-                <TabsTrigger value="your-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Your Prompts</TabsTrigger>
+                <TabsTrigger value="favorite-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Favorite Prompts</TabsTrigger>
             </TabsList>
             <Button variant="ghost" onClick={fetchPrompts} disabled={loading}>
                 <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
@@ -89,7 +93,7 @@ export function PromptCatalog() {
         </div>
 
         <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-4">
-            <div className="mb-6">
+            <div className="mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="text-sm font-medium">Assistant</label>
@@ -160,9 +164,37 @@ export function PromptCatalog() {
               )}
             </div>
         </TabsContent>
-        <TabsContent value="your-prompts">
-            <div className="flex items-center justify-center h-64">
-                <p>Your custom prompts will appear here.</p>
+        <TabsContent value="favorite-prompts" className="flex-grow flex flex-col mt-4">
+             <div className="flex-1 overflow-y-auto no-scrollbar">
+              {favoritedPrompts.length === 0 ? (
+                 <div className="flex items-center justify-center h-64">
+                    <p className="text-muted-foreground">You haven't favorited any prompts yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {favoritedPrompts.map(prompt => (
+                    <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
+                    <CardHeader className="p-4">
+                        <div className="flex justify-between items-start">
+                            <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
+                                <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
+                            </Button>
+                        </div>
+                        <p className="font-semibold text-sm">{prompt.title}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1 p-4 pt-0">
+                        <CardDescription className="text-xs">{prompt.description}</CardDescription>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0 flex-wrap gap-2">
+                        {prompt.tags.map(tag => (
+                            <Badge key={tag} variant="secondary">{tag}</Badge>
+                        ))}
+                    </CardFooter>
+                    </Card>
+                ))}
+                </div>
+              )}
             </div>
         </TabsContent>
       </Tabs>
