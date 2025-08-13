@@ -151,7 +151,7 @@ export function PromptCatalog() {
   };
 
   return (
-    <div className="h-full flex flex-col p-6 bg-background text-foreground">
+    <div className="h-full flex flex-col p-6 pt-12 bg-background text-foreground">
       <header className="mb-6">
         <div className="flex justify-between items-center">
             <div className="space-y-1">
@@ -222,5 +222,3 @@ export function PromptCatalog() {
     </div>
   );
 }
-
-    

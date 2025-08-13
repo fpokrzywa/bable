@@ -100,7 +100,7 @@ export function AIStore() {
   }, [assistants, searchTerm, sortOrder]);
 
   return (
-    <div className="h-full flex flex-col p-6 bg-background text-foreground">
+    <div className="h-full flex flex-col p-6 pt-12 bg-background text-foreground">
       <header className="mb-6">
         <div className="flex justify-between items-center">
             <div className="space-y-1">
