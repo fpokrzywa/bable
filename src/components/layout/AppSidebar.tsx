@@ -67,13 +67,16 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
             <SidebarMenuItem>
+              <Link href="/ai-store" className="w-full">
                 <SidebarMenuButton
                     tooltip="AI Store"
                     variant="ghost"
+                    className="w-full"
                 >
                     <Store />
                     {(state === 'expanded' || isMobile) && <span className="truncate">AI Store</span>}
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
                 <SidebarMenuButton
