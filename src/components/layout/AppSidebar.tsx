@@ -36,7 +36,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace, onWorkspaceAction }: AppSidebarProps) {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
   const [isWorkspacePopoverOpen, setIsWorkspacePopoverOpen] = React.useState(false);
@@ -46,6 +46,13 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     router.push('/');
   };
   
+  const handleMobileNav = (path: string) => {
+    router.push(path);
+    if(isMobile) {
+        setOpenMobile(false);
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       <SidebarContent>
@@ -66,7 +73,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => handleMobileNav('/ai-store')}>
               <Link href="/ai-store" className="w-full">
                 <SidebarMenuButton
                     tooltip="AI Store"
@@ -78,7 +85,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => handleMobileNav('/prompt-catalog')}>
               <Link href="/prompt-catalog" className="w-full">
                 <SidebarMenuButton
                     tooltip="Prompt Catalog"
@@ -92,7 +99,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => handleMobileNav('/dashboard')}>
                 <Link href="/dashboard" className="w-full">
                     <SidebarMenuButton
                         tooltip="Back to Dashboard"
@@ -141,6 +148,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                                 onClick={() => {
                                     onLoadWorkspace(ws);
                                     setIsWorkspacePopoverOpen(false);
+                                    if(isMobile) setOpenMobile(false);
                                 }}
                             >
                                 {ws.workspace_name}
@@ -159,7 +167,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <SidebarMenuButton
                       tooltip={widget.query}
                       variant="ghost"
-                      onClick={() => onRestoreFavorite(widget)}
+                      onClick={() => {
+                        onRestoreFavorite(widget);
+                        if(isMobile) setOpenMobile(false);
+                      }}
                     >
                       <Heart className="text-primary fill-primary" />
                       {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
@@ -176,7 +187,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         <SidebarMenuButton
                             tooltip={widget.query}
                             variant="ghost"
-                            onClick={() => onRestoreWidget(widget.id)}
+                            onClick={() => {
+                                onRestoreWidget(widget.id);
+                                if(isMobile) setOpenMobile(false);
+                            }}
                         >
                             <LayoutGrid />
                             {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
