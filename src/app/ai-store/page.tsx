@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 
 
-export default function AIStorePage() {
+function AIStorePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
