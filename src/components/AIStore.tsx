@@ -107,10 +107,6 @@ export function AIStore() {
                 <h1 className="text-2xl font-bold">Welcome to the AI Storefront</h1>
                 <p className="text-muted-foreground">Each Assistant is created to help you do a specific set of tasks. Get answers to your questions, brainstorm ideas, create new content, and more!</p>
             </div>
-            <Button variant="outline">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-            </Button>
         </div>
       </header>
       
@@ -136,6 +132,10 @@ export function AIStore() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <Button variant="ghost">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+        </Button>
         <span className="text-sm text-muted-foreground">{filteredAndSortedAssistants.length} assistants</span>
       </div>
 
