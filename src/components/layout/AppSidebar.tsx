@@ -7,18 +7,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-  SidebarSeparator,
   SidebarTrigger,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase, Users, ChevronDown } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, Store, Library, Bot, Briefcase, Users, ChevronDown } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -35,10 +34,31 @@ interface AppSidebarProps {
     onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => void;
 }
 
+const SIDEBAR_ACCORDION_STATE = 'sidebarAccordionState';
+
 export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace, onWorkspaceAction }: AppSidebarProps) {
   const { state, setOpenMobile } = useSidebar();
   const router = useRouter();
+  const pathname = usePathname();
   const isMobile = useIsMobile();
+  const [openAccordionItem, setOpenAccordionItem] = useState('');
+
+  useEffect(() => {
+    const savedState = sessionStorage.getItem(SIDEBAR_ACCORDION_STATE);
+    if (savedState) {
+      setOpenAccordionItem(savedState);
+    } else {
+        // Default open section based on path
+        if (pathname.startsWith('/ai')) setOpenAccordionItem('ai-tools');
+        else if (pathname.startsWith('/dashboard')) setOpenAccordionItem('workspace');
+        else if (pathname.startsWith('/profile') || pathname.startsWith('/settings')) setOpenAccordionItem('user');
+    }
+  }, [pathname]);
+
+  const handleAccordionChange = (value: string) => {
+    setOpenAccordionItem(value);
+    sessionStorage.setItem(SIDEBAR_ACCORDION_STATE, value);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('session');
@@ -56,16 +76,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   }
 
   const mainContent = (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" value={openAccordionItem} onValueChange={handleAccordionChange}>
         <AccordionItem value="ai-tools">
             <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
-                    <SidebarMenuButton asChild tooltip="AI Tools" variant="ghost" className="w-full justify-start">
-                        <div>
-                            <Bot />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
-                        </div>
-                    </SidebarMenuButton>
+                    <div className="flex items-center gap-2">
+                        <Bot />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
+                    </div>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
@@ -92,13 +110,11 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="workspace">
             <AccordionTrigger>
-                <div className="flex flex-1 items-center justify-between">
-                    <SidebarMenuButton asChild tooltip="Workspace" variant="ghost" className="w-full justify-start">
-                        <div>
-                            <Briefcase />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
-                        </div>
-                    </SidebarMenuButton>
+                 <div className="flex flex-1 items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Briefcase />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
+                    </div>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
@@ -126,12 +142,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         <AccordionItem value="user">
             <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
-                    <SidebarMenuButton asChild tooltip="User" variant="ghost" className="w-full justify-start">
-                        <div>
-                            <User />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
-                        </div>
-                    </SidebarMenuButton>
+                    <div className="flex items-center gap-2">
+                        <User />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
+                    </div>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
@@ -159,12 +173,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         <AccordionItem value="admin">
             <AccordionTrigger>
                 <div className="flex flex-1 items-center justify-between">
-                    <SidebarMenuButton asChild tooltip="Administration" variant="ghost" className="w-full justify-start">
-                        <div>
-                            <Users />
-                            {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
-                        </div>
-                    </SidebarMenuButton>
+                    <div className="flex items-center gap-2">
+                        <Users />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
+                    </div>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </div>
             </AccordionTrigger>
@@ -221,6 +233,20 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
+        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+            <Link href="/profile" className="w-full">
+                <SidebarMenuButton tooltip="Profile" variant="ghost">
+                <User />
+                </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
+        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+            <Link href="/settings" className="w-full">
+                <SidebarMenuButton tooltip="Settings" variant="ghost">
+                <Settings />
+                </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
     </>
   );
 
@@ -242,7 +268,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </SidebarTrigger>
             </div>
             
-            {state === 'expanded' || isMobile ? mainContent : nonAccordionContent}
+            {(state === 'expanded' || isMobile) ? mainContent : nonAccordionContent}
             
           {favoritedWidgets.length > 0 && (
             <React.Fragment key="favorites-section">
