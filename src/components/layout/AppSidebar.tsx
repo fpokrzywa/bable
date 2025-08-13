@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase, Users } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase, Users, ChevronDown } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
@@ -58,10 +58,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="ai-tools">
             <AccordionTrigger className="hover:no-underline px-2">
-                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start">
-                    <Bot />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
-                </SidebarMenuButton>
+                <div className="flex flex-1 items-center justify-between">
+                    <SidebarMenuButton asChild tooltip="AI Tools" variant="ghost" className="w-full justify-start">
+                        <div>
+                            <Bot />
+                            {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
+                        </div>
+                    </SidebarMenuButton>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </div>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
                 <div className="ml-7 flex flex-col gap-1 pl-2">
@@ -86,10 +91,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="workspace">
             <AccordionTrigger className="hover:no-underline px-2">
-                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start">
-                    <Briefcase />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
-                </SidebarMenuButton>
+                <div className="flex flex-1 items-center justify-between">
+                    <SidebarMenuButton asChild tooltip="Workspace" variant="ghost" className="w-full justify-start">
+                        <div>
+                            <Briefcase />
+                            {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
+                        </div>
+                    </SidebarMenuButton>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </div>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
                 <div className="ml-7 flex flex-col gap-1 pl-2">
@@ -125,10 +135,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="user">
             <AccordionTrigger className="hover:no-underline px-2">
-                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start">
-                    <User />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
-                </SidebarMenuButton>
+                <div className="flex flex-1 items-center justify-between">
+                    <SidebarMenuButton asChild tooltip="User" variant="ghost" className="w-full justify-start">
+                        <div>
+                            <User />
+                            {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
+                        </div>
+                    </SidebarMenuButton>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </div>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
                 <div className="ml-7 flex flex-col gap-1 pl-2">
@@ -169,10 +184,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="admin">
             <AccordionTrigger className="hover:no-underline px-2">
-                <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start">
-                    <Users />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
-                </SidebarMenuButton>
+                <div className="flex flex-1 items-center justify-between">
+                    <SidebarMenuButton asChild tooltip="Administration" variant="ghost" className="w-full justify-start">
+                        <div>
+                            <Users />
+                            {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
+                        </div>
+                    </SidebarMenuButton>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </div>
             </AccordionTrigger>
             <AccordionContent className="pb-0">
                 <div className="ml-7 flex flex-col gap-1 pl-2">
