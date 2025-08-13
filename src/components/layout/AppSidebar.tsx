@@ -79,13 +79,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
+              <Link href="/prompt-catalog" className="w-full">
                 <SidebarMenuButton
-                    tooltip="Prompt Library"
+                    tooltip="Prompt Catalog"
                     variant="ghost"
                 >
                     <Library />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">Prompt Library</span>}
+                    {(state === 'expanded' || isMobile) && <span className="truncate">Prompt Catalog</span>}
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
 
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />

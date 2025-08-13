@@ -1,0 +1,161 @@
+
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import { ChatInput } from '@/components/ChatInput';
+import { useToast } from '@/hooks/use-toast';
+import { getUserProfile } from '@/services/userService';
+import { getWorkspaces } from '@/services/workspaceService';
+import type { User, Workspace } from '@/lib/types';
+import { PromptCatalog } from '@/components/PromptCatalog';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+
+
+function PromptCatalogPage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { toast } = useToast();
+  const { state, openMobile, setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  const fetchUserData = async () => {
+    const session = localStorage.getItem('session');
+    if (!session) return;
+    const userEmail = JSON.parse(session).email;
+    if (!userEmail) return;
+
+    setLoading(true);
+    const profile = await getUserProfile(userEmail);
+    setUser(profile);
+
+    if (profile) {
+        try {
+            const workspacesData = await getWorkspaces(profile.userId);
+            setWorkspaces(workspacesData);
+        } catch (error) {
+            console.error("Failed to fetch initial data:", error);
+        } finally {
+            setLoading(false);
+        }
+    } else {
+        setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const session = localStorage.getItem('session');
+    if (!session) {
+      router.push('/');
+    } else {
+      setIsAuthenticated(true);
+      fetchUserData();
+    }
+  }, [router]);
+  
+  const handleDummyAction = () => {
+    toast({ title: "Not available", description: "This action is not available on this page." });
+  };
+  
+  if (!isAuthenticated) {
+    return null;
+  }
+  
+  const renderSidebar = () => (
+    <AppSidebar 
+      user={user}
+      minimizedWidgets={[]} 
+      favoritedWidgets={[]}
+      onRestoreWidget={() => {}}
+      onRestoreFavorite={() => {}}
+      onProfileUpdate={fetchUserData}
+      workspaces={workspaces}
+      onLoadWorkspace={(ws) => {
+        router.push('/dashboard');
+        toast({ title: `Switching to ${ws.workspace_name}...`, description: "Redirecting to dashboard."});
+      }}
+      onWorkspaceAction={(action) => {
+        router.push('/dashboard');
+        toast({ title: "Redirecting to dashboard to manage workspaces."});
+      }}
+    />
+  );
+  
+  const mobileHeaderHeight = 56;
+  const chatInputAreaHeight = 96;
+
+  const calculatePadding = () => {
+    if (isMobile) return '0px';
+    if (state === 'expanded' && sidebarRef.current) {
+        return `${sidebarRef.current.offsetWidth}px`;
+    }
+    return `calc(3.5rem + 1rem)`;
+  }
+
+
+  return (
+    <div className="relative flex h-screen w-screen overflow-hidden bg-background">
+      {isMobile ? (
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+          <SheetContent side="left" className="p-0 w-[300px] bg-card/95">
+             <SheetHeader>
+                <SheetTitle className="sr-only">Main Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                    Navigate through workspaces, favorites, and settings.
+                </SheetDescription>
+            </SheetHeader>
+            {renderSidebar()}
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <div ref={sidebarRef} className="z-50 h-full">
+            <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
+              {renderSidebar()}
+            </Sidebar>
+        </div>
+      )}
+      
+      <div 
+        className="flex-1 flex flex-col overflow-hidden relative transition-all duration-300 ease-in-out"
+        style={{ paddingLeft: calculatePadding() }}
+      >
+         <main className="flex-1 overflow-y-auto">
+              <PromptCatalog />
+         </main>
+         
+         {isMobile && (
+            <header className="absolute top-0 left-0 right-0 p-2 flex items-center justify-between z-30" style={{ height: mobileHeaderHeight }}>
+                <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
+                <Menu />
+                </Button>
+            </header>
+         )}
+        
+        <div ref={chatInputRef} className={cn("z-10", isMobile && "bg-background/80 backdrop-blur-sm border-t")}>
+            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
+                <ChatInput onSubmit={handleDummyAction} onSave={handleDummyAction} loading={false} widgets={[]} onWorkspaceAction={handleDummyAction} />
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const PromptCatalogPageWithProvider = () => (
+    <SidebarProvider defaultOpen={false}>
+        <PromptCatalogPage />
+    </SidebarProvider>
+);
+
+export default PromptCatalogPageWithProvider;
