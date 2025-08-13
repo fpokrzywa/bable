@@ -112,17 +112,18 @@ function AIStorePage() {
           </SheetContent>
         </Sheet>
       ) : (
-        <div ref={sidebarRef} className="z-50">
-          <SidebarProvider defaultOpen={true}>
+        <div ref={sidebarRef} className="z-50 h-full">
             <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
               {renderSidebar()}
             </Sidebar>
-          </SidebarProvider>
         </div>
       )}
       
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-         <main className="absolute inset-0 z-0 overflow-y-auto">
+      <div 
+        className="flex-1 flex flex-col overflow-hidden relative transition-all duration-300 ease-in-out"
+        style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+      >
+         <main className="flex-1 overflow-y-auto">
               <AIStore />
          </main>
          
@@ -134,7 +135,7 @@ function AIStorePage() {
             </header>
          )}
         
-        <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out absolute bottom-0 left-0 right-0", isMobile && "bg-background/80 backdrop-blur-sm border-t")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+        <div ref={chatInputRef} className={cn("z-10", isMobile && "bg-background/80 backdrop-blur-sm border-t")}>
             <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
                 <ChatInput onSubmit={handleDummyAction} onSave={handleDummyAction} loading={false} widgets={[]} onWorkspaceAction={handleDummyAction} />
             </div>
@@ -146,7 +147,7 @@ function AIStorePage() {
 
 // Wrapping the page with SidebarProvider to provide context to child components
 const AIStorePageWithProvider = () => (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
         <AIStorePage />
     </SidebarProvider>
 );
