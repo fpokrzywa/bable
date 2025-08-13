@@ -58,7 +58,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center hover:scale-105 transition-transform duration-200 cursor-pointer">
-              <img src="/logo.svg" alt="AgenticWeaver" className="h-8 w-8 mr-2 animate-pulse" />
+              <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="AgenticWeaver" className="h-8 w-8 mr-2 animate-pulse" />
               <span className="text-xl font-bold text-blue-600">AgenticWeaver</span>
             </div>
 
@@ -357,7 +357,7 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <img src="/logo.svg" alt="AgenticWeaver" className="h-8 w-8 mr-2" />
+                <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="AgenticWeaver" className="h-8 w-8 mr-2" />
                 <span className="text-xl font-bold">AgenticWeaver</span>
               </div>
               <p className="text-gray-400">Modern cybersecurity through cutting-edge training and consulting.</p>
