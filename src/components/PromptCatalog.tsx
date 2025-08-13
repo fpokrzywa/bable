@@ -164,19 +164,19 @@ export function PromptCatalog() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPrompts.map(prompt => (
                     <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardHeader>
+                    <CardHeader className="p-4">
                         <div className="flex justify-between items-start">
-                            <CardTitle className="text-sm font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
+                            <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
                             <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
                                 <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
                             </Button>
                         </div>
-                        <p className="font-semibold text-base">{prompt.title}</p>
+                        <p className="font-semibold text-sm">{prompt.title}</p>
                     </CardHeader>
-                    <CardContent className="flex-1">
-                        <CardDescription>{prompt.description}</CardDescription>
+                    <CardContent className="flex-1 p-4 pt-0">
+                        <CardDescription className="text-xs">{prompt.description}</CardDescription>
                     </CardContent>
-                    <CardFooter className="flex-wrap gap-2">
+                    <CardFooter className="p-4 pt-0 flex-wrap gap-2">
                         {prompt.tags.map(tag => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                         ))}
