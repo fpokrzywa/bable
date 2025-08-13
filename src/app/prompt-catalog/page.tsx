@@ -113,7 +113,7 @@ function PromptCatalogPage() {
         </Sheet>
       ) : (
         <div ref={sidebarRef} className="z-50 h-full">
-            <Sidebar side="left" collapsible="icon" variant={'sidebar'}>
+            <Sidebar side="left" collapsible="icon" variant={state === 'collapsed' ? 'floating' : 'sidebar'}>
               {renderSidebar()}
             </Sidebar>
         </div>
