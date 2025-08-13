@@ -5,7 +5,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getUserProfile } from '@/services/userService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
@@ -25,7 +24,6 @@ function AIStorePage() {
   const { state, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,11 +62,6 @@ function AIStorePage() {
     }
   }, [router]);
   
-  // Dummy handlers for props required by AppSidebar and ChatInput
-  const handleDummyAction = () => {
-    toast({ title: "Not available", description: "This action is not available on this page." });
-  };
-  
   if (!isAuthenticated) {
     return null; // or a loading spinner
   }
@@ -95,7 +88,6 @@ function AIStorePage() {
   );
   
   const mobileHeaderHeight = 56;
-  const chatInputAreaHeight = 96;
 
   const calculatePadding = () => {
     if (isMobile) return '0px';
@@ -133,7 +125,7 @@ function AIStorePage() {
         className="flex-1 flex flex-col overflow-hidden relative transition-all duration-300 ease-in-out"
         style={{ paddingLeft: calculatePadding() }}
       >
-         <main className="flex-1 overflow-y-auto">
+         <main className="flex-1 overflow-y-auto no-scrollbar">
               <AIStore />
          </main>
          
@@ -144,12 +136,6 @@ function AIStorePage() {
                 </Button>
             </header>
          )}
-        
-        <div ref={chatInputRef} className={cn("z-10", isMobile && "bg-background/80 backdrop-blur-sm border-t")}>
-            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                <ChatInput onSubmit={handleDummyAction} onSave={handleDummyAction} loading={false} widgets={[]} onWorkspaceAction={handleDummyAction} />
-            </div>
-        </div>
       </div>
     </div>
   );

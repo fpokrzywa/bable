@@ -5,7 +5,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getUserProfile } from '@/services/userService';
 import { getWorkspaces } from '@/services/workspaceService';
@@ -25,7 +24,6 @@ function PromptCatalogPage() {
   const { state, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,10 +62,6 @@ function PromptCatalogPage() {
     }
   }, [router]);
   
-  const handleDummyAction = () => {
-    toast({ title: "Not available", description: "This action is not available on this page." });
-  };
-  
   if (!isAuthenticated) {
     return null;
   }
@@ -93,7 +87,6 @@ function PromptCatalogPage() {
   );
   
   const mobileHeaderHeight = 56;
-  const chatInputAreaHeight = 96;
 
   const calculatePadding = () => {
     if (isMobile) return '0px';
@@ -141,12 +134,6 @@ function PromptCatalogPage() {
                 </Button>
             </header>
          )}
-        
-        <div ref={chatInputRef} className={cn("z-10", isMobile && "bg-background/80 backdrop-blur-sm border-t")}>
-            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                <ChatInput onSubmit={handleDummyAction} onSave={handleDummyAction} loading={false} widgets={[]} onWorkspaceAction={handleDummyAction} />
-            </div>
-        </div>
       </div>
     </div>
   );
