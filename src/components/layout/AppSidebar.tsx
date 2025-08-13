@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
@@ -58,6 +58,27 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </SidebarTrigger>
             </SidebarMenuItem>
             
+            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+
+            <SidebarMenuItem>
+                <SidebarMenuButton
+                    tooltip="AI Store"
+                    variant="ghost"
+                >
+                    <Store />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">AI Store</span>}
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <SidebarMenuButton
+                    tooltip="Prompt Library"
+                    variant="ghost"
+                >
+                    <Library />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">Prompt Library</span>}
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
             {workspaces.length === 0 ? (
