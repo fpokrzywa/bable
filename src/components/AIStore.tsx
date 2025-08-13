@@ -67,7 +67,7 @@ const initialAssistants = [
 export function AIStore() {
   const [assistants, setAssistants] = useState(initialAssistants);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('recent');
+  const [sortOrder, setSortOrder] = useState('all');
   
   const toggleFavorite = (id: number) => {
     setAssistants(prev => 
@@ -89,8 +89,11 @@ export function AIStore() {
         result = result.filter(a => a.isFavorited);
         break;
       case 'recent':
-      default:
         result.sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+        break;
+      case 'all':
+      default:
+        // No sorting, just the filtered list
         break;
     }
     return result;
@@ -117,6 +120,7 @@ export function AIStore() {
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="recent">Recently Added</SelectItem>
             <SelectItem value="name-asc">Name A-Z</SelectItem>
             <SelectItem value="name-desc">Name Z-A</SelectItem>
