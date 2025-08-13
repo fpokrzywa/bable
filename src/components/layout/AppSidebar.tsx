@@ -46,11 +46,13 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     router.push('/');
   };
   
-  const handleMobileNav = (path: string) => {
-    router.push(path);
-    if(isMobile) {
-        setOpenMobile(false);
-    }
+  const handleWorkspaceClick = (ws: Workspace) => {
+    onLoadWorkspace(ws);
+    setIsWorkspacePopoverOpen(false);
+  }
+
+  const handleActionClick = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
+      onWorkspaceAction(action);
   }
 
   return (
@@ -73,7 +75,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem onClick={() => handleMobileNav('/ai-store')}>
+            <SidebarMenuItem>
               <Link href="/ai-store" className="w-full">
                 <SidebarMenuButton
                     tooltip="AI Store"
@@ -85,7 +87,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
-            <SidebarMenuItem onClick={() => handleMobileNav('/prompt-catalog')}>
+            <SidebarMenuItem>
               <Link href="/prompt-catalog" className="w-full">
                 <SidebarMenuButton
                     tooltip="Prompt Catalog"
@@ -99,7 +101,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem onClick={() => handleMobileNav('/dashboard')}>
+            <SidebarMenuItem>
                 <Link href="/dashboard" className="w-full">
                     <SidebarMenuButton
                         tooltip="Back to Dashboard"
@@ -116,7 +118,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <SidebarMenuButton
                         tooltip="Create Workspace"
                         variant="ghost"
-                        onClick={() => onWorkspaceAction('create')}
+                        onClick={() => handleActionClick('create')}
                     >
                         <FolderPlus />
                         {(state === 'expanded' || isMobile) && <span className="truncate">Create Workspace</span>}
@@ -136,7 +138,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         </SidebarMenuItem>
                     </PopoverTrigger>
                     <PopoverContent
-                        side={isMobile ? 'left' : 'right'}
+                        side={isMobile ? 'bottom' : 'right'}
                         align="start"
                         className="w-[200px] p-1"
                     >
@@ -145,11 +147,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                                 key={ws.workspaceId}
                                 variant="ghost"
                                 className="w-full justify-start"
-                                onClick={() => {
-                                    onLoadWorkspace(ws);
-                                    setIsWorkspacePopoverOpen(false);
-                                    if(isMobile) setOpenMobile(false);
-                                }}
+                                onClick={() => handleWorkspaceClick(ws)}
                             >
                                 {ws.workspace_name}
                             </Button>
@@ -167,10 +165,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     <SidebarMenuButton
                       tooltip={widget.query}
                       variant="ghost"
-                      onClick={() => {
-                        onRestoreFavorite(widget);
-                        if(isMobile) setOpenMobile(false);
-                      }}
+                      onClick={() => onRestoreFavorite(widget)}
                     >
                       <Heart className="text-primary fill-primary" />
                       {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
@@ -187,10 +182,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                         <SidebarMenuButton
                             tooltip={widget.query}
                             variant="ghost"
-                            onClick={() => {
-                                onRestoreWidget(widget.id);
-                                if(isMobile) setOpenMobile(false);
-                            }}
+                            onClick={() => onRestoreWidget(widget.id)}
                         >
                             <LayoutGrid />
                             {(state === 'expanded' || isMobile) && <span className="truncate">{widget.query}</span>}
