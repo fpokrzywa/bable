@@ -1,57 +1,100 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Heart, RefreshCw, Zap, Bot, Box } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
-const assistants = [
+const initialAssistants = [
   {
+    id: 1,
     name: 'ODIN',
     description: 'You are a helpful assistant named ODIN, you are a meta-agent....',
     version: 'gpt-4.1',
     icon: 'https://placehold.co/40x40/000000/FFFFFF/png?text=O',
     iconBg: 'bg-black',
+    isFavorited: false,
+    addedDate: '2023-10-26T10:00:00Z',
   },
   {
+    id: 2,
     name: 'Prompt Architect',
     description: 'You are a Prompt Architect AI. Your job is to write optimized system prompts and relevant few-shot e...',
     version: 'gpt-4.1',
     icon: <Zap className="text-green-500" />,
     iconBg: 'bg-green-100',
+    isFavorited: true,
+    addedDate: '2023-10-25T10:00:00Z',
   },
   {
+    id: 3,
     name: 'ADEPT Guru',
     description: 'Purpose ADEPT Guru is a purpose-built GPT designed to support professionals in the successful delive...',
     version: 'gpt-4.1',
     icon: <Box className="text-blue-500" />,
     iconBg: 'bg-blue-100',
+    isFavorited: false,
+    addedDate: '2023-10-24T10:00:00Z',
   },
   {
+    id: 4,
     name: 'NIEA Guru',
     description: 'Persona: You are a highly knowledgeable and helpful ServiceNow Expert AI Assistant. Your primary are...',
     version: 'gpt-4.1',
     icon: <Box className="text-sky-500" />,
     iconBg: 'bg-sky-100',
+    isFavorited: false,
+    addedDate: '2023-10-23T10:00:00Z',
   },
   {
+    id: 5,
     name: 'NOW Assist Guru',
     description: 'You are a seasoned expert in ServiceNow development, architecture, and integration with OpenAI techn...',
     version: 'gpt-4.1',
     icon: <Bot className="text-pink-500" />,
     iconBg: 'bg-pink-100',
+    isFavorited: false,
+    addedDate: '2023-10-22T10:00:00Z',
   },
 ];
 
 
 export function AIStore() {
+  const [assistants, setAssistants] = useState(initialAssistants);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('recent');
+  
+  const toggleFavorite = (id: number) => {
+    setAssistants(prev => 
+        prev.map(a => a.id === id ? {...a, isFavorited: !a.isFavorited} : a)
+    );
+  };
 
-  const filteredAssistants = assistants.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredAndSortedAssistants = useMemo(() => {
+    let result = assistants.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    switch (sortOrder) {
+      case 'name-asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'favorites':
+        result = result.filter(a => a.isFavorited);
+        break;
+      case 'recent':
+      default:
+        result.sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+        break;
+    }
+    return result;
+  }, [assistants, searchTerm, sortOrder]);
 
   return (
     <div className="h-full flex flex-col p-6 bg-background text-foreground">
@@ -69,14 +112,15 @@ export function AIStore() {
       </header>
       
       <div className="flex items-center gap-4 mb-6">
-        <Select>
+        <Select value={sortOrder} onValueChange={setSortOrder}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
             <SelectItem value="recent">Recently Added</SelectItem>
+            <SelectItem value="name-asc">Name A-Z</SelectItem>
+            <SelectItem value="name-desc">Name Z-A</SelectItem>
+            <SelectItem value="favorites">Favorites</SelectItem>
           </SelectContent>
         </Select>
         <div className="relative flex-1">
@@ -88,12 +132,12 @@ export function AIStore() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <span className="text-sm text-muted-foreground">{filteredAssistants.length} assistants</span>
+        <span className="text-sm text-muted-foreground">{filteredAndSortedAssistants.length} assistants</span>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAssistants.map(assistant => (
+          {filteredAndSortedAssistants.map(assistant => (
             <Card key={assistant.name} className="flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -106,8 +150,8 @@ export function AIStore() {
                     </div>
                     <CardTitle className="text-base font-semibold">{assistant.name}</CardTitle>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Heart className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleFavorite(assistant.id)}>
+                    <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-red-500 text-red-500")} />
                   </Button>
                 </div>
               </CardHeader>
