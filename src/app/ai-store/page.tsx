@@ -97,6 +97,16 @@ function AIStorePage() {
   const mobileHeaderHeight = 56;
   const chatInputAreaHeight = 96;
 
+  const calculatePadding = () => {
+    if (isMobile) return '0px';
+    if (state === 'expanded' && sidebarRef.current) {
+        return `${sidebarRef.current.offsetWidth}px`;
+    }
+    // Corresponds to --sidebar-width-icon + p-2 on each side from floating variant
+    return `calc(3.5rem + 1rem)`;
+  }
+
+
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-background">
       {isMobile ? (
@@ -121,7 +131,7 @@ function AIStorePage() {
       
       <div 
         className="flex-1 flex flex-col overflow-hidden relative transition-all duration-300 ease-in-out"
-        style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+        style={{ paddingLeft: calculatePadding() }}
       >
          <main className="flex-1 overflow-y-auto">
               <AIStore />
@@ -147,7 +157,7 @@ function AIStorePage() {
 
 // Wrapping the page with SidebarProvider to provide context to child components
 const AIStorePageWithProvider = () => (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
         <AIStorePage />
     </SidebarProvider>
 );
