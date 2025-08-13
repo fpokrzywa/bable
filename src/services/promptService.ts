@@ -7,13 +7,17 @@ import type { Prompt } from '@/lib/types';
 const getWebhookUrl = () => {
     const url = process.env.GET_PROMPT_WEBHOOK_URL;
     if (!url) {
-        throw new Error('GET_PROMPT_WEBHOOK_URL is not configured in .env file.');
+        console.warn('GET_PROMPT_WEBHOOK_URL is not configured in .env file. Prompt fetching will be skipped.');
+        return null;
     }
     return url;
 };
 
 export async function getPrompts(): Promise<Prompt[]> {
     const webhookUrl = getWebhookUrl();
+    if (!webhookUrl) {
+        return []; // Return empty array if URL is not set
+    }
 
     try {
         const response = await axios.get(webhookUrl);
@@ -31,6 +35,7 @@ export async function getPrompts(): Promise<Prompt[]> {
         } else {
             console.error('An unexpected error occurred while fetching prompts:', error);
         }
-        throw new Error('Failed to fetch prompts.');
+        // Instead of throwing, return empty array to allow the page to render.
+        return [];
     }
 }
