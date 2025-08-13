@@ -317,12 +317,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <div className="p-2 text-sm text-muted-foreground group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-data-[state=expanded]:block">
                 {(state === 'expanded' || isMobile) && <span className="truncate">{user?.email || 'User'}</span>}
             </div>
-           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
+           <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
               {(state === 'expanded' || isMobile) && <span>Logout</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+           </SidebarMenuButton>
         </div>
     </div>
   );
