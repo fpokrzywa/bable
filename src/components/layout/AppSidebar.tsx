@@ -90,6 +90,18 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
+            <SidebarMenuItem>
+                <Link href="/dashboard" className="w-full">
+                    <SidebarMenuButton
+                        tooltip="Back to Dashboard"
+                        variant="ghost"
+                    >
+                        <LayoutGrid />
+                        {(state === 'expanded' || isMobile) && <span className="truncate">Back to Dashboard</span>}
+                    </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
+
             {workspaces.length === 0 ? (
                 <SidebarMenuItem>
                     <SidebarMenuButton

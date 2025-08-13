@@ -138,7 +138,7 @@ export function AIStore() {
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedAssistants.map(assistant => (
-            <Card key={assistant.name} className="flex flex-col hover:shadow-lg transition-shadow">
+            <Card key={assistant.id} className="flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
@@ -151,7 +151,7 @@ export function AIStore() {
                     <CardTitle className="text-base font-semibold">{assistant.name}</CardTitle>
                   </div>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleFavorite(assistant.id)}>
-                    <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-red-500 text-red-500")} />
+                    <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-primary text-primary")} />
                   </Button>
                 </div>
               </CardHeader>
