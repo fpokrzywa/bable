@@ -212,7 +212,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
           <Link href="/ai-store" className="w-full">
-            <SidebarMenuButton tooltip="AI Store" variant="ghost" className="w-full">
+            <SidebarMenuButton tooltip="AI Store" variant="ghost">
                 <Store />
                 {(state === 'expanded' || isMobile) && <span className="truncate">AI Store</span>}
             </SidebarMenuButton>
@@ -269,10 +269,10 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </span>
               </Link>
               <SidebarTrigger asChild>
-                  <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost" className="h-8 w-8">
+                  <Button variant="ghost" className="h-8 w-8">
                       <PanelLeft />
                       <span className="sr-only">Toggle Sidebar</span>
-                  </SidebarMenuButton>
+                  </Button>
               </SidebarTrigger>
             </div>
             
