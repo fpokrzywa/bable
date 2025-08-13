@@ -19,6 +19,8 @@ const assistants = ['All Assistants', 'ODIN', 'NOW Assist Guru', 'Prompt Archite
 const tasks = ['Select Task...', 'Content Creation', 'Brainstorming', 'Explanation', 'Summarization', 'Question Generation'];
 const functionalAreas = ['Select Functional Area...', 'Marketing', 'Creative', 'Education', 'Research', 'Human Resources'];
 
+const PROMPTS_CACHE_KEY = 'promptCatalogCache';
+
 export function PromptCatalog() {
   const [prompts, setPrompts] = useState<DisplayPrompt[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,12 +32,32 @@ export function PromptCatalog() {
   const [activeTab, setActiveTab] = useState('common-prompts');
 
 
-  const fetchPrompts = async () => {
+  const fetchPrompts = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
+
+    if (!forceRefresh) {
+        const cachedPrompts = sessionStorage.getItem(PROMPTS_CACHE_KEY);
+        if (cachedPrompts) {
+            try {
+                const parsedPrompts = JSON.parse(cachedPrompts);
+                setPrompts(parsedPrompts);
+                setLoading(false);
+                return;
+            } catch (e) {
+                console.error("Failed to parse cached prompts", e);
+                sessionStorage.removeItem(PROMPTS_CACHE_KEY);
+            }
+        }
+    } else {
+        sessionStorage.removeItem(PROMPTS_CACHE_KEY);
+    }
+
     try {
         const data = await getPrompts();
-        setPrompts(data.map(p => ({ ...p, isFavorited: false })));
+        const displayPrompts = data.map(p => ({ ...p, isFavorited: false }));
+        setPrompts(displayPrompts);
+        sessionStorage.setItem(PROMPTS_CACHE_KEY, JSON.stringify(displayPrompts));
     } catch (err) {
         setError('Failed to load prompts. Please try again later.');
         console.error(err);
@@ -49,9 +71,12 @@ export function PromptCatalog() {
   }, []);
 
   const toggleFavorite = (id: string) => {
-    setPrompts(prev => 
-        prev.map(p => p.id === id ? {...p, isFavorited: !p.isFavorited} : p)
-    );
+    const newPrompts = prompts.map(p => p.id === id ? {...p, isFavorited: !p.isFavorited} : p);
+    setPrompts(newPrompts);
+    // Update cache with new favorite status, but only if it exists
+    if (sessionStorage.getItem(PROMPTS_CACHE_KEY)) {
+        sessionStorage.setItem(PROMPTS_CACHE_KEY, JSON.stringify(newPrompts));
+    }
   };
   
   const applyFilters = (items: DisplayPrompt[]) => {
@@ -74,6 +99,10 @@ export function PromptCatalog() {
   }, [prompts, searchTerm, selectedAssistant, selectedTask, selectedFunctionalArea]);
   
   const hasFavorites = useMemo(() => prompts.some(p => p.isFavorited), [prompts]);
+  
+  const handleRefresh = () => {
+    fetchPrompts(true);
+  };
 
   const renderPromptGrid = (promptList: DisplayPrompt[]) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,7 +160,7 @@ export function PromptCatalog() {
                     <TabsTrigger value="favorite-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Favorite Prompts</TabsTrigger>
                 )}
             </TabsList>
-            <Button variant="ghost" onClick={fetchPrompts} disabled={loading}>
+            <Button variant="ghost" onClick={handleRefresh} disabled={loading}>
                 <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
                 Refresh
             </Button>
@@ -142,21 +171,21 @@ export function PromptCatalog() {
                 <div>
                     <label className="text-sm font-medium">Assistant</label>
                     <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectValue>
                         <SelectContent>{assistants.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Task</label>
                      <Select value={selectedTask} onValueChange={setSelectedTask}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectValue>
                         <SelectContent>{tasks.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Functional Area</label>
                      <Select value={selectedFunctionalArea} onValueChange={setSelectedFunctionalArea}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectValue>
                         <SelectContent>{functionalAreas.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
