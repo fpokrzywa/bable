@@ -29,6 +29,8 @@ export function PromptCatalog() {
   const [selectedFunctionalArea, setSelectedFunctionalArea] = useState('Select Functional Area...');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('common-prompts');
+
 
   const fetchPrompts = async () => {
     setLoading(true);
@@ -80,11 +82,13 @@ export function PromptCatalog() {
         </div>
       </header>
       
-      <Tabs defaultValue="common-prompts" className="flex-grow flex flex-col">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col">
         <div className='flex justify-between items-center border-b'>
             <TabsList className="bg-transparent p-0">
                 <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Common Prompts</TabsTrigger>
-                <TabsTrigger value="favorite-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Favorite Prompts</TabsTrigger>
+                {favoritedPrompts.length > 0 && (
+                    <TabsTrigger value="favorite-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Favorite Prompts</TabsTrigger>
+                )}
             </TabsList>
             <Button variant="ghost" onClick={fetchPrompts} disabled={loading}>
                 <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
@@ -92,8 +96,8 @@ export function PromptCatalog() {
             </Button>
         </div>
 
-        <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-4">
-            <div className="mb-4">
+        {activeTab === 'common-prompts' && (
+            <div className="mt-4 mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="text-sm font-medium">Assistant</label>
@@ -127,7 +131,9 @@ export function PromptCatalog() {
                     />
                 </div>
             </div>
+        )}
 
+        <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-0">
             <div className="flex-1 overflow-y-auto no-scrollbar">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
