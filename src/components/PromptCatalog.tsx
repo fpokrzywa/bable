@@ -73,7 +73,6 @@ export function PromptCatalog() {
   const toggleFavorite = (id: string) => {
     const newPrompts = prompts.map(p => p.id === id ? {...p, isFavorited: !p.isFavorited} : p);
     setPrompts(newPrompts);
-    // Update cache with new favorite status, but only if it exists
     if (sessionStorage.getItem(PROMPTS_CACHE_KEY)) {
         sessionStorage.setItem(PROMPTS_CACHE_KEY, JSON.stringify(newPrompts));
     }
@@ -104,42 +103,52 @@ export function PromptCatalog() {
     fetchPrompts(true);
   };
 
-  const renderPromptGrid = (promptList: DisplayPrompt[]) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {promptList.map(prompt => (
-        <Card key={prompt.id} className="group relative flex flex-col hover:shadow-lg transition-shadow">
-          <CardHeader className="p-4">
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
-              <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
-                <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
-              </Button>
-            </div>
-            <p className="font-semibold text-sm pt-2">{prompt.title}</p>
-          </CardHeader>
-          <CardContent className="flex-1 p-4 pt-0">
-            <CardDescription className="text-xs">{prompt.description}</CardDescription>
-          </CardContent>
-          <CardFooter className="p-4 pt-0 flex justify-between items-end">
-            <div className="flex-wrap gap-2 flex">
-                {prompt.tags.map(tag => (
-                <Badge key={tag} variant="secondary">{tag}</Badge>
-                ))}
-            </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <Trash2 className="h-4 w-4" />
+  const renderPromptGrid = (promptList: DisplayPrompt[], emptyMessage: string) => {
+    if (loading) {
+      return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    }
+    if (error) {
+      return <div className="flex items-center justify-center h-full text-destructive">{error}</div>;
+    }
+    if (promptList.length === 0) {
+      return <div className="flex items-center justify-center h-64"><p className="text-muted-foreground">{emptyMessage}</p></div>;
+    }
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {promptList.map(prompt => (
+          <Card key={prompt.id} className="group relative flex flex-col hover:shadow-lg transition-shadow">
+            <CardHeader className="p-4">
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
+                <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
+                  <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <Pencil className="h-4 w-4" />
-                </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
-  );
-
+              </div>
+              <p className="font-semibold text-sm pt-2">{prompt.title}</p>
+            </CardHeader>
+            <CardContent className="flex-1 p-4 pt-0">
+              <CardDescription className="text-xs">{prompt.description}</CardDescription>
+            </CardContent>
+            <CardFooter className="p-4 pt-0 flex justify-between items-end">
+              <div className="flex-wrap gap-2 flex">
+                  {prompt.tags.map(tag => (
+                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                  ))}
+              </div>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Pencil className="h-4 w-4" />
+                  </Button>
+              </div>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="h-full flex flex-col p-6 bg-background text-foreground">
@@ -201,28 +210,14 @@ export function PromptCatalog() {
             </div>
         </div>
         
-        <TabsContent value="common-prompts" className="flex-1 overflow-y-auto no-scrollbar">
-            {loading ? (
-            <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-            ) : error ? (
-            <div className="flex items-center justify-center h-full text-destructive">
-                {error}
-            </div>
-            ) : (
-            renderPromptGrid(filteredPrompts)
-            )}
-        </TabsContent>
-        <TabsContent value="favorite-prompts" className="flex-1 overflow-y-auto no-scrollbar">
-            {favoritedPrompts.length === 0 ? (
-                <div className="flex items-center justify-center h-64">
-                <p className="text-muted-foreground">You haven't favorited any prompts yet.</p>
-            </div>
-            ) : (
-                renderPromptGrid(favoritedPrompts)
-            )}
-        </TabsContent>
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+            <TabsContent value="common-prompts" className="mt-0">
+                {renderPromptGrid(filteredPrompts, "No prompts match your criteria.")}
+            </TabsContent>
+            <TabsContent value="favorite-prompts" className="mt-0">
+                {renderPromptGrid(favoritedPrompts, "You haven't favorited any prompts yet.")}
+            </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
