@@ -118,7 +118,7 @@ export function PromptCatalog() {
                 <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">BabelPhish Common Prompts</TabsTrigger>
                 <TabsTrigger value="your-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Your Prompts</TabsTrigger>
             </TabsList>
-            <Button variant="outline">
+            <Button variant="ghost">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
             </Button>
