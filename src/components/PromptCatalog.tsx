@@ -180,21 +180,21 @@ export function PromptCatalog() {
                 <div>
                     <label className="text-sm font-medium">Assistant</label>
                     <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                        <SelectTrigger><SelectValue /></SelectValue>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{assistants.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Task</label>
                      <Select value={selectedTask} onValueChange={setSelectedTask}>
-                        <SelectTrigger><SelectValue /></SelectValue>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{tasks.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Functional Area</label>
                      <Select value={selectedFunctionalArea} onValueChange={setSelectedFunctionalArea}>
-                        <SelectTrigger><SelectValue /></SelectValue>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{functionalAreas.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
@@ -222,3 +222,5 @@ export function PromptCatalog() {
     </div>
   );
 }
+
+    
