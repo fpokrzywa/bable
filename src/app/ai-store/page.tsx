@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSidebar, SidebarProvider } from "@/components/ui/sidebar";
+import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
