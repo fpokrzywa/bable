@@ -11,17 +11,16 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
 import { useRouter } from 'next/navigation';
 import { Settings as SettingsPage } from '../Settings';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import React from 'react';
 import Link from 'next/link';
-
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 interface AppSidebarProps {
     user: UserType | null;
@@ -39,7 +38,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const { state, setOpenMobile } = useSidebar();
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [isWorkspacePopoverOpen, setIsWorkspacePopoverOpen] = React.useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('session');
@@ -48,7 +46,6 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   
   const handleWorkspaceClick = (ws: Workspace) => {
     onLoadWorkspace(ws);
-    setIsWorkspacePopoverOpen(false);
     if(isMobile) setOpenMobile(false);
   }
 
@@ -56,6 +53,130 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
       onWorkspaceAction(action);
       if(isMobile) setOpenMobile(false);
   }
+
+  const mainContent = (
+    <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="ai-tools">
+            <AccordionTrigger className="hover:no-underline">
+                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start">
+                    <Bot />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">AI Tools</span>}
+                </SidebarMenuButton>
+            </AccordionTrigger>
+            <AccordionContent className="pb-0">
+                <div className="ml-7 flex flex-col gap-1 border-l pl-2">
+                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+                        <Link href="/ai-store" className="w-full">
+                            <SidebarMenuButton tooltip="AI Store" variant="ghost" className="w-full justify-start">
+                                <Store />
+                                <span className="truncate">AI Store</span>
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+                        <Link href="/prompt-catalog" className="w-full">
+                            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" className="w-full justify-start">
+                                <Library />
+                                <span className="truncate">Prompt Catalog</span>
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
+                </div>
+            </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="workspace">
+            <AccordionTrigger className="hover:no-underline">
+                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start">
+                    <Briefcase />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">Workspace</span>}
+                </SidebarMenuButton>
+            </AccordionTrigger>
+            <AccordionContent className="pb-0">
+                <div className="ml-7 flex flex-col gap-1 border-l pl-2">
+                    <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+                        <Link href="/dashboard" className="w-full">
+                            <SidebarMenuButton tooltip="Main Dashboard" variant="ghost" className="w-full justify-start">
+                                <LayoutGrid />
+                                <span className="truncate">Main Dashboard</span>
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
+                    {workspaces.map((ws) => (
+                        <SidebarMenuItem key={ws.workspaceId} onClick={() => handleWorkspaceClick(ws)}>
+                            <SidebarMenuButton tooltip={ws.workspace_name} variant="ghost" className="w-full justify-start">
+                                <FolderKanban />
+                                <span className="truncate">{ws.workspace_name}</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            tooltip="Create Workspace"
+                            variant="ghost"
+                            onClick={() => handleActionClick('create')}
+                            className="w-full justify-start"
+                        >
+                            <FolderPlus />
+                            <span className="truncate">Create Workspace</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </div>
+            </AccordionContent>
+        </AccordionItem>
+    </Accordion>
+  );
+
+  const nonAccordionContent = (
+    <>
+        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+          <Link href="/ai-store" className="w-full">
+            <SidebarMenuButton tooltip="AI Store" variant="ghost" className="w-full">
+                <Store />
+                {(state === 'expanded' || isMobile) && <span className="truncate">AI Store</span>}
+            </SidebarMenuButton>
+          </Link>
+        </SidebarMenuItem>
+        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+          <Link href="/prompt-catalog" className="w-full">
+            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost">
+                <Library />
+                {(state === 'expanded' || isMobile) && <span className="truncate">Prompt Catalog</span>}
+            </SidebarMenuButton>
+          </Link>
+        </SidebarMenuItem>
+
+        <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+
+        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+            <Link href="/dashboard" className="w-full">
+                <SidebarMenuButton tooltip="Back to Dashboard" variant="ghost">
+                    <LayoutGrid />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">Back to Dashboard</span>}
+                </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
+        
+        {workspaces.map((ws) => (
+            <SidebarMenuItem key={ws.workspaceId} onClick={() => handleWorkspaceClick(ws)}>
+                <SidebarMenuButton tooltip={ws.workspace_name} variant="ghost">
+                    <FolderKanban />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">{ws.workspace_name}</span>}
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        ))}
+
+        <SidebarMenuItem>
+            <SidebarMenuButton
+                tooltip="Create Workspace"
+                variant="ghost"
+                onClick={() => handleActionClick('create')}
+            >
+                <FolderPlus />
+                {(state === 'expanded' || isMobile) && <span className="truncate">Create Workspace</span>}
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    </>
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -75,89 +196,11 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </SidebarTrigger>
             </div>
             
-            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+            <SidebarSeparator className="my-2" />
 
-            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-              <Link href="/ai-store" className="w-full">
-                <SidebarMenuButton
-                    tooltip="AI Store"
-                    variant="ghost"
-                    className="w-full"
-                >
-                    <Store />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">AI Store</span>}
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-              <Link href="/prompt-catalog" className="w-full">
-                <SidebarMenuButton
-                    tooltip="Prompt Catalog"
-                    variant="ghost"
-                >
-                    <Library />
-                    {(state === 'expanded' || isMobile) && <span className="truncate">Prompt Catalog</span>}
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-
-            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
-
-            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-                <Link href="/dashboard" className="w-full">
-                    <SidebarMenuButton
-                        tooltip="Back to Dashboard"
-                        variant="ghost"
-                    >
-                        <LayoutGrid />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">Back to Dashboard</span>}
-                    </SidebarMenuButton>
-                </Link>
-            </SidebarMenuItem>
-
-            {workspaces.length === 0 ? (
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        tooltip="Create Workspace"
-                        variant="ghost"
-                        onClick={() => handleActionClick('create')}
-                    >
-                        <FolderPlus />
-                        {(state === 'expanded' || isMobile) && <span className="truncate">Create Workspace</span>}
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            ) : (
-                <Popover open={isWorkspacePopoverOpen} onOpenChange={setIsWorkspacePopoverOpen}>
-                    <PopoverTrigger asChild>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton
-                                tooltip="My Workspaces"
-                                variant="ghost"
-                            >
-                                <FolderKanban />
-                                {(state === 'expanded' || isMobile) && <span className="truncate">My Workspaces</span>}
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </PopoverTrigger>
-                    <PopoverContent
-                        side={isMobile ? 'bottom' : 'right'}
-                        align="start"
-                        className="w-[200px] p-1"
-                    >
-                        {workspaces.map((ws) => (
-                            <Button
-                                key={ws.workspaceId}
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={() => handleWorkspaceClick(ws)}
-                            >
-                                {ws.workspace_name}
-                            </Button>
-                        ))}
-                    </PopoverContent>
-                </Popover>
-            )}
-
+            {state === 'expanded' && !isMobile ? mainContent : nonAccordionContent}
+            
+            {(state === 'expanded' && !isMobile) ? <SidebarSeparator className="my-2"/> : null}
 
           {favoritedWidgets.length > 0 && (
             <React.Fragment key="favorites-section">
@@ -194,7 +237,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </React.Fragment>
           )}
 
-          <SidebarSeparator className="my-1 md:mt-auto group-data-[collapsible=icon]:hidden" />
+          <div className="mt-auto"/>
            <Dialog>
             <DialogTrigger asChild>
               <SidebarMenuItem>
@@ -215,11 +258,11 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <DialogTrigger asChild>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="User"
+                  tooltip={user?.email || 'User'}
                   variant="ghost"
                 >
                   <User />
-                  {(state === 'expanded' || isMobile) && <span>User</span>}
+                  {(state === 'expanded' || isMobile) && <span className="truncate">{user?.email || 'User'}</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </DialogTrigger>
@@ -230,7 +273,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               <Profile user={user} onProfileUpdate={onProfileUpdate} />
             </DialogContent>
           </Dialog>
-          <SidebarSeparator className="my-1 group-data-[collapsible=icon]:hidden" />
+          <SidebarSeparator className="my-1" />
            <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
