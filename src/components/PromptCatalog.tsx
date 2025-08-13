@@ -125,7 +125,7 @@ export function PromptCatalog() {
         </div>
 
         <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-6">
-            <div className="p-4 border rounded-lg mb-6">
+            <div className="p-4 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="text-sm font-medium">Assistant</label>
