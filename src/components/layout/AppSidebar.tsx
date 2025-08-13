@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, FolderPlus, Store, Library, Bot, Briefcase, Users } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Profile } from '../Profile';
@@ -123,6 +123,68 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </div>
             </AccordionContent>
         </AccordionItem>
+        <AccordionItem value="user">
+            <AccordionTrigger className="hover:no-underline px-2">
+                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start">
+                    <User />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">User</span>}
+                </SidebarMenuButton>
+            </AccordionTrigger>
+            <AccordionContent className="pb-0">
+                <div className="ml-7 flex flex-col gap-1 pl-2">
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton tooltip="Profile" variant="ghost" className="w-full justify-start">
+                                <User />
+                                {(state === 'expanded' || isMobile) && <span>Profile</span>}
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </DialogTrigger>
+                        <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px] p-0">
+                            <DialogHeader className="p-6 pb-0">
+                                <DialogTitle>Profile</DialogTitle>
+                            </DialogHeader>
+                            <Profile user={user} onProfileUpdate={onProfileUpdate} />
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton tooltip="Settings" variant="ghost" className="w-full justify-start">
+                                <Settings />
+                                {(state === 'expanded' || isMobile) && <span>Settings</span>}
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </DialogTrigger>
+                        <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px]">
+                            <DialogHeader>
+                                <DialogTitle>Settings</DialogTitle>
+                            </DialogHeader>
+                            <SettingsPage />
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="admin">
+            <AccordionTrigger className="hover:no-underline px-2">
+                <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start">
+                    <Users />
+                    {(state === 'expanded' || isMobile) && <span className="truncate">Administration</span>}
+                </SidebarMenuButton>
+            </AccordionTrigger>
+            <AccordionContent className="pb-0">
+                <div className="ml-7 flex flex-col gap-1 pl-2">
+                    <SidebarMenuItem>
+                        <SidebarMenuButton tooltip="User Management" variant="ghost" className="w-full justify-start">
+                            <Users />
+                            <span className="truncate">User Management</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </div>
+            </AccordionContent>
+        </AccordionItem>
     </Accordion>
   );
 
@@ -229,50 +291,19 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
               </React.Fragment>
           )}
 
-          <div className="mt-auto"/>
-           <Dialog>
-            <DialogTrigger asChild>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings" variant="ghost">
-                  <Settings />
-                  {(state === 'expanded' || isMobile) && <span>Settings</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </DialogTrigger>
-            <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px]">
-                <DialogHeader>
-                    <DialogTitle>Settings</DialogTitle>
-                </DialogHeader>
-                <SettingsPage />
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip={user?.email || 'User'}
-                  variant="ghost"
-                >
-                  <User />
-                  {(state === 'expanded' || isMobile) && <span className="truncate">{user?.email || 'User'}</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </DialogTrigger>
-            <DialogContent size="lg" className="flex flex-col h-[90vh] max-h-[700px] p-0">
-              <DialogHeader className="p-6 pb-0">
-                  <DialogTitle>Profile</DialogTitle>
-              </DialogHeader>
-              <Profile user={user} onProfileUpdate={onProfileUpdate} />
-            </DialogContent>
-          </Dialog>
+        </SidebarMenu>
+      </SidebarContent>
+       <div className="mt-auto p-2">
+            <div className="p-2 text-sm text-muted-foreground">
+                {(state === 'expanded' || isMobile) && <span className="truncate">{user?.email || 'User'}</span>}
+            </div>
            <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" variant="ghost" onClick={handleLogout}>
               <LogOut />
               {(state === 'expanded' || isMobile) && <span>Logout</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarContent>
+        </div>
     </div>
   );
 }
