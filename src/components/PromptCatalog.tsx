@@ -172,31 +172,27 @@ export function PromptCatalog() {
             </div>
         </div>
         
-        <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-0">
-            <div className="flex-1 overflow-y-auto no-scrollbar">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : error ? (
-                <div className="flex items-center justify-center h-full text-destructive">
-                  {error}
-                </div>
-              ) : (
-                renderPromptGrid(filteredPrompts)
-              )}
+        <TabsContent value="common-prompts" className="flex-1 overflow-y-auto no-scrollbar">
+            {loading ? (
+            <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
+            ) : error ? (
+            <div className="flex items-center justify-center h-full text-destructive">
+                {error}
+            </div>
+            ) : (
+            renderPromptGrid(filteredPrompts)
+            )}
         </TabsContent>
-        <TabsContent value="favorite-prompts" className="flex-grow flex flex-col mt-0">
-             <div className="flex-1 overflow-y-auto no-scrollbar">
-              {favoritedPrompts.length === 0 ? (
-                 <div className="flex items-center justify-center h-64">
-                    <p className="text-muted-foreground">You haven't favorited any prompts yet.</p>
-                </div>
-              ) : (
-                renderPromptGrid(favoritedPrompts)
-              )}
+        <TabsContent value="favorite-prompts" className="flex-1 overflow-y-auto no-scrollbar">
+            {favoritedPrompts.length === 0 ? (
+                <div className="flex items-center justify-center h-64">
+                <p className="text-muted-foreground">You haven't favorited any prompts yet.</p>
             </div>
+            ) : (
+                renderPromptGrid(favoritedPrompts)
+            )}
         </TabsContent>
       </Tabs>
     </div>
