@@ -79,3 +79,20 @@ export interface Workspace {
     active?: boolean;
     last_accessed?: string;
 }
+
+export interface Prompt {
+    _id: {
+        $oid: string;
+    };
+    id: string;
+    active: string;
+    title: string;
+    description: string;
+    functionalArea: string;
+    task: string;
+    tags: string[];
+    assistant: string;
+    user: string;
+    system: string;
+    owner: string;
+}

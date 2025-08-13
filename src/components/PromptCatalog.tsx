@@ -1,91 +1,55 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Heart, RefreshCw } from 'lucide-react';
+import { Search, Heart, RefreshCw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from './ui/badge';
+import { getPrompts } from '@/services/promptService';
+import type { Prompt } from '@/lib/types';
 
-const initialPrompts = [
-  {
-    id: 1,
-    assistant: 'ODIN',
-    title: 'ServiceNow Assistant v4',
-    description: 'This is my description for this prompt',
-    tags: ['marketing', 'creative'],
-    isFavorited: false,
-    task: 'Content Creation',
-    functionalArea: 'Marketing',
-  },
-  {
-    id: 2,
-    assistant: 'ODIN',
-    title: 'Brainstorm ideas for a new marketing campaign.',
-    description: 'Generate creative ideas and strategies for an upcoming marketing campaign.',
-    tags: ['Marketing', 'Brainstorming'],
-    isFavorited: true,
-    task: 'Brainstorming',
-    functionalArea: 'Marketing',
-  },
-  {
-    id: 3,
-    assistant: 'ODIN',
-    title: 'Write a short story about a futuristic city.',
-    description: 'Create a captivating short story set in a technologically advanced, futuristic urban environment.',
-    tags: ['Creative Writing', 'Fiction'],
-    isFavorited: false,
-    task: 'Content Creation',
-    functionalArea: 'Creative',
-  },
-  {
-    id: 4,
-    assistant: 'ODIN',
-    title: 'Explain the concept of quantum entanglement simply.',
-    description: 'Provide a clear and easy-to-understand explanation of quantum entanglement for a general audience.',
-    tags: ['Science', 'Education'],
-    isFavorited: false,
-    task: 'Explanation',
-    functionalArea: 'Education',
-  },
-  {
-    id: 5,
-    assistant: 'ODIN',
-    title: 'Summarize the key points of the attached research paper.',
-    description: 'Condense the essential information and main findings from the provided research paper.',
-    tags: ['Summarization', 'Research', 'Files'],
-    isFavorited: false,
-    task: 'Summarization',
-    functionalArea: 'Research',
-  },
-  {
-    id: 6,
-    assistant: 'NOW Assist Guru',
-    title: 'Generate a list of interview questions for a software engineer role.',
-    description: 'Formulate relevant and insightful interview questions suitable for evaluating candidates for a software engineer position.',
-    tags: ['Hiring', 'HR'],
-    isFavorited: false,
-    task: 'Question Generation',
-    functionalArea: 'Human Resources',
-  },
-];
+// The initial prompt data is now fetched from the service
+// and local state is extended with a `isFavorited` property.
+type DisplayPrompt = Prompt & { isFavorited: boolean };
 
 const assistants = ['All Assistants', 'ODIN', 'NOW Assist Guru', 'Prompt Architect', 'ADEPT Guru', 'NIEA Guru'];
 const tasks = ['Select Task...', 'Content Creation', 'Brainstorming', 'Explanation', 'Summarization', 'Question Generation'];
 const functionalAreas = ['Select Functional Area...', 'Marketing', 'Creative', 'Education', 'Research', 'Human Resources'];
 
 export function PromptCatalog() {
-  const [prompts, setPrompts] = useState(initialPrompts);
+  const [prompts, setPrompts] = useState<DisplayPrompt[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssistant, setSelectedAssistant] = useState('All Assistants');
   const [selectedTask, setSelectedTask] = useState('Select Task...');
   const [selectedFunctionalArea, setSelectedFunctionalArea] = useState('Select Functional Area...');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const toggleFavorite = (id: number) => {
+  const fetchPrompts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const data = await getPrompts();
+        // Add the client-side `isFavorited` property
+        setPrompts(data.map(p => ({ ...p, isFavorited: false })));
+    } catch (err) {
+        setError('Failed to load prompts. Please try again later.');
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrompts();
+  }, []);
+
+  const toggleFavorite = (id: string) => {
     setPrompts(prev => 
         prev.map(p => p.id === id ? {...p, isFavorited: !p.isFavorited} : p)
     );
@@ -118,14 +82,14 @@ export function PromptCatalog() {
                 <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Common Prompts</TabsTrigger>
                 <TabsTrigger value="your-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Your Prompts</TabsTrigger>
             </TabsList>
-            <Button variant="ghost">
-                <RefreshCw className="mr-2 h-4 w-4" />
+            <Button variant="ghost" onClick={fetchPrompts} disabled={loading}>
+                <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
                 Refresh
             </Button>
         </div>
 
-        <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-6">
-            <div className="p-4 mb-6">
+        <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-4">
+            <div className="mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="text-sm font-medium">Assistant</label>
@@ -161,6 +125,15 @@ export function PromptCatalog() {
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-full text-destructive">
+                  {error}
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPrompts.map(prompt => (
                     <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
@@ -184,6 +157,7 @@ export function PromptCatalog() {
                     </Card>
                 ))}
                 </div>
+              )}
             </div>
         </TabsContent>
         <TabsContent value="your-prompts">
