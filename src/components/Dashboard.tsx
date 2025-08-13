@@ -104,7 +104,7 @@ export function Dashboard() {
     
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
-      if (activeWorkspace && user && !loading) {
+      if (activeWorkspace && user && !loading && !isWorkspaceModalOpen) {
         handleQuickSaveWorkspace(true);
       }
   }, [widgets, activeWorkspace, user]);
@@ -761,9 +761,9 @@ export function Dashboard() {
          ) : (
             <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-30 pointer-events-none">
               <div className="flex items-center justify-center gap-2 pointer-events-auto">
-                <TooltipProvider>
-                    {openWorkspaces.map(ws => (
-                    <div key={ws.workspaceId} className="group relative flex flex-col items-center">
+                {openWorkspaces.map(ws => (
+                <TooltipProvider key={ws.workspaceId}>
+                    <div className="group relative flex flex-col items-center">
                         <Button
                         variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
                         size="sm"
@@ -798,8 +798,8 @@ export function Dashboard() {
                         </Tooltip>
                         </div>
                     </div>
-                    ))}
                 </TooltipProvider>
+                ))}
               </div>
             </div>
          )}
@@ -871,3 +871,5 @@ export function Dashboard() {
 }
 
     
+
+      
