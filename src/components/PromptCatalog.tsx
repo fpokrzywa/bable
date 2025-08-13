@@ -13,8 +13,6 @@ import { Badge } from './ui/badge';
 import { getPrompts } from '@/services/promptService';
 import type { Prompt } from '@/lib/types';
 
-// The initial prompt data is now fetched from the service
-// and local state is extended with a `isFavorited` property.
 type DisplayPrompt = Prompt & { isFavorited: boolean };
 
 const assistants = ['All Assistants', 'ODIN', 'NOW Assist Guru', 'Prompt Architect', 'ADEPT Guru', 'NIEA Guru'];
@@ -37,7 +35,6 @@ export function PromptCatalog() {
     setError(null);
     try {
         const data = await getPrompts();
-        // Add the client-side `isFavorited` property
         setPrompts(data.map(p => ({ ...p, isFavorited: false })));
     } catch (err) {
         setError('Failed to load prompts. Please try again later.');
@@ -77,6 +74,32 @@ export function PromptCatalog() {
   }, [prompts, searchTerm, selectedAssistant, selectedTask, selectedFunctionalArea]);
   
   const hasFavorites = useMemo(() => prompts.some(p => p.isFavorited), [prompts]);
+
+  const renderPromptGrid = (promptList: DisplayPrompt[]) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {promptList.map(prompt => (
+        <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
+          <CardHeader className="p-4">
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
+              <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
+                <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
+              </Button>
+            </div>
+            <p className="font-semibold text-sm pt-2">{prompt.title}</p>
+          </CardHeader>
+          <CardContent className="flex-1 p-4 pt-0">
+            <CardDescription className="text-xs">{prompt.description}</CardDescription>
+          </CardContent>
+          <CardFooter className="p-4 pt-0 flex-wrap gap-2">
+            {prompt.tags.map(tag => (
+              <Badge key={tag} variant="secondary">{tag}</Badge>
+            ))}
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
 
 
   return (
@@ -150,29 +173,7 @@ export function PromptCatalog() {
                   {error}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPrompts.map(prompt => (
-                    <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardHeader className="p-4">
-                        <div className="flex justify-between items-start">
-                            <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
-                                <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
-                            </Button>
-                        </div>
-                        <p className="font-semibold text-sm">{prompt.title}</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 p-4 pt-0">
-                        <CardDescription className="text-xs">{prompt.description}</CardDescription>
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0 flex-wrap gap-2">
-                        {prompt.tags.map(tag => (
-                            <Badge key={tag} variant="secondary">{tag}</Badge>
-                        ))}
-                    </CardFooter>
-                    </Card>
-                ))}
-                </div>
+                renderPromptGrid(filteredPrompts)
               )}
             </div>
         </TabsContent>
@@ -183,29 +184,7 @@ export function PromptCatalog() {
                     <p className="text-muted-foreground">You haven't favorited any prompts yet.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {favoritedPrompts.map(prompt => (
-                    <Card key={prompt.id} className="flex flex-col hover:shadow-lg transition-shadow">
-                    <CardHeader className="p-4">
-                        <div className="flex justify-between items-start">
-                            <CardTitle className="text-xs font-normal text-muted-foreground">{prompt.assistant}</CardTitle>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2" onClick={() => toggleFavorite(prompt.id)}>
-                                <Heart className={cn("h-4 w-4", prompt.isFavorited && "fill-primary text-primary")} />
-                            </Button>
-                        </div>
-                        <p className="font-semibold text-sm">{prompt.title}</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 p-4 pt-0">
-                        <CardDescription className="text-xs">{prompt.description}</CardDescription>
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0 flex-wrap gap-2">
-                        {prompt.tags.map(tag => (
-                            <Badge key={tag} variant="secondary">{tag}</Badge>
-                        ))}
-                    </CardFooter>
-                    </Card>
-                ))}
-                </div>
+                renderPromptGrid(favoritedPrompts)
               )}
             </div>
         </TabsContent>
@@ -213,4 +192,3 @@ export function PromptCatalog() {
     </div>
   );
 }
-
