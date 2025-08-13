@@ -49,10 +49,12 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const handleWorkspaceClick = (ws: Workspace) => {
     onLoadWorkspace(ws);
     setIsWorkspacePopoverOpen(false);
+    if(isMobile) setOpenMobile(false);
   }
 
   const handleActionClick = (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => {
       onWorkspaceAction(action);
+      if(isMobile) setOpenMobile(false);
   }
 
   return (
@@ -75,7 +77,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
               <Link href="/ai-store" className="w-full">
                 <SidebarMenuButton
                     tooltip="AI Store"
@@ -87,7 +89,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
               <Link href="/prompt-catalog" className="w-full">
                 <SidebarMenuButton
                     tooltip="Prompt Catalog"
@@ -101,7 +103,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
             <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
 
-            <SidebarMenuItem>
+            <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
                 <Link href="/dashboard" className="w-full">
                     <SidebarMenuButton
                         tooltip="Back to Dashboard"
