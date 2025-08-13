@@ -49,16 +49,19 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <div className="flex flex-col h-full">
       <SidebarContent>
         <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarTrigger asChild>
-                    <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost">
-                        <PanelLeft />
-                        <span className="sr-only">Toggle Sidebar</span>
-                    </SidebarMenuButton>
-                </SidebarTrigger>
-            </SidebarMenuItem>
+            <div className="flex items-center justify-between p-2 group-data-[collapsible=icon]:justify-center">
+              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
+                BabelPhish
+              </span>
+              <SidebarTrigger asChild>
+                  <SidebarMenuButton tooltip="Toggle Sidebar" variant="ghost" className="h-8 w-8">
+                      <PanelLeft />
+                      <span className="sr-only">Toggle Sidebar</span>
+                  </SidebarMenuButton>
+              </SidebarTrigger>
+            </div>
             
-            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+            <SidebarSeparator className="my-2" />
 
             <SidebarMenuItem>
                 <SidebarMenuButton
@@ -79,7 +82,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 </SidebarMenuButton>
             </SidebarMenuItem>
 
-            <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+            <SidebarSeparator className="my-2" />
 
             {workspaces.length === 0 ? (
                 <SidebarMenuItem>
@@ -130,7 +133,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
           {favoritedWidgets.length > 0 && (
             <React.Fragment key="favorites-section">
-              <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+              <SidebarSeparator className="my-2" />
               {favoritedWidgets.map((widget) => (
                   <SidebarMenuItem key={widget.id}>
                     <SidebarMenuButton
@@ -147,7 +150,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
           )}
           {minimizedWidgets.length > 0 && (
               <React.Fragment key="minimized-section">
-                <SidebarSeparator className="my-2 group-data-[collapsible=icon]:hidden" />
+                <SidebarSeparator className="my-2" />
                 {minimizedWidgets.map((widget) => (
                     <SidebarMenuItem key={widget.id}>
                         <SidebarMenuButton
