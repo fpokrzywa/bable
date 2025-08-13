@@ -56,20 +56,28 @@ export function PromptCatalog() {
         prev.map(p => p.id === id ? {...p, isFavorited: !p.isFavorited} : p)
     );
   };
+  
+  const applyFilters = (items: DisplayPrompt[]) => {
+      return items.filter(prompt => {
+        const searchMatch = prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) || prompt.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const assistantMatch = selectedAssistant === 'All Assistants' || prompt.assistant === selectedAssistant;
+        const taskMatch = selectedTask === 'Select Task...' || prompt.task === selectedTask;
+        const functionalAreaMatch = selectedFunctionalArea === 'Select Functional Area...' || prompt.functionalArea === selectedFunctionalArea;
+        return searchMatch && assistantMatch && taskMatch && functionalAreaMatch;
+      });
+  }
 
   const filteredPrompts = useMemo(() => {
-    return prompts.filter(prompt => {
-      const searchMatch = prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) || prompt.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const assistantMatch = selectedAssistant === 'All Assistants' || prompt.assistant === selectedAssistant;
-      const taskMatch = selectedTask === 'Select Task...' || prompt.task === selectedTask;
-      const functionalAreaMatch = selectedFunctionalArea === 'Select Functional Area...' || prompt.functionalArea === selectedFunctionalArea;
-      return searchMatch && assistantMatch && taskMatch && functionalAreaMatch;
-    });
+    return applyFilters(prompts);
   }, [prompts, searchTerm, selectedAssistant, selectedTask, selectedFunctionalArea]);
   
   const favoritedPrompts = useMemo(() => {
-    return prompts.filter(p => p.isFavorited);
-  }, [prompts]);
+    const favorites = prompts.filter(p => p.isFavorited);
+    return applyFilters(favorites);
+  }, [prompts, searchTerm, selectedAssistant, selectedTask, selectedFunctionalArea]);
+  
+  const hasFavorites = useMemo(() => prompts.some(p => p.isFavorited), [prompts]);
+
 
   return (
     <div className="h-full flex flex-col p-6 bg-background text-foreground">
@@ -86,7 +94,7 @@ export function PromptCatalog() {
         <div className='flex justify-between items-center border-b'>
             <TabsList className="bg-transparent p-0">
                 <TabsTrigger value="common-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Common Prompts</TabsTrigger>
-                {favoritedPrompts.length > 0 && (
+                {hasFavorites && (
                     <TabsTrigger value="favorite-prompts" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 border-primary rounded-none">Favorite Prompts</TabsTrigger>
                 )}
             </TabsList>
@@ -96,43 +104,41 @@ export function PromptCatalog() {
             </Button>
         </div>
 
-        {activeTab === 'common-prompts' && (
-            <div className="mt-4 mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label className="text-sm font-medium">Assistant</label>
-                        <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>{assistants.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium">Task</label>
-                         <Select value={selectedTask} onValueChange={setSelectedTask}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>{tasks.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium">Functional Area</label>
-                         <Select value={selectedFunctionalArea} onValueChange={setSelectedFunctionalArea}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>{functionalAreas.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
-                        </Select>
-                    </div>
+        <div className="mt-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label className="text-sm font-medium">Assistant</label>
+                    <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>{assistants.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
+                    </Select>
                 </div>
-                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search prompts..." 
-                        className="pl-10"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div>
+                    <label className="text-sm font-medium">Task</label>
+                     <Select value={selectedTask} onValueChange={setSelectedTask}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>{tasks.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <label className="text-sm font-medium">Functional Area</label>
+                     <Select value={selectedFunctionalArea} onValueChange={setSelectedFunctionalArea}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>{functionalAreas.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
+                    </Select>
                 </div>
             </div>
-        )}
-
+             <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search prompts..." 
+                    className="pl-10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+        
         <TabsContent value="common-prompts" className="flex-grow flex flex-col mt-0">
             <div className="flex-1 overflow-y-auto no-scrollbar">
               {loading ? (
@@ -170,7 +176,7 @@ export function PromptCatalog() {
               )}
             </div>
         </TabsContent>
-        <TabsContent value="favorite-prompts" className="flex-grow flex flex-col mt-4">
+        <TabsContent value="favorite-prompts" className="flex-grow flex flex-col mt-0">
              <div className="flex-1 overflow-y-auto no-scrollbar">
               {favoritedPrompts.length === 0 ? (
                  <div className="flex items-center justify-center h-64">
@@ -207,3 +213,4 @@ export function PromptCatalog() {
     </div>
   );
 }
+
