@@ -73,10 +73,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const mainContent = (
     <Accordion type="single" collapsible className="w-full space-y-1" value={openAccordionItem} onValueChange={handleAccordionChange}>
         <AccordionItem value="ai-tools">
-            <AccordionTrigger>
-                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start">
-                    <span><Bot />AI Tools</span>
-                </SidebarMenuButton>
+            <AccordionTrigger className="w-full justify-start rounded-md px-2 hover:bg-sidebar-accent">
+                <Bot />
+                <span>AI Tools</span>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/ai-store" passHref>
@@ -92,10 +91,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="workspace">
-            <AccordionTrigger>
-                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start">
-                    <span><Briefcase />Workspace</span>
-                </SidebarMenuButton>
+            <AccordionTrigger className="w-full justify-start rounded-md px-2 hover:bg-sidebar-accent">
+                <Briefcase />
+                <span>Workspace</span>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/dashboard" passHref>
@@ -112,10 +110,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="user">
-            <AccordionTrigger>
-                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start">
-                    <span><User />User</span>
-                </SidebarMenuButton>
+            <AccordionTrigger className="w-full justify-start rounded-md px-2 hover:bg-sidebar-accent">
+                 <User />
+                 <span>User</span>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/profile" passHref>
@@ -131,10 +128,9 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="admin">
-            <AccordionTrigger>
-                 <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start">
-                    <span><Users />Administration</span>
-                </SidebarMenuButton>
+            <AccordionTrigger className="w-full justify-start rounded-md px-2 hover:bg-sidebar-accent">
+                <Users />
+                <span>Administration</span>
             </AccordionTrigger>
             <AccordionContent>
                  <SidebarMenuButton variant="ghost" className="w-full justify-start">
@@ -150,14 +146,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <>
         <SidebarMenuItem>
             <Link href="/ai-store" passHref>
-                <SidebarMenuButton asChild tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
+                <SidebarMenuButton tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
                     <Store />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/prompt-catalog" passHref>
-                <SidebarMenuButton asChild tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
+                <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
                     <Library />
                 </SidebarMenuButton>
             </Link>
@@ -187,14 +183,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </DropdownMenu>
         <SidebarMenuItem>
             <Link href="/profile" passHref>
-                <SidebarMenuButton asChild tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
+                <SidebarMenuButton tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
                     <User />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/settings" passHref>
-                <SidebarMenuButton asChild tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
+                <SidebarMenuButton tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
                     <Settings />
                 </SidebarMenuButton>
             </Link>
