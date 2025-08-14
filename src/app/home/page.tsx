@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Button } from '@/components/ui/button'
@@ -58,7 +59,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center hover:scale-105 transition-transform duration-200 cursor-pointer">
-              <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2 animate-pulse" />
+              <img src="/phish_logo.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2 animate-pulse" />
               <span className="text-xl font-bold text-blue-600">BabelPhish</span>
             </div>
 
@@ -251,7 +252,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
                 <div className="relative z-10 animate-float">
-                  <img src="https://app.bablephish.com/_next/image?url=%2Fphish_logo.png&w=128&q=75" alt="BabelPhish Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
+                  <img src="https://app.bablephish.com/_next/image?url=%2Fbablephish_logo.svg&w=128&q=75" alt="BabelPhish Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
                 </div>
               </div>
             </div>
@@ -357,7 +358,7 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <img src="https://placehold.co/32x32.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2" />
+                <img src="/phish_logo.png" data-ai-hint="logo" alt="BabelPhish" className="h-8 w-8 mr-2" />
                 <span className="text-xl font-bold">BabelPhish</span>
               </div>
               <p className="text-gray-400">Modern cybersecurity through cutting-edge training and consulting.</p>
