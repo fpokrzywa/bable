@@ -74,34 +74,33 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <Accordion type="single" collapsible className="w-full space-y-1" value={openAccordionItem} onValueChange={handleAccordionChange}>
         <AccordionItem value="ai-tools">
             <AccordionTrigger>
-                <Bot />
-                <span>AI Tools</span>
+                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start" asChild>
+                    <span><Bot />AI Tools</span>
+                </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/ai-store" passHref>
                     <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/ai-store'}>
-                       <Store />
-                       <span>AI Store</span>
+                       <span><Store />AI Store</span>
                     </SidebarMenuButton>
                 </Link>
                 <Link href="/prompt-catalog" passHref>
                     <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/prompt-catalog'}>
-                       <Library />
-                       <span>Prompt Catalog</span>
+                       <span><Library />Prompt Catalog</span>
                     </SidebarMenuButton>
                 </Link>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="workspace">
             <AccordionTrigger>
-                <Briefcase />
-                <span>Workspace</span>
+                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start" asChild>
+                    <span><Briefcase />Workspace</span>
+                </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/dashboard" passHref>
                     <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/dashboard'}>
-                        <LayoutGrid />
-                        <span>Main Dashboard</span>
+                        <span><LayoutGrid />Main Dashboard</span>
                     </SidebarMenuButton>
                 </Link>
                 {workspaces.map((ws) => (
@@ -114,28 +113,28 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="user">
             <AccordionTrigger>
-                <User />
-                <span>User</span>
+                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start" asChild>
+                    <span><User />User</span>
+                </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/profile" passHref>
                     <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/profile'}>
-                        <User />
-                        <span>Profile</span>
+                       <span><User />Profile</span>
                     </SidebarMenuButton>
                 </Link>
                  <Link href="/settings" passHref>
                     <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/settings'}>
-                        <Settings />
-                        <span>Settings</span>
+                        <span><Settings />Settings</span>
                     </SidebarMenuButton>
                 </Link>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="admin">
             <AccordionTrigger>
-                <Users />
-                <span>Administration</span>
+                 <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start" asChild>
+                    <span><Users />Administration</span>
+                </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                  <SidebarMenuButton variant="ghost" className="w-full justify-start">
@@ -150,15 +149,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const nonAccordionContent = (
     <>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-          <Link href="/ai-store" className="w-full">
-            <SidebarMenuButton tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
+          <Link href="/ai-store" passHref>
+            <SidebarMenuButton asChild tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
                 <Store />
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-          <Link href="/prompt-catalog" className="w-full">
-            <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
+          <Link href="/prompt-catalog" passHref>
+            <SidebarMenuButton asChild tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
                 <Library />
             </SidebarMenuButton>
           </Link>
@@ -187,15 +186,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             </DropdownMenuContent>
         </DropdownMenu>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-            <Link href="/profile" className="w-full">
-                <SidebarMenuButton tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
+            <Link href="/profile" passHref>
+                <SidebarMenuButton asChild tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
                 <User />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>
         <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-            <Link href="/settings" className="w-full">
-                <SidebarMenuButton tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
+            <Link href="/settings" passHref>
+                <SidebarMenuButton asChild tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
                 <Settings />
                 </SidebarMenuButton>
             </Link>
