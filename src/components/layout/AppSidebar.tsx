@@ -80,12 +80,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <AccordionContent>
                 <Link href="/ai-store" passHref>
                     <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/ai-store'}>
-                       <span><Store />AI Store</span>
+                        <Store />
+                        <span>AI Store</span>
                     </SidebarMenuButton>
                 </Link>
                 <Link href="/prompt-catalog" passHref>
                     <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/prompt-catalog'}>
-                       <span><Library />Prompt Catalog</span>
+                        <Library />
+                        <span>Prompt Catalog</span>
                     </SidebarMenuButton>
                 </Link>
             </AccordionContent>
@@ -98,7 +100,8 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <AccordionContent>
                 <Link href="/dashboard" passHref>
                     <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/dashboard'}>
-                        <span><LayoutGrid />Main Dashboard</span>
+                        <LayoutGrid />
+                        <span>Main Dashboard</span>
                     </SidebarMenuButton>
                 </Link>
                 {workspaces.map((ws) => (
@@ -117,12 +120,14 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
             <AccordionContent>
                 <Link href="/profile" passHref>
                     <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/profile'}>
-                       <span><User />Profile</span>
+                       <User />
+                       <span>Profile</span>
                     </SidebarMenuButton>
                 </Link>
                  <Link href="/settings" passHref>
                     <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/settings'}>
-                        <span><Settings />Settings</span>
+                        <Settings />
+                        <span>Settings</span>
                     </SidebarMenuButton>
                 </Link>
             </AccordionContent>
@@ -144,20 +149,20 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
   const nonAccordionContent = (
     <>
-        <SidebarMenuItem>
-            <Link href="/ai-store" passHref>
+        <Link href="/ai-store" passHref>
+            <SidebarMenuItem>
                 <SidebarMenuButton tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
                     <Store />
                 </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-            <Link href="/prompt-catalog" passHref>
+            </SidebarMenuItem>
+        </Link>
+        <Link href="/prompt-catalog" passHref>
+            <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
                     <Library />
                 </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
+            </SidebarMenuItem>
+        </Link>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <SidebarMenuItem>
@@ -181,20 +186,20 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-        <SidebarMenuItem>
-            <Link href="/profile" passHref>
+        <Link href="/profile" passHref>
+            <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
                     <User />
                 </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-            <Link href="/settings" passHref>
+            </SidebarMenuItem>
+        </Link>
+        <Link href="/settings" passHref>
+            <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
                     <Settings />
                 </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
+            </SidebarMenuItem>
+        </Link>
     </>
   );
 
