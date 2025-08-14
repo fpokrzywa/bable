@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSidebar, SidebarProvider, Sidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { useToast } from '@/hooks/use-toast';
-import { getUserProfile } from '@/services/userService';
+import { getUserProfile, getCachedUserData } from '@/services/userService';
 import { getWorkspaces } from '@/services/workspaceService';
 import type { User, Workspace } from '@/lib/types';
 import { Settings } from '@/components/Settings';
@@ -26,7 +26,7 @@ function SettingsPage() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const fetchInitialData = async () => {
+  const loadInitialData = () => {
     const session = localStorage.getItem('session');
     if (!session) {
       router.push('/');
@@ -39,8 +39,24 @@ function SettingsPage() {
     }
 
     setIsAuthenticated(true);
-    setLoading(true);
+    
+    // First try to get cached data from login
+    const cachedData = getCachedUserData();
+    
+    if (cachedData.user && cachedData.workspaces.length >= 0) {
+      // Use cached data immediately - no loading state needed
+      setUser(cachedData.user);
+      setWorkspaces(cachedData.workspaces);
+      setLoading(false);
+      return;
+    }
 
+    // Fallback to fetching if no cached data
+    fetchFreshData(userEmail);
+  };
+
+  const fetchFreshData = async (userEmail: string) => {
+    setLoading(true);
     try {
         const [profile, workspacesData] = await Promise.all([
             getUserProfile(userEmail),
@@ -57,7 +73,7 @@ function SettingsPage() {
   };
 
   useEffect(() => {
-    fetchInitialData();
+    loadInitialData();
   }, [router]);
   
   if (!isAuthenticated) {
@@ -71,7 +87,10 @@ function SettingsPage() {
       favoritedWidgets={[]}
       onRestoreWidget={() => {}}
       onRestoreFavorite={() => {}}
-      onProfileUpdate={fetchInitialData}
+      onProfileUpdate={() => {
+        const userEmail = JSON.parse(localStorage.getItem('session') || '{}').email;
+        if (userEmail) fetchFreshData(userEmail);
+      }}
       workspaces={workspaces}
       onLoadWorkspace={(ws) => {
         router.push('/dashboard');

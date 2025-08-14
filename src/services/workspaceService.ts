@@ -34,6 +34,58 @@ export async function getWorkspaces(userId: string): Promise<Workspace[]> {
     }
 }
 
+export interface WorkspaceChanges {
+    added: Workspace[];
+    deleted: string[];
+    modified: Workspace[];
+    hasChanges: boolean;
+}
+
+export async function detectWorkspaceChanges(userId: string, currentWorkspaces: Workspace[]): Promise<WorkspaceChanges> {
+    try {
+        const freshWorkspaces = await getWorkspaces(userId);
+        
+        const currentMap = new Map(currentWorkspaces.map(ws => [ws.workspaceId, ws]));
+        const freshMap = new Map(freshWorkspaces.map(ws => [ws.workspaceId, ws]));
+        
+        const added: Workspace[] = [];
+        const modified: Workspace[] = [];
+        const deleted: string[] = [];
+        
+        // Find added and modified workspaces
+        for (const [id, freshWs] of freshMap) {
+            const currentWs = currentMap.get(id);
+            if (!currentWs) {
+                added.push(freshWs);
+            } else if (JSON.stringify(currentWs) !== JSON.stringify(freshWs)) {
+                modified.push(freshWs);
+            }
+        }
+        
+        // Find deleted workspaces
+        for (const [id] of currentMap) {
+            if (!freshMap.has(id)) {
+                deleted.push(id);
+            }
+        }
+        
+        return {
+            added,
+            deleted,
+            modified,
+            hasChanges: added.length > 0 || deleted.length > 0 || modified.length > 0
+        };
+    } catch (error) {
+        console.error('Failed to detect workspace changes:', error);
+        return {
+            added: [],
+            deleted: [],
+            modified: [],
+            hasChanges: false
+        };
+    }
+}
+
 
 export async function saveWorkspace(workspaceData: Omit<Workspace, 'workspaceId' | 'active'> & { workspaceId?: string }): Promise<Workspace | null> {
     const webhookUrl = getWorkspaceWebhookUrl();

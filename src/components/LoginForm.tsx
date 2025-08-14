@@ -4,10 +4,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { performLogin } from '@/services/userService';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -20,6 +24,9 @@ interface LoginFormProps {
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,14 +35,39 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, you'd validate credentials here.
-    // For now, we'll just simulate a successful login.
-    console.log(values);
-    localStorage.setItem('session', JSON.stringify({ loggedIn: true, email: values.email }));
-    router.push('/dashboard');
-    if(onLoginSuccess) {
-      onLoginSuccess();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    
+    try {
+      const result = await performLogin(values.email, values.password);
+      
+      if (result.success) {
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${result.user?.first_name || 'User'}!`,
+        });
+        
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
+        
+        router.push('/dashboard');
+      } else {
+        toast({
+          title: "Login Failed",
+          description: result.error || "Please check your credentials and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -68,8 +100,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            'Login'
+          )}
         </Button>
       </form>
     </Form>

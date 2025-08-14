@@ -13,7 +13,7 @@ import { WidgetContainer, WIDGET_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/componen
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
-import { getUserProfile } from '@/services/userService';
+import { getUserProfile, getCachedUserData, updateCachedWorkspaces, getCachedWorkspace } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
 import { Menu, Sparkle, Loader2, Save, Edit, X as XIcon, Disc, Pencil, Clock } from 'lucide-react';
@@ -22,15 +22,23 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
+import { Profile } from './Profile';
+import { Settings } from './Settings';
+import { AIStore } from './AIStore';
+import { PromptCatalog } from './PromptCatalog';
 
+
+type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings';
 
 export function Dashboard() {
+  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const [favorites, setFavorites] = useState<Widget[]>([]);
   const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([
@@ -55,38 +63,86 @@ export function Dashboard() {
   const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaceToEdit, setWorkspaceToEdit] = useState<Workspace | null>(null);
-  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | null>(null);
+  const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | 'forget' | 'save' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
   
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
+  
+  // Workspace synchronization
+  const {
+    isChecking: isSyncingWorkspaces,
+    lastSyncTime,
+    syncNow: syncWorkspacesNow,
+    enabled: syncEnabled
+  } = useWorkspaceSync({
+    user,
+    workspaces,
+    onWorkspacesChanged: (updatedWorkspaces) => {
+      setWorkspaces(updatedWorkspaces);
+    },
+    onWorkspacesDeleted: (deletedIds) => {
+      // Remove deleted workspaces from open sessions
+      const remainingOpen = openWorkspaces.filter(ws => !deletedIds.includes(ws.workspaceId));
+      setOpenWorkspaces(remainingOpen);
+      
+      // If current workspace was deleted, switch to first available or clear
+      if (currentWorkspaceId && deletedIds.includes(currentWorkspaceId)) {
+        if (remainingOpen.length > 0) {
+          setCurrentWorkspaceId(remainingOpen[0].workspaceId);
+          loadWorkspaceUI(remainingOpen[0]);
+        } else {
+          setCurrentWorkspaceId(null);
+          setWidgets([]);
+        }
+      }
+    },
+    enabled: process.env.NEXT_PUBLIC_WORKSPACE_SYNC_ENABLED !== 'false',
+    intervalMs: parseInt(process.env.NEXT_PUBLIC_WORKSPACE_SYNC_INTERVAL || '30000', 10),
+    showNotifications: process.env.NEXT_PUBLIC_WORKSPACE_SYNC_NOTIFICATIONS !== 'false'
+  });
 
-  const fetchUserData = async () => {
+  const loadUserData = () => {
+    // First try to get cached data from login
+    const cachedData = getCachedUserData();
+    
+    if (cachedData.user && cachedData.workspaces.length > 0) {
+      // Use cached data immediately
+      setUser(cachedData.user);
+      setWorkspaces(cachedData.workspaces);
+      setLoadingWorkspaces(false);
+      return;
+    }
+
+    // Fallback to fetching if no cached data (shouldn't happen after login)
+    fetchUserDataFallback();
+  };
+
+  const fetchUserDataFallback = async () => {
     const session = localStorage.getItem('session');
     if (!session) return;
     const userEmail = JSON.parse(session).email;
     if (!userEmail) return;
 
     setLoading(true);
-    const profile = await getUserProfile(userEmail);
-    setUser(profile);
+    try {
+      const profile = await getUserProfile(userEmail);
+      setUser(profile);
 
-    if (profile) {
-        try {
-            const workspacesData = await getWorkspaces(profile.userId);
-            setWorkspaces(workspacesData);
-        } catch (error) {
-            console.error("Failed to fetch initial data:", error);
-        } finally {
-            setLoading(false);
-        }
-    } else {
-        setLoading(false);
+      if (profile) {
+        const workspacesData = await getWorkspaces(profile.userId);
+        setWorkspaces(workspacesData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    } finally {
+      setLoading(false);
+      setLoadingWorkspaces(false);
     }
   };
   
   useEffect(() => {
-    fetchUserData();
+    loadUserData();
   }, []);
 
   const useDebouncedEffect = (effect: () => void, deps: any[], delay: number) => {
@@ -107,22 +163,177 @@ export function Dashboard() {
       if (activeWorkspace && user && !loading && !isWorkspaceModalOpen) {
         handleQuickSaveWorkspace(true);
       }
-  }, [widgets, activeWorkspace, user]);
+  }, [widgets, activeWorkspace, user], 1000);
   
   const handleProfileUpdate = () => {
-    fetchUserData();
+    // Refresh user data from server and update cache
+    fetchUserDataFallback();
+  };
+
+  const handleViewChange = (view: ViewType) => {
+    setCurrentView(view);
+  };
+
+  const handleMainWorkspace = () => {
+    // Switch to dashboard view
+    setCurrentView('dashboard');
+    
+    // Clear current workspace (no active workspace selected)
+    setCurrentWorkspaceId(null);
+    
+    // Minimize all current widgets
+    setWidgets(prevWidgets => 
+      prevWidgets.map(widget => ({ ...widget, isMinimized: true }))
+    );
+    
+    // Keep all open workspaces - just deselect the current one
+    // This preserves the workspace buttons at the top
+  };
+
+  const renderDashboardView = () => (
+    <main className="absolute inset-0 z-0">
+      {isMobile ? (
+        <div className="p-4 space-y-4" style={{ paddingTop: mobileHeaderHeight, paddingBottom: chatInputAreaHeight }}>
+          {normalWidgets.map(widget => (
+            <div key={widget.id} className="h-auto">
+              <BaseWidget
+                widget={widget}
+                removeWidget={removeWidget}
+                updateEntity={updateEntity}
+                bringToFront={bringToFront}
+                toggleMinimizeWidget={toggleMinimizeWidget}
+                toggleFavoriteWidget={toggleFavoriteWidget}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <WidgetContainer 
+          widgets={normalWidgets} 
+          removeWidget={removeWidget} 
+          updateEntity={updateEntity}
+          bringToFront={bringToFront}
+          toggleMinimizeWidget={toggleMinimizeWidget}
+          toggleFavoriteWidget={toggleFavoriteWidget}
+          updateWidgetPosition={updateWidgetPosition}
+          sidebarState={state}
+          sidebarRef={sidebarRef}
+          chatInputRef={chatInputRef}
+        />
+      )}
+      
+      <div 
+        className="absolute inset-0 flex flex-col items-center pointer-events-none" 
+        style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
+      >
+        {normalWidgets.length === 0 && (
+          <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
+            <div className="flex-grow flex flex-col justify-center items-center">
+              <Image
+                src="/bablephish_logo.svg"
+                alt="BabelPhish Logo"
+                width={100}
+                height={100}
+                className="mx-auto mb-6 opacity-50"
+              />
+              <h1 className="text-2xl font-bold text-muted-foreground mb-4">
+                Welcome to BabelPhish
+              </h1>
+              <p className="text-muted-foreground mb-8 max-w-md">
+                Start by typing a command or query below to create your first widget.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg pointer-events-auto">
+                <p className="text-sm text-muted-foreground mb-4 text-center col-span-full">Quick browse items</p>
+                <div className="space-y-2 col-span-full">
+                  {starterPrompts.map((prompt, index) => {
+                    const Icon = prompt.icon;
+                    return (
+                      <Button 
+                        key={index}
+                        variant="link"
+                        className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
+                        onClick={() => handleStarterPrompt(prompt.query)}
+                      >
+                        <Icon className="mr-3 text-primary" size={20}/>
+                        {prompt.text}
+                      </Button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return renderDashboardView();
+      case 'ai-store':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <AIStore />
+          </div>
+        );
+      case 'prompt-catalog':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <PromptCatalog />
+          </div>
+        );
+      case 'profile':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-4xl mx-auto">
+              <Profile user={user} onProfileUpdate={handleProfileUpdate} isPage={true} />
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-4xl mx-auto">
+              <Settings isPage={true} />
+            </div>
+          </div>
+        );
+      default:
+        return renderDashboardView();
+    }
   };
   
-  const fetchWorkspaces = async (userId: string) => {
+  const fetchWorkspaces = async (userId: string, forceRefresh = false) => {
     if (!userId) return;
+    
+    // Use cached data first if not forcing refresh
+    if (!forceRefresh) {
+      const { workspaces: cachedWorkspaces } = getCachedUserData();
+      if (cachedWorkspaces.length > 0) {
+        setWorkspaces(cachedWorkspaces);
+        setLoadingWorkspaces(false);
+        return;
+      }
+    }
+    
     setLoadingWorkspaces(true);
     try {
         const data = await getWorkspaces(userId);
         setWorkspaces(data);
+        updateCachedWorkspaces(data);
     } catch (error) {
         console.error("Failed to fetch workspaces", error);
     } finally {
         setLoadingWorkspaces(false);
+    }
+  };
+  
+  const refreshWorkspaces = () => {
+    if (user) {
+      syncWorkspacesNow();
     }
   };
 
@@ -451,7 +662,7 @@ export function Dashboard() {
         setWorkspaceToEdit(null);
         setIsWorkspaceModalOpen(true);
     } else if (action === 'edit') {
-        if (user) fetchWorkspaces(user.userId);
+        if (user) fetchWorkspaces(user.userId, true); // Force refresh when editing
         setIsWorkspaceListOpen(true);
     } else if (action === 'forget') {
         handleDeleteWorkspace();
@@ -482,7 +693,7 @@ export function Dashboard() {
             if (!silent) {
                 toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
             }
-            if (user) fetchWorkspaces(user.userId);
+            if (user) fetchWorkspaces(user.userId, true); // Force refresh after save
         } else {
             if (!silent) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
@@ -512,7 +723,7 @@ export function Dashboard() {
 
         if (result) {
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
-            if (user) fetchWorkspaces(user.userId);
+            if (user) fetchWorkspaces(user.userId, true); // Force refresh after save
             if (isCreating) {
                 const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
                 setOpenWorkspaces(prev => [...prev, newWorkspace]);
@@ -560,6 +771,33 @@ export function Dashboard() {
             toast({variant: "destructive", title: "Error", description: "Could not load workspace."})
         }
     }
+    
+    const loadWorkspaceDirectly = (workspace: Workspace) => {
+        // Always switch to dashboard view when loading a workspace
+        setCurrentView('dashboard');
+        
+        // Check if workspace is already open
+        if (openWorkspaces.find(ws => ws.workspaceId === workspace.workspaceId)) {
+            setCurrentWorkspaceId(workspace.workspaceId);
+            loadWorkspaceUI(workspace);
+            return;
+        }
+
+        // Check workspace limit
+        if (openWorkspaces.length >= MAX_OPEN_SESSIONS) {
+            toast({
+                variant: 'destructive',
+                title: 'Limit Reached',
+                description: `You can only have ${MAX_OPEN_SESSIONS} workspaces open at a time.`
+            });
+            return;
+        }
+        
+        // Add to open workspaces and load
+        setOpenWorkspaces(prev => [...prev, workspace]);
+        setCurrentWorkspaceId(workspace.workspaceId);
+        loadWorkspaceUI(workspace);
+    };
     
     const handleWorkspaceListSelect = (workspace: Workspace) => {
         setIsWorkspaceListOpen(false);
@@ -636,11 +874,15 @@ export function Dashboard() {
       onRestoreFavorite={handleRestoreFavorite}
       onProfileUpdate={handleProfileUpdate}
       workspaces={workspaces}
-      onLoadWorkspace={(ws) => {
-        setWorkspaceAction('load');
-        handleWorkspaceListSelect(ws);
-      }}
+      onLoadWorkspace={loadWorkspaceDirectly}
       onWorkspaceAction={handleWorkspaceAction}
+      currentView={currentView}
+      onViewChange={handleViewChange}
+      onMainWorkspace={handleMainWorkspace}
+      onRefreshWorkspaces={refreshWorkspaces}
+      isSyncingWorkspaces={isSyncingWorkspaces}
+      syncEnabled={syncEnabled}
+      lastSyncTime={lastSyncTime}
     />
   );
   
@@ -670,83 +912,10 @@ export function Dashboard() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-         <main className="absolute inset-0 z-0">
-             {isMobile ? (
-                <div className="p-4 space-y-4" style={{ paddingTop: mobileHeaderHeight, paddingBottom: chatInputAreaHeight }}>
-                    {normalWidgets.map(widget => (
-                    <div key={widget.id} className="h-auto">
-                        <BaseWidget
-                        widget={widget}
-                        removeWidget={removeWidget}
-                        updateEntity={updateEntity}
-                        bringToFront={bringToFront}
-                        toggleMinimizeWidget={toggleMinimizeWidget}
-                        toggleFavoriteWidget={toggleFavoriteWidget}
-                        />
-                    </div>
-                    ))}
-                </div>
-             ) : (
-                <WidgetContainer 
-                    widgets={normalWidgets} 
-                    removeWidget={removeWidget} 
-                    updateEntity={updateEntity}
-                    bringToFront={bringToFront}
-                    toggleMinimizeWidget={toggleMinimizeWidget}
-                    toggleFavoriteWidget={toggleFavoriteWidget}
-                    updateWidgetPosition={updateWidgetPosition}
-                    sidebarState={state}
-                    sidebarRef={sidebarRef}
-                    chatInputRef={chatInputRef}
-                />
-             )}
-            
-            <div 
-                className="absolute inset-0 flex flex-col items-center pointer-events-none" 
-                style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}
-            >
-                {normalWidgets.length === 0 && (
-                    <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
-                        <div className="flex-grow flex flex-col justify-center items-center">
-                            <Image
-                                src="/bablephish_logo.svg"
-                                alt="BabelPhish Logo"
-                                width={100}
-                                height={100}
-                                className="opacity-80 mb-4"
-                            />
-                            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">
-                                Hello, <span className="text-primary">{user?.first_name || "Explorer"}</span>
-                            </h1>
-                            <p className="text-xl md:text-2xl text-muted-foreground mt-2">I am BabelPhish, how can I help you?</p>
-                        </div>
-                        <div className="flex-shrink-0 w-full flex flex-col justify-end">
-                            <div className="w-full text-left">
-                                <p className="text-sm text-muted-foreground mb-4 text-center">Quick browse items</p>
-                                <div className="space-y-2">
-                                    {starterPrompts.map((prompt, index) => {
-                                    const Icon = prompt.icon;
-                                    return (
-                                        <Button 
-                                            key={index}
-                                            variant="link"
-                                            className="w-full justify-start h-auto py-3 px-4 text-left text-sm bg-transparent pointer-events-auto rounded-lg"
-                                            onClick={() => handleStarterPrompt(prompt.query)}
-                                        >
-                                            <Icon className="mr-3 text-primary" size={20}/>
-                                            {prompt.text}
-                                        </Button>
-                                    )
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                </div>
-                )}
-            </div>
-         </main>
-         
-         {isMobile ? (
+        {renderCurrentView()}
+        
+        {/* Header for mobile and desktop workspaces */}
+        {isMobile ? (
             <header className="absolute top-0 left-0 right-0 p-2 flex items-center justify-between z-30" style={{ height: mobileHeaderHeight }}>
                 <Button variant="ghost" size="icon" onClick={() => setOpenMobile(true)}>
                 <Menu />
@@ -759,56 +928,62 @@ export function Dashboard() {
                 <div className="w-10"></div>
             </header>
          ) : (
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-30 pointer-events-none">
-              <div className="flex items-center justify-center gap-2 pointer-events-auto">
-                {openWorkspaces.map(ws => (
-                <TooltipProvider key={ws.workspaceId}>
-                    <div className="group relative flex flex-col items-center">
-                        <Button
-                        variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
-                        size="sm"
-                        className="rounded-full px-6 py-2 h-auto shadow-lg"
-                        onClick={() => switchWorkspace(ws.workspaceId)}
-                        >
-                        {ws.workspace_name}
-                        </Button>
-                        <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleQuickSaveWorkspace()}><Save size={14} /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Save</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
-                                    setWorkspaceAction('edit');
-                                    setWorkspaceToEdit(ws);
-                                    setWorkspaceName(ws.workspace_name);
-                                    setIsWorkspaceModalOpen(true);
-                            }}><Pencil size={14} /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => closeWorkspace(ws.workspaceId)}><XIcon size={14} /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Close</TooltipContent>
-                        </Tooltip>
+            // Only show workspace buttons when on dashboard view
+            currentView === 'dashboard' && (
+                <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-2 p-4 bg-transparent z-30 pointer-events-none">
+                  <div className="flex items-center justify-center gap-2 pointer-events-auto">
+                    {openWorkspaces.map(ws => (
+                    <TooltipProvider key={ws.workspaceId}>
+                        <div className="group relative flex flex-col items-center">
+                            <Button
+                            variant={ws.workspaceId === currentWorkspaceId ? "secondary" : "ghost"}
+                            size="sm"
+                            className="rounded-full px-6 py-2 h-auto shadow-lg"
+                            onClick={() => switchWorkspace(ws.workspaceId)}
+                            >
+                            {ws.workspace_name}
+                            </Button>
+                            <div className="flex items-center justify-end w-full gap-1 mt-2 h-6 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleQuickSaveWorkspace()}><Save size={14} /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Save</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                                        setWorkspaceAction('edit');
+                                        setWorkspaceToEdit(ws);
+                                        setWorkspaceName(ws.workspace_name);
+                                        setIsWorkspaceModalOpen(true);
+                                }}><Pencil size={14} /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Edit</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => closeWorkspace(ws.workspaceId)}><XIcon size={14} /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Close</TooltipContent>
+                            </Tooltip>
+                            </div>
                         </div>
-                    </div>
-                </TooltipProvider>
-                ))}
-              </div>
-            </div>
+                    </TooltipProvider>
+                    ))}
+                  </div>
+                </div>
+            )
          )}
         
-        <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out absolute bottom-0 left-0 right-0")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
-            <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} />
+        {/* Chat Input - only show for dashboard view */}
+        {currentView === 'dashboard' && (
+            <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out absolute bottom-0 left-0 right-0")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
+                <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
+                    <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} />
+                </div>
             </div>
-        </div>
+        )}
       </div>
         <Dialog open={isWorkspaceModalOpen} onOpenChange={setIsWorkspaceModalOpen}>
             <DialogContent size="form">

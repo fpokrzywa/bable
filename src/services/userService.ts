@@ -1,8 +1,9 @@
 
-'use server';
+// This file contains both server and client functions
 
 import axios from 'axios';
-import type { User } from '@/lib/types';
+import type { User, Workspace } from '@/lib/types';
+import { getWorkspaces } from './workspaceService';
 
 const getWebhookUrl = () => {
     const url = process.env.USER_PROFILE_WEBHOOK_URL;
@@ -91,5 +92,103 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
             console.error('An unexpected error occurred during profile update:', error);
         }
         return false;
+    }
+}
+
+export interface LoginResult {
+    success: boolean;
+    user?: User;
+    workspaces?: Workspace[];
+    error?: string;
+}
+
+export async function performLogin(email: string, password: string): Promise<LoginResult> {
+    try {
+        // In a real app, you'd validate credentials against your auth service
+        // For now, we'll simulate successful validation and fetch user data
+        
+        const user = await getUserProfile(email);
+        if (!user) {
+            return {
+                success: false,
+                error: 'Failed to retrieve user profile'
+            };
+        }
+
+        const workspaces = await getWorkspaces(user.userId);
+        
+        // Store session data
+        const sessionData = {
+            loggedIn: true,
+            email: email,
+            userId: user.userId,
+            loginTime: new Date().toISOString()
+        };
+        
+        // Store in localStorage (this will be client-side when called from client)
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('session', JSON.stringify(sessionData));
+            localStorage.setItem('userData', JSON.stringify({ user, workspaces }));
+        }
+        
+        return {
+            success: true,
+            user,
+            workspaces
+        };
+    } catch (error) {
+        console.error('Login failed:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Login failed'
+        };
+    }
+}
+
+export function getCachedUserData(): { user: User | null; workspaces: Workspace[] } {
+    if (typeof window === 'undefined') {
+        return { user: null, workspaces: [] };
+    }
+    
+    try {
+        const cached = localStorage.getItem('userData');
+        if (cached) {
+            const data = JSON.parse(cached);
+            return {
+                user: data.user || null,
+                workspaces: data.workspaces || []
+            };
+        }
+    } catch (error) {
+        console.error('Failed to parse cached user data:', error);
+    }
+    
+    return { user: null, workspaces: [] };
+}
+
+export function updateCachedWorkspaces(workspaces: Workspace[]): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+        const cached = localStorage.getItem('userData');
+        if (cached) {
+            const data = JSON.parse(cached);
+            data.workspaces = workspaces;
+            localStorage.setItem('userData', JSON.stringify(data));
+        }
+    } catch (error) {
+        console.error('Failed to update cached workspaces:', error);
+    }
+}
+
+export function getCachedWorkspace(workspaceId: string): Workspace | null {
+    const { workspaces } = getCachedUserData();
+    return workspaces.find(ws => ws.workspaceId === workspaceId) || null;
+}
+
+export function clearUserData(): void {
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('session');
+        localStorage.removeItem('userData');
     }
 }
