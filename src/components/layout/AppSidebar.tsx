@@ -74,18 +74,18 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     <Accordion type="single" collapsible className="w-full space-y-1" value={openAccordionItem} onValueChange={handleAccordionChange}>
         <AccordionItem value="ai-tools">
             <AccordionTrigger>
-                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start" asChild>
+                <SidebarMenuButton tooltip="AI Tools" variant="ghost" className="w-full justify-start">
                     <span><Bot />AI Tools</span>
                 </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/ai-store" passHref>
-                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/ai-store'}>
+                    <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/ai-store'}>
                        <span><Store />AI Store</span>
                     </SidebarMenuButton>
                 </Link>
                 <Link href="/prompt-catalog" passHref>
-                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/prompt-catalog'}>
+                    <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/prompt-catalog'}>
                        <span><Library />Prompt Catalog</span>
                     </SidebarMenuButton>
                 </Link>
@@ -93,13 +93,13 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="workspace">
             <AccordionTrigger>
-                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start" asChild>
+                 <SidebarMenuButton tooltip="Workspace" variant="ghost" className="w-full justify-start">
                     <span><Briefcase />Workspace</span>
                 </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/dashboard" passHref>
-                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/dashboard'}>
+                    <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/dashboard'}>
                         <span><LayoutGrid />Main Dashboard</span>
                     </SidebarMenuButton>
                 </Link>
@@ -113,18 +113,18 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="user">
             <AccordionTrigger>
-                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start" asChild>
+                <SidebarMenuButton tooltip="User" variant="ghost" className="w-full justify-start">
                     <span><User />User</span>
                 </SidebarMenuButton>
             </AccordionTrigger>
             <AccordionContent>
                 <Link href="/profile" passHref>
-                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/profile'}>
+                    <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/profile'}>
                        <span><User />Profile</span>
                     </SidebarMenuButton>
                 </Link>
                  <Link href="/settings" passHref>
-                    <SidebarMenuButton asChild variant="ghost" className="w-full justify-start" isActive={pathname === '/settings'}>
+                    <SidebarMenuButton variant="ghost" className="w-full justify-start" isActive={pathname === '/settings'}>
                         <span><Settings />Settings</span>
                     </SidebarMenuButton>
                 </Link>
@@ -132,7 +132,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
         </AccordionItem>
         <AccordionItem value="admin">
             <AccordionTrigger>
-                 <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start" asChild>
+                 <SidebarMenuButton tooltip="Administration" variant="ghost" className="w-full justify-start">
                     <span><Users />Administration</span>
                 </SidebarMenuButton>
             </AccordionTrigger>
@@ -148,19 +148,19 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
 
   const nonAccordionContent = (
     <>
-        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-          <Link href="/ai-store" passHref>
-            <SidebarMenuButton asChild tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
-                <Store />
-            </SidebarMenuButton>
-          </Link>
+        <SidebarMenuItem>
+            <Link href="/ai-store" passHref>
+                <SidebarMenuButton asChild tooltip="AI Store" variant="ghost" isActive={pathname === '/ai-store'}>
+                    <Store />
+                </SidebarMenuButton>
+            </Link>
         </SidebarMenuItem>
-        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
-          <Link href="/prompt-catalog" passHref>
-            <SidebarMenuButton asChild tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
-                <Library />
-            </SidebarMenuButton>
-          </Link>
+        <SidebarMenuItem>
+            <Link href="/prompt-catalog" passHref>
+                <SidebarMenuButton asChild tooltip="Prompt Catalog" variant="ghost" isActive={pathname === '/prompt-catalog'}>
+                    <Library />
+                </SidebarMenuButton>
+            </Link>
         </SidebarMenuItem>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -185,17 +185,17 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+        <SidebarMenuItem>
             <Link href="/profile" passHref>
                 <SidebarMenuButton asChild tooltip="Profile" variant="ghost" isActive={pathname === '/profile'}>
-                <User />
+                    <User />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>
-        <SidebarMenuItem onClick={() => isMobile && setOpenMobile(false)}>
+        <SidebarMenuItem>
             <Link href="/settings" passHref>
                 <SidebarMenuButton asChild tooltip="Settings" variant="ghost" isActive={pathname === '/settings'}>
-                <Settings />
+                    <Settings />
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>

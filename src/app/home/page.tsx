@@ -252,7 +252,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
                 <div className="relative z-10 animate-float">
-                  <img src="https://app.bablephish.com/_next/image?url=%2Fbablephish_logo.svg&w=128&q=75" alt="BabelPhish Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
+                  <img src="/bablephish_logo.svg" alt="BabelPhish Fish Logo" className="h-64 w-64 drop-shadow-2xl" />
                 </div>
               </div>
             </div>

@@ -28,7 +28,7 @@ export default function LandingPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="text-center">
         <Image
-          src="/phish_logo.png"
+          src="/bablephish_logo.svg"
           alt="BabelPhish Logo"
           width={120}
           height={120}

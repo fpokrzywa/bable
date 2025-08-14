@@ -600,6 +600,7 @@ const sidebarMenuButtonVariants = cva(
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+        ghost: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
       },
       size: {
         default: "h-8 text-sm",
@@ -638,19 +639,21 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
+    const button = (
+       <Comp
+            ref={ref}
+            data-sidebar="menu-button"
+            data-size={size}
+            data-active={isActive}
+            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+            {...props}
+        >
+            {children}
+        </Comp>
+    );
+
     if (!tooltip || (state === 'expanded' && !isMobile)) {
-      return (
-        <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      >
-        {children}
-      </Comp>
-      )
+      return button;
     }
 
     if (typeof tooltip === "string") {
@@ -662,16 +665,7 @@ const SidebarMenuButton = React.forwardRef<
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Comp
-            ref={ref}
-            data-sidebar="menu-button"
-            data-size={size}
-            data-active={isActive}
-            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-            {...props}
-          >
-            {children}
-          </Comp>
+          {button}
         </TooltipTrigger>
         <TooltipContent
           side="right"
@@ -855,5 +849,3 @@ export {
   SidebarMobileTrigger,
   useSidebar,
 }
-
-    

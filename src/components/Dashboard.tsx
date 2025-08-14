@@ -709,7 +709,7 @@ export function Dashboard() {
                     <div className="flex flex-col h-full w-full max-w-xl mx-auto items-center text-center p-4" style={{ paddingBottom: isMobile ? chatInputAreaHeight : '6rem' }}>
                         <div className="flex-grow flex flex-col justify-center items-center">
                             <Image
-                                src="/phish_logo.png"
+                                src="/bablephish_logo.svg"
                                 alt="BabelPhish Logo"
                                 width={100}
                                 height={100}
