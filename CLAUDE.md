@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+### Development Standards
+-- **Tech Stack Defaults:** @S:\Development\.agent-os\standards\tech-stack.md
+-- **Code Style Preferences:** @S:\Development\.agent-os\standards\code-style.md
+-- **Best Practices Philosophy:** @S:\Development\.agent-os\standards\best-practices.md
+
 ## Project Overview
 
 This is **BabelPhish** (originally "ServiceNow AI Assist"), an AI-powered, interactive dashboard designed to interface with ServiceNow. It provides users with a flexible, widget-based workspace to view, manage, and interact with ServiceNow data using natural language commands. The application is built with Next.js 15, TypeScript, and Google's Genkit for AI capabilities.
