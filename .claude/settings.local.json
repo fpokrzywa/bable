@@ -7,6 +7,7 @@
       "Bash(grep:*)",
       "Bash(npx tsc:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }
