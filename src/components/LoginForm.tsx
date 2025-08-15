@@ -4,7 +4,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { performLogin } from '@/services/userService';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { BabelPhishFullScreenLoader } from '@/components/ui/babelphish-loader';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -26,6 +27,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [loaderMessage, setLoaderMessage] = useState("Logging you in...");
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,11 +49,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    setLoaderMessage("Logging you in...");
     
     try {
       const result = await performLogin(values.email, values.password);
       
       if (result.success) {
+        // Update loader message for workspace building phase
+        setLoaderMessage("Building your workspace...");
+        
         toast({
           title: "Login Successful",
           description: `Welcome back, ${result.user?.first_name || 'User'}!`,
@@ -51,13 +67,27 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           onLoginSuccess();
         }
         
+        // Add a small delay to let users see the "Building workspace" message
+        // and ensure smooth transition to dashboard
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Don't hide loader on success - keep it visible during redirect
         router.push('/dashboard');
+        
+        // Fallback: hide loader after 10 seconds as a safety measure
+        timeoutRef.current = setTimeout(() => {
+          setIsLoading(false);
+        }, 10000);
+        
+        // Loader will stay visible until the page actually changes
+        return;
       } else {
         toast({
           title: "Login Failed",
           description: result.error || "Please check your credentials and try again.",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -66,14 +96,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <>
+      {isLoading && <BabelPhishFullScreenLoader message={loaderMessage} />}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -81,7 +112,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="m@example.com" {...field} />
+                <Input placeholder="m@example.com" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,7 +125,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input type="password" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,7 +141,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             'Login'
           )}
         </Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </>
   );
 }

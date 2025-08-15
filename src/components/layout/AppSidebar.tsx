@@ -25,7 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings';
+type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings' | 'user-management' | 'role-management';
 
 interface AppSidebarProps {
     user: UserType | null;
@@ -166,9 +166,23 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 <span>Administration</span>
             </AccordionTrigger>
             <AccordionContent>
-                 <SidebarMenuButton variant="ghost" className="w-full justify-start">
+                <SidebarMenuButton 
+                    variant="ghost" 
+                    className="w-full justify-start"
+                    isActive={currentView === 'user-management'}
+                    onClick={() => onViewChange?.('user-management')}
+                >
                     <Users />
                     <span>User Management</span>
+                </SidebarMenuButton>
+                <SidebarMenuButton 
+                    variant="ghost" 
+                    className="w-full justify-start"
+                    isActive={currentView === 'role-management'}
+                    onClick={() => onViewChange?.('role-management')}
+                >
+                    <Settings />
+                    <span>Role Management</span>
                 </SidebarMenuButton>
             </AccordionContent>
         </AccordionItem>

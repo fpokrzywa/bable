@@ -33,9 +33,11 @@ import { Profile } from './Profile';
 import { Settings } from './Settings';
 import { AIStore } from './AIStore';
 import { PromptCatalog } from './PromptCatalog';
+import { UserManagement } from './UserManagement';
+import { RoleManagement } from './RoleManagement';
 
 
-type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings';
+type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings' | 'user-management' | 'role-management';
 
 export function Dashboard() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -298,6 +300,22 @@ export function Dashboard() {
           <div className="flex-1 overflow-y-auto p-6">
             <div className="max-w-4xl mx-auto">
               <Settings isPage={true} />
+            </div>
+          </div>
+        );
+      case 'user-management':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-6xl mx-auto">
+              <UserManagement />
+            </div>
+          </div>
+        );
+      case 'role-management':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-6xl mx-auto">
+              <RoleManagement />
             </div>
           </div>
         );

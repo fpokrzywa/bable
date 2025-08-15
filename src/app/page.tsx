@@ -27,14 +27,6 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-      <Button
-        variant="ghost"
-        onClick={() => router.push('/dashboard')}
-        className="absolute top-4 left-4 flex items-center gap-2"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Dashboard
-      </Button>
       <div className="text-center">
         <Image
           src="/bablephish_logo.svg"
