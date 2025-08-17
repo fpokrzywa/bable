@@ -56,29 +56,15 @@ export async function getAllUsers(): Promise<User[]> {
     try {
         const response = await axios.get(webhookUrl, { params: { userId: 'all' } });
 
-        if (response.status === 200 && response.data) {
-            let usersData: any[] = [];
-
-            // Handle cases where the data is nested under a property like 'data', 'users', etc.
-            if (Array.isArray(response.data)) {
-                usersData = response.data;
-            } else if (typeof response.data === 'object' && response.data !== null) {
-                // Look for an array property in the response object
-                const arrayKey = Object.keys(response.data).find(key => Array.isArray(response.data[key]));
-                if (arrayKey) {
-                    usersData = response.data[arrayKey];
-                }
-            }
-
-            if (usersData.length > 0) {
-                 return usersData.map(user => ({
-                    ...user,
-                    userId: user._id || user.userId,
-                    roles: user.roles || ['User']
-                }));
-            }
+        if (response.status === 200 && Array.isArray(response.data)) {
+            return response.data.map(user => ({
+                ...user,
+                userId: user._id || user.userId,
+                roles: user.roles || ['User']
+            }));
         }
-        console.warn("Could not find user array in webhook response. Returning empty array.", response.data);
+        
+        console.warn("Webhook response for all users was not an array. Returning empty array.", response.data);
         return [];
     } catch (error) {
         console.error('Failed to get all users from webhook:', error);
