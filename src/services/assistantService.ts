@@ -43,12 +43,23 @@ export async function getAssistants(forceRefresh = false): Promise<Assistant[]> 
     }
 
     const webhookUrl = getWebhookUrl();
+    const apiKey = process.env.BABLEPHISH_ASSISTANT_API_KEY;
+
     if (!webhookUrl) {
+        return getSampleAssistants();
+    }
+    
+    if (!apiKey) {
+        console.warn('BABLEPHISH_ASSISTANT_API_KEY is not configured. Falling back to sample data.');
         return getSampleAssistants();
     }
 
     try {
-        const response = await axios.get(webhookUrl);
+        const response = await axios.get(webhookUrl, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+            },
+        });
 
         if (response.status === 200 && Array.isArray(response.data)) {
             const assistants = response.data.map((item: any) => ({
