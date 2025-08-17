@@ -1,4 +1,5 @@
 
+
 // This file contains both server and client functions
 
 import axios from 'axios';
@@ -41,21 +42,24 @@ const createDefaultUser = (email: string): User => ({
     email: email,
     bio: 'Please configure your user profile webhook in the .env file to fetch real user data.',
     avatar: `https://i.pravatar.cc/150?u=${email}`,
+    roles: ['User'],
 });
 
 export async function getAllUsers(): Promise<User[]> {
     const webhookUrl = getUserApiUrl();
     if (!webhookUrl) {
-        // Fallback to a list of default users if the API URL isn't set
         return [
-            createDefaultUser('user1@example.com'),
+            {...createDefaultUser('user1@example.com'), roles: ['Admin']},
             createDefaultUser('user2@example.com'),
         ];
     }
     try {
         const response = await axios.get(webhookUrl, { params: { userId: 'all' } });
         if (response.status === 200 && Array.isArray(response.data)) {
-            return response.data;
+            return response.data.map(user => ({
+                ...user,
+                userId: user._id || user.userId,
+            }));
         }
         return [];
     } catch (error) {
@@ -79,7 +83,10 @@ export async function getUserProfile(email: string): Promise<User | null> {
             // The webhook can return a single user or an array of users
             const userData = Array.isArray(response.data) ? response.data[0] : response.data;
             if (userData) {
-                return userData;
+                return {
+                    ...userData,
+                    userId: userData._id || userData.userId
+                };
             }
         }
 

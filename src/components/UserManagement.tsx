@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,7 +31,7 @@ export function UserManagement() {
     first_name: '',
     last_name: '',
     email: '',
-    username: 'user' // Default role
+    roles: ['User'] // Default role
   });
   const { toast } = useToast();
   
@@ -59,7 +60,8 @@ export function UserManagement() {
     const name = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
     const matchesSearch = name.includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === 'All Roles' || user.username === selectedRole;
+    const userRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'User';
+    const matchesRole = selectedRole === 'All Roles' || userRole === selectedRole;
     return matchesSearch && matchesRole;
   });
 
@@ -79,15 +81,16 @@ export function UserManagement() {
     const userToCreate: User = {
         userId: tempId,
         email: newUser.email!,
+        username: newUser.email!,
         ...newUser,
-        username: newUser.username || 'User'
+        roles: newUser.roles || ['User']
     };
 
     const success = await updateUserProfile(userToCreate);
 
     if (success) {
         setUsers([...users, userToCreate]);
-        setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
+        setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
         setIsAddUserOpen(false);
         toast({
           title: "Success",
@@ -109,7 +112,7 @@ export function UserManagement() {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      username: user.username
+      roles: user.roles || ['User']
     });
   };
 
@@ -127,7 +130,7 @@ export function UserManagement() {
       );
       setUsers(updatedUsers);
       setEditingUser(null);
-      setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
+      setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
       toast({
         title: "Success",
         description: "User updated successfully"
@@ -151,7 +154,7 @@ export function UserManagement() {
   };
 
   const resetForm = () => {
-    setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
+    setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
     setEditingUser(null);
   };
   
@@ -215,7 +218,9 @@ export function UserManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {filteredUsers.map((user) => {
+                const userRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'User';
+                return (
                 <TableRow key={user.userId}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -232,9 +237,9 @@ export function UserManagement() {
                   <TableCell>
                     <Badge 
                       variant="secondary" 
-                      className={user.username === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                      className={userRole === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
                     >
-                      {user.username}
+                      {userRole}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -267,7 +272,7 @@ export function UserManagement() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )})}
             </TableBody>
           </Table>
         </CardContent>
@@ -328,7 +333,7 @@ export function UserManagement() {
               <Label htmlFor="role" className="text-right">
                 Role
               </Label>
-              <Select value={newUser.username} onValueChange={(value) => setNewUser({ ...newUser, username: value })}>
+              <Select value={newUser.roles ? newUser.roles[0] : 'User'} onValueChange={(value) => setNewUser({ ...newUser, roles: [value] })}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue />
                 </SelectTrigger>
