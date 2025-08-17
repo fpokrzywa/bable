@@ -88,6 +88,7 @@ export function UserManagement() {
     const userToCreate: Partial<User> = {
         ...newUser,
         username: newUser.email,
+        userId: newUser.email,
     };
 
     const success = await updateUserProfile(userToCreate);
@@ -129,7 +130,7 @@ export function UserManagement() {
         userId: editingUser.userId,
         first_name: newUser.first_name,
         last_name: newUser.last_name,
-        email: newUser.email, // email is the unique identifier, but might be updatable in some systems
+        email: newUser.email,
         roles: newUser.roles || []
     };
     
@@ -422,4 +423,3 @@ export function UserManagement() {
     </div>
   );
 }
-

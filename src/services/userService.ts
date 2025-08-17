@@ -1,6 +1,3 @@
-
-
-
 // This file contains both server and client functions
 
 import axios from 'axios';
@@ -132,19 +129,10 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
         return false;
     }
 
-    const isUpdate = !!profileData.userId;
-    let payload = { ...profileData };
-    let requestUrl = webhookUrl;
-    let method: 'post' | 'put' = 'post';
-
-    if (isUpdate) {
-        method = 'put';
-        // For updates, the identifier is part of the payload, but some APIs prefer it in the URL
-        // We'll keep it simple and send it in the body unless specified otherwise by the API.
-    } else {
-        // For creations, ensure userId is set from email
-        payload.userId = profileData.email;
-    }
+    // Always use POST for both create and update to avoid CORS issues with PUT
+    const method: 'post' = 'post';
+    const requestUrl = webhookUrl;
+    const payload = { ...profileData };
 
     try {
         const response = await axios[method](requestUrl, payload);
