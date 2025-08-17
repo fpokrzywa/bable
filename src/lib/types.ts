@@ -96,3 +96,12 @@ export interface Prompt {
     system: string;
     owner: string;
 }
+
+export interface Assistant {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  icon: string;
+  addedDate: string;
+}

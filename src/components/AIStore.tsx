@@ -1,78 +1,89 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Heart, RefreshCw, Zap, Bot, Box } from 'lucide-react';
+import { Search, Heart, RefreshCw, Zap, Bot, Box, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { getAssistants } from '@/services/assistantService';
+import type { Assistant } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
-const initialAssistants = [
-  {
-    id: 1,
-    name: 'ODIN',
-    description: 'You are a helpful assistant named ODIN, you are a meta-agent....',
-    version: 'gpt-4.1',
-    icon: 'https://placehold.co/40x40/000000/FFFFFF/png?text=O',
-    iconBg: 'bg-black',
-    isFavorited: false,
-    addedDate: '2023-10-26T10:00:00Z',
-  },
-  {
-    id: 2,
-    name: 'Prompt Architect',
-    description: 'You are a Prompt Architect AI. Your job is to write optimized system prompts and relevant few-shot e...',
-    version: 'gpt-4.1',
-    icon: <Zap className="text-green-500" />,
-    iconBg: 'bg-green-100',
-    isFavorited: true,
-    addedDate: '2023-10-25T10:00:00Z',
-  },
-  {
-    id: 3,
-    name: 'ADEPT Guru',
-    description: 'Purpose ADEPT Guru is a purpose-built GPT designed to support professionals in the successful delive...',
-    version: 'gpt-4.1',
-    icon: <Box className="text-blue-500" />,
-    iconBg: 'bg-blue-100',
-    isFavorited: false,
-    addedDate: '2023-10-24T10:00:00Z',
-  },
-  {
-    id: 4,
-    name: 'NIEA Guru',
-    description: 'Persona: You are a highly knowledgeable and helpful ServiceNow Expert AI Assistant. Your primary are...',
-    version: 'gpt-4.1',
-    icon: <Box className="text-sky-500" />,
-    iconBg: 'bg-sky-100',
-    isFavorited: false,
-    addedDate: '2023-10-23T10:00:00Z',
-  },
-  {
-    id: 5,
-    name: 'NOW Assist Guru',
-    description: 'You are a seasoned expert in ServiceNow development, architecture, and integration with OpenAI techn...',
-    version: 'gpt-4.1',
-    icon: <Bot className="text-pink-500" />,
-    iconBg: 'bg-pink-100',
-    isFavorited: false,
-    addedDate: '2023-10-22T10:00:00Z',
-  },
-];
+type DisplayAssistant = Assistant & {
+    isFavorited: boolean;
+    iconComponent?: React.ReactNode;
+    iconBg?: string;
+};
 
+const iconMap: { [key: string]: { component: React.ReactNode, bg: string } } = {
+    'zap': { component: <Zap className="text-green-500" />, bg: 'bg-green-100' },
+    'box': { component: <Box className="text-blue-500" />, bg: 'bg-blue-100' },
+    'bot': { component: <Bot className="text-pink-500" />, bg: 'bg-pink-100' },
+    'sky_box': { component: <Box className="text-sky-500" />, bg: 'bg-sky-100' },
+};
+
+const FAVORITES_KEY = 'ai_store_favorites';
 
 export function AIStore() {
-  const [assistants, setAssistants] = useState(initialAssistants);
+  const [assistants, setAssistants] = useState<DisplayAssistant[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const fetchAssistants = async (forceRefresh = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+        const data = await getAssistants(forceRefresh);
+        const savedFavorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+        
+        const displayAssistants = data.map(a => {
+            const iconInfo = iconMap[a.icon] || { component: <Bot className="text-gray-500" />, bg: 'bg-gray-100' };
+            return {
+                ...a,
+                isFavorited: savedFavorites.includes(a.id),
+                iconComponent: iconInfo.component,
+                iconBg: iconInfo.bg,
+                addedDate: a.addedDate || new Date().toISOString(),
+            };
+        });
+
+        setAssistants(displayAssistants);
+    } catch (err) {
+        setError('Failed to load assistants. Please try refreshing.');
+        console.error(err);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not fetch assistants from the server."
+        });
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchAssistants();
+  }, []);
   
-  const toggleFavorite = (id: number) => {
-    setAssistants(prev => 
-        prev.map(a => a.id === id ? {...a, isFavorited: !a.isFavorited} : a)
-    );
+  const toggleFavorite = (id: string) => {
+    let newFavorites: string[] = [];
+    const updatedAssistants = assistants.map(a => {
+      if (a.id === id) {
+        return { ...a, isFavorited: !a.isFavorited };
+      }
+      return a;
+    });
+
+    setAssistants(updatedAssistants);
+    newFavorites = updatedAssistants.filter(a => a.isFavorited).map(a => a.id);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
   };
 
   const filteredAndSortedAssistants = useMemo(() => {
@@ -93,7 +104,6 @@ export function AIStore() {
         break;
       case 'all':
       default:
-        // No sorting, just the filtered list
         break;
     }
     return result;
@@ -132,44 +142,52 @@ export function AIStore() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="ghost">
-            <RefreshCw className="mr-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => fetchAssistants(true)} disabled={loading}>
+            <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
             Refresh
         </Button>
         <span className="text-sm text-muted-foreground">{filteredAndSortedAssistants.length} assistants</span>
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedAssistants.map(assistant => (
-            <Card key={assistant.id} className="flex flex-col hover:shadow-lg transition-shadow">
-              <CardHeader className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${assistant.iconBg}`}>
-                      {typeof assistant.icon === 'string' ? 
-                        <Image src={assistant.icon} alt={assistant.name} width={24} height={24} /> :
-                        assistant.icon
-                      }
+        {loading ? (
+            <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        ) : error ? (
+            <div className="flex flex-col justify-center items-center h-full text-destructive">
+                <p>{error}</p>
+                <Button variant="link" onClick={() => fetchAssistants(true)}>Try again</Button>
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAndSortedAssistants.map(assistant => (
+                <Card key={assistant.id} className="flex flex-col hover:shadow-lg transition-shadow">
+                <CardHeader className="p-4">
+                    <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${assistant.iconBg}`}>
+                          {assistant.iconComponent}
+                        </div>
+                        <CardTitle className="text-sm font-semibold">{assistant.name}</CardTitle>
                     </div>
-                    <CardTitle className="text-sm font-semibold">{assistant.name}</CardTitle>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleFavorite(assistant.id)}>
-                    <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-primary text-primary")} />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 p-4 pt-0">
-                <CardDescription className="text-xs">{assistant.description}</CardDescription>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <div className="text-xs bg-gray-100 dark:bg-gray-800 text-muted-foreground rounded-full px-2 py-0.5">
-                  {assistant.version}
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleFavorite(assistant.id)}>
+                        <Heart className={cn("h-4 w-4", assistant.isFavorited && "fill-primary text-primary")} />
+                    </Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-1 p-4 pt-0">
+                    <CardDescription className="text-xs">{assistant.description}</CardDescription>
+                </CardContent>
+                <CardFooter className="p-4 pt-0">
+                    <div className="text-xs bg-gray-100 dark:bg-gray-800 text-muted-foreground rounded-full px-2 py-0.5">
+                    {assistant.version}
+                    </div>
+                </CardFooter>
+                </Card>
+            ))}
+            </div>
+        )}
       </div>
     </div>
   );
