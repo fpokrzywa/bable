@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -9,166 +10,158 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Search, UserPlus, Edit2, Trash2, MoreHorizontal } from 'lucide-react';
+import { Search, UserPlus, Edit2, Trash2, MoreHorizontal, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: 'Active' | 'Inactive';
-  lastLogin: string;
-  actions?: string[];
-}
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'John Builder',
-    email: 'john.builder@company.com',
-    role: 'User',
-    status: 'Active',
-    lastLogin: 'Never',
-    actions: ['edit', 'delete']
-  },
-  {
-    id: '2',
-    name: 'Amy Jackson',
-    email: 'amy.jackson@company.com',
-    role: 'User',
-    status: 'Active',
-    lastLogin: 'Never',
-    actions: ['edit', 'delete']
-  },
-  {
-    id: '3',
-    name: 'Ian Kingston',
-    email: 'ian.kingston@company.com',
-    role: 'User',
-    status: 'Active',
-    lastLogin: 'Never',
-    actions: ['edit', 'delete']
-  },
-  {
-    id: '4',
-    name: 'Sabrina Rodriguez',
-    email: 'sabrina.rodriguez@company.com',
-    role: 'User',
-    status: 'Active',
-    lastLogin: 'Never',
-    actions: ['edit', 'delete']
-  },
-  {
-    id: '5',
-    name: 'Molly Watson',
-    email: 'molly.watson@company.com',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: 'Never',
-    actions: ['edit', 'delete']
-  }
-];
+import { getAllUsers, updateUserProfile } from '@/services/userService';
+import type { User } from '@/lib/types';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const availableRoles = ['User', 'Admin', 'Manager', 'Editor'];
 
 export function UserManagement() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All Roles');
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [newUser, setNewUser] = useState({
-    name: '',
+  const [newUser, setNewUser] = useState<Partial<User>>({
+    first_name: '',
+    last_name: '',
     email: '',
-    role: 'User',
-    status: 'Active' as 'Active' | 'Inactive'
+    username: 'user' // Default role
   });
   const { toast } = useToast();
+  
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const fetchedUsers = await getAllUsers();
+      setUsers(fetchedUsers);
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "Failed to fetch users.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const name = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+    const matchesSearch = name.includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === 'All Roles' || user.role === selectedRole;
+    const matchesRole = selectedRole === 'All Roles' || user.username === selectedRole;
     return matchesSearch && matchesRole;
   });
 
-  const handleAddUser = () => {
-    if (!newUser.name || !newUser.email) {
+  const handleAddUser = async () => {
+    if (!newUser.email) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please provide an email for the new user.",
         variant: "destructive"
       });
       return;
     }
-
-    const user: User = {
-      id: Date.now().toString(),
-      ...newUser,
-      lastLogin: 'Never',
-      actions: ['edit', 'delete']
+    
+    // In a real app, you'd have a createUser service function.
+    // For now, we'll simulate by adding to local state and calling updateUser to mock a creation.
+    const tempId = `new_${Date.now()}`;
+    const userToCreate: User = {
+        userId: tempId,
+        email: newUser.email!,
+        ...newUser,
+        username: newUser.username || 'User'
     };
 
-    setUsers([...users, user]);
-    setNewUser({ name: '', email: '', role: 'User', status: 'Active' });
-    setIsAddUserOpen(false);
-    
-    toast({
-      title: "Success",
-      description: "User added successfully"
-    });
+    const success = await updateUserProfile(userToCreate);
+
+    if (success) {
+        setUsers([...users, userToCreate]);
+        setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
+        setIsAddUserOpen(false);
+        toast({
+          title: "Success",
+          description: "User added successfully"
+        });
+        fetchUsers(); // Refresh list
+    } else {
+         toast({
+          title: "Error",
+          description: "Failed to add user.",
+          variant: "destructive"
+        });
+    }
   };
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setNewUser({
-      name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
       email: user.email,
-      role: user.role,
-      status: user.status
+      username: user.username
     });
   };
 
-  const handleUpdateUser = () => {
-    if (!editingUser || !newUser.name || !newUser.email) {
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+    
+    const userToUpdate = { ...editingUser, ...newUser };
+    const success = await updateUserProfile(userToUpdate);
+
+    if (success) {
+      const updatedUsers = users.map(user => 
+        user.userId === editingUser.userId 
+          ? userToUpdate
+          : user
+      );
+      setUsers(updatedUsers);
+      setEditingUser(null);
+      setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
       toast({
+        title: "Success",
+        description: "User updated successfully"
+      });
+    } else {
+       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Failed to update user.",
         variant: "destructive"
       });
-      return;
     }
-
-    const updatedUsers = users.map(user => 
-      user.id === editingUser.id 
-        ? { ...user, ...newUser }
-        : user
-    );
-
-    setUsers(updatedUsers);
-    setEditingUser(null);
-    setNewUser({ name: '', email: '', role: 'User', status: 'Active' });
-    
-    toast({
-      title: "Success",
-      description: "User updated successfully"
-    });
   };
 
   const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
+    // This would call a deleteUser service in a real app.
+    setUsers(users.filter(user => user.userId !== userId));
     toast({
       title: "Success",
-      description: "User deleted successfully"
+      description: "User deleted successfully (client-side). Implement backend delete call."
     });
   };
 
   const resetForm = () => {
-    setNewUser({ name: '', email: '', role: 'User', status: 'Active' });
+    setNewUser({ first_name: '', last_name: '', email: '', username: 'User' });
     setEditingUser(null);
   };
+  
+  if (loading) {
+    return (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -223,30 +216,36 @@ export function UserManagement() {
             </TableHeader>
             <TableBody>
               {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.userId}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium text-blue-600">{user.name}</div>
-                      <div className="text-sm text-gray-600">{user.email}</div>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback>{user.first_name?.charAt(0)}{user.last_name?.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium text-blue-600">{user.first_name} {user.last_name}</div>
+                        <div className="text-sm text-gray-600">{user.email}</div>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge 
                       variant="secondary" 
-                      className={user.role === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                      className={user.username === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
                     >
-                      {user.role}
+                      {user.username}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge 
-                      variant={user.status === 'Active' ? 'default' : 'secondary'}
-                      className={user.status === 'Active' ? 'bg-green-500' : 'bg-gray-500'}
+                      variant={'default'}
+                      className={'bg-green-500'}
                     >
-                      {user.status}
+                      Active
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-gray-600">{user.lastLogin}</TableCell>
+                  <TableCell className="text-gray-600">Never</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button
@@ -260,7 +259,7 @@ export function UserManagement() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user.userId)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -288,16 +287,28 @@ export function UserManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="first_name" className="text-right">
+                First Name
               </Label>
               <Input
-                id="name"
-                value={newUser.name}
-                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                id="first_name"
+                value={newUser.first_name || ''}
+                onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
                 className="col-span-3"
-                placeholder="Enter full name"
+                placeholder="Enter first name"
+              />
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="last_name" className="text-right">
+                Last Name
+              </Label>
+              <Input
+                id="last_name"
+                value={newUser.last_name || ''}
+                onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                className="col-span-3"
+                placeholder="Enter last name"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -307,7 +318,7 @@ export function UserManagement() {
               <Input
                 id="email"
                 type="email"
-                value={newUser.email}
+                value={newUser.email || ''}
                 onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                 className="col-span-3"
                 placeholder="Enter email address"
@@ -317,7 +328,7 @@ export function UserManagement() {
               <Label htmlFor="role" className="text-right">
                 Role
               </Label>
-              <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+              <Select value={newUser.username} onValueChange={(value) => setNewUser({ ...newUser, username: value })}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue />
                 </SelectTrigger>
@@ -325,20 +336,6 @@ export function UserManagement() {
                   {availableRoles.map(role => (
                     <SelectItem key={role} value={role}>{role}</SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Status
-              </Label>
-              <Select value={newUser.status} onValueChange={(value: 'Active' | 'Inactive') => setNewUser({ ...newUser, status: value })}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>

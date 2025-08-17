@@ -23,6 +23,16 @@ const getUpdateWebhookUrl = () => {
     return url;
 }
 
+const getUserApiUrl = () => {
+    const url = process.env.USER_API_URL;
+    if (!url) {
+        console.warn('USER_API_URL is not configured. User management may not work correctly.');
+        return null;
+    }
+    return url;
+};
+
+
 const createDefaultUser = (email: string): User => ({
     userId: email,
     username: 'Default User',
@@ -32,6 +42,27 @@ const createDefaultUser = (email: string): User => ({
     bio: 'Please configure your user profile webhook in the .env file to fetch real user data.',
     avatar: `https://i.pravatar.cc/150?u=${email}`,
 });
+
+export async function getAllUsers(): Promise<User[]> {
+    const webhookUrl = getUserApiUrl();
+    if (!webhookUrl) {
+        // Fallback to a list of default users if the API URL isn't set
+        return [
+            createDefaultUser('user1@example.com'),
+            createDefaultUser('user2@example.com'),
+        ];
+    }
+    try {
+        const response = await axios.get(webhookUrl, { params: { userId: 'all' } });
+        if (response.status === 200 && Array.isArray(response.data)) {
+            return response.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('Failed to get all users from webhook:', error);
+        return [];
+    }
+}
 
 
 export async function getUserProfile(email: string): Promise<User | null> {
