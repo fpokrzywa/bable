@@ -58,16 +58,17 @@ export async function getAssistants(forceRefresh = false): Promise<Assistant[]> 
         const response = await axios.get(webhookUrl, {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
+                'OpenAI-Beta': 'assistants=v1'
             },
         });
 
-        if (response.status === 200 && Array.isArray(response.data)) {
-            const assistants = response.data.map((item: any) => ({
+        if (response.status === 200 && response.data && Array.isArray(response.data.data)) {
+            const assistants = response.data.data.map((item: any) => ({
                 id: item.id,
                 name: item.name,
                 description: item.instructions,
                 version: item.model,
-                icon: item.tools.length > 0 ? 'zap' : 'bot', // Example logic for icon
+                icon: item.tools.length > 0 ? 'zap' : 'bot',
                 addedDate: new Date(item.created_at * 1000).toISOString()
             }));
 
@@ -84,7 +85,6 @@ export async function getAssistants(forceRefresh = false): Promise<Assistant[]> 
         } else {
             console.error('An unexpected error occurred while fetching assistants:', error);
         }
-        // Instead of throwing, return sample data to allow the page to render.
         return getSampleAssistants();
     }
 }
