@@ -127,29 +127,32 @@ export async function getUserProfile(email: string): Promise<User | null> {
 export async function updateUserProfile(profileData: Partial<User>): Promise<boolean> {
     const webhookUrl = getUpdateWebhookUrl();
     if (!webhookUrl) {
-        console.error('Cannot update user profile: NEXT_PUBLIC_USER_PROFILE_UPDATE_WEBHOOK_URL is not configured.');
+        console.error('Cannot update/create user profile: NEXT_PUBLIC_USER_PROFILE_UPDATE_WEBHOOK_URL is not configured.');
         return false;
     }
 
+    // Distinguish between create (no userId) and update (has userId)
+    const isUpdate = !!profileData.userId;
     const payload = { ...profileData };
-    
-    // If it's a new user (no userId), generate it from the email and add to payload.
-    if (!payload.userId && payload.email) {
+
+    if (!isUpdate && payload.email) {
+        // This is a new user creation, generate userId
         payload.userId = payload.email;
     }
 
+    const params = isUpdate ? { userId: payload.userId } : {};
+
     try {
-        // The API might expect the unique key (userId) as a query param for updates.
-        // For creations, it might be in the body. We'll send it in both places to be safe.
-        const response = await axios.post(webhookUrl, payload, { params: { userId: payload.userId } });
+        const response = await axios.post(webhookUrl, payload, { params });
         return response.status === 200 || response.status === 201 || response.status === 204;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error('Failed to update user profile via webhook:', {
+            console.error('Failed to update/create user profile via webhook:', {
                 message: error.message,
                 status: error.response?.status,
                 data: error.response?.data,
                 url: webhookUrl,
+                params: params,
                 sentData: payload
             });
         } else {
@@ -158,6 +161,7 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
         return false;
     }
 }
+
 
 export interface LoginResult {
     success: boolean;

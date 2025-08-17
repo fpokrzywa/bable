@@ -83,11 +83,10 @@ export function UserManagement() {
       return;
     }
     
-    // The updateUserProfile service now handles generating the userId for new users.
+    // The service now handles generating userId if it's missing
     const userToCreate: Partial<User> = {
-        email: newUser.email,
-        username: newUser.email,
         ...newUser,
+        username: newUser.email,
     };
 
     const success = await updateUserProfile(userToCreate);
@@ -124,10 +123,17 @@ export function UserManagement() {
   const handleUpdateUser = async () => {
     if (!editingUser) return;
     
-    const userToUpdate = { ...editingUser, ...newUser };
+    // Combine original user data with changes
+    const userToUpdate: User = { 
+        ...editingUser, 
+        ...newUser,
+        roles: newUser.roles || [] // Ensure roles is an array
+    };
+    
     const success = await updateUserProfile(userToUpdate);
 
     if (success) {
+      // Optimistically update UI
       const updatedUsers = users.map(user => 
         user.userId === editingUser.userId 
           ? userToUpdate
