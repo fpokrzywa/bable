@@ -83,28 +83,23 @@ export function UserManagement() {
       return;
     }
     
-    // In a real app, you'd have a createUser service function.
-    // For now, we'll simulate by adding to local state and calling updateUser to mock a creation.
-    const tempId = `new_${Date.now()}`;
-    const userToCreate: User = {
-        userId: tempId,
-        email: newUser.email!,
-        username: newUser.email!,
+    // The updateUserProfile service now handles generating the userId for new users.
+    const userToCreate: Partial<User> = {
+        email: newUser.email,
+        username: newUser.email,
         ...newUser,
-        roles: newUser.roles || []
     };
 
     const success = await updateUserProfile(userToCreate);
 
     if (success) {
-        setUsers([...users, userToCreate]);
         resetForm();
         setIsAddUserOpen(false);
         toast({
           title: "Success",
           description: "User added successfully"
         });
-        fetchInitialData(); // Refresh list
+        fetchInitialData(); // Refresh list to get the new user with its database ID
     } else {
          toast({
           title: "Error",
@@ -120,8 +115,10 @@ export function UserManagement() {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      roles: user.roles || []
+      roles: user.roles || [],
+      userId: user.userId // Pass the userId for updates
     });
+    setIsAddUserOpen(true);
   };
 
   const handleUpdateUser = async () => {
@@ -139,6 +136,7 @@ export function UserManagement() {
       setUsers(updatedUsers);
       setEditingUser(null);
       resetForm();
+      setIsAddUserOpen(false);
       toast({
         title: "Success",
         description: "User updated successfully"
@@ -287,7 +285,6 @@ export function UserManagement() {
                         size="sm"
                         onClick={() => {
                           handleEditUser(user);
-                          setIsAddUserOpen(true);
                         }}
                         className="text-orange-600 hover:text-orange-700"
                       >
@@ -416,4 +413,3 @@ export function UserManagement() {
     </div>
   );
 }
-

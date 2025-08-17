@@ -16,9 +16,9 @@ const getWebhookUrl = () => {
 };
 
 const getUpdateWebhookUrl = () => {
-    const url = process.env.NEXT_PUBLIC_GET_USERS_URL;
+    const url = process.env.NEXT_PUBLIC_USER_PROFILE_UPDATE_WEBHOOK_URL;
     if (!url) {
-        console.warn('USER_PROFILE_UPDATE_WEBHOOK_URL (or NEXT_PUBLIC_GET_USERS_URL) is not configured in .env file.');
+        console.warn('NEXT_PUBLIC_USER_PROFILE_UPDATE_WEBHOOK_URL is not configured in .env file.');
         return null;
     }
     return url;
@@ -59,12 +59,24 @@ export async function getAllUsers(): Promise<User[]> {
         if (response.status === 200 && Array.isArray(response.data)) {
             return response.data.map(user => ({
                 ...user,
-                userId: user._id || user.userId,
+                userId: user.userId || user._id, // Handle both possible ID fields
                 roles: user.roles || ['User']
             }));
         }
         
-        console.warn("Webhook response for all users was not an array. Returning empty array.", response.data);
+        // Handle cases where the API returns an object with a 'data' or other property
+        if (response.status === 200 && response.data && typeof response.data === 'object') {
+            const userArray = response.data.data || response.data.users || response.data.items || response.data.result;
+            if (Array.isArray(userArray)) {
+                return userArray.map(user => ({
+                    ...user,
+                    userId: user.userId || user._id,
+                    roles: user.roles || ['User']
+                }));
+            }
+        }
+        
+        console.warn("Webhook response for all users was not in a recognized array format. Returning empty array.", response.data);
         return [];
     } catch (error) {
         console.error('Failed to get all users from webhook:', error);
@@ -115,13 +127,21 @@ export async function getUserProfile(email: string): Promise<User | null> {
 export async function updateUserProfile(profileData: Partial<User>): Promise<boolean> {
     const webhookUrl = getUpdateWebhookUrl();
     if (!webhookUrl) {
-        console.error('Cannot update user profile: NEXT_PUBLIC_GET_USERS_URL is not configured.');
+        console.error('Cannot update user profile: NEXT_PUBLIC_USER_PROFILE_UPDATE_WEBHOOK_URL is not configured.');
         return false;
     }
 
+    // If it's a new user (no userId), generate it from the email.
+    const payload = { ...profileData };
+    if (!payload.userId && payload.email) {
+        payload.userId = payload.email;
+    }
+
     try {
-        const response = await axios.post(webhookUrl, profileData);
-        return response.status === 200 || response.status === 204;
+        // The API might expect the unique key (userId) as a query param for updates.
+        // For creations, it might be in the body. We'll send it in both places to be safe.
+        const response = await axios.post(webhookUrl, payload, { params: { userId: payload.userId } });
+        return response.status === 200 || response.status === 201 || response.status === 204;
     } catch (error) {
         if (axios.isAxiosError(error)) {
             console.error('Failed to update user profile via webhook:', {
@@ -129,7 +149,7 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
                 status: error.response?.status,
                 data: error.response?.data,
                 url: webhookUrl,
-                sentData: profileData
+                sentData: payload
             });
         } else {
             console.error('An unexpected error occurred during profile update:', error);
