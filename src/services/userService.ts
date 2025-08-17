@@ -136,6 +136,11 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
     if (!payload.userId && payload.email) {
         payload.userId = payload.email;
     }
+    
+    // Ensure roles are sent as a JSON string if they are an array
+    if (Array.isArray(payload.roles)) {
+        payload.roles = JSON.stringify(payload.roles) as any;
+    }
 
     try {
         // The API might expect the unique key (userId) as a query param for updates.
