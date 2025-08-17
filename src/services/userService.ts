@@ -1,15 +1,16 @@
 
 
+
 // This file contains both server and client functions
 
 import axios from 'axios';
 import type { User, Workspace } from '@/lib/types';
 import { getWorkspaces } from './workspaceService';
 
-const getWebhookUrl = () => {
-    const url = process.env.USER_PROFILE_WEBHOOK_URL;
+const getUserApiUrl = () => {
+    const url = process.env.NEXT_PUBLIC_GET_USERS_URL;
     if (!url) {
-        console.warn('USER_PROFILE_WEBHOOK_URL is not configured in .env file. Using fallback data.');
+        console.warn('NEXT_PUBLIC_GET_USERS_URL is not configured. User management may not work correctly.');
         return null;
     }
     return url;
@@ -24,10 +25,10 @@ const getUpdateWebhookUrl = () => {
     return url;
 }
 
-const getUserApiUrl = () => {
-    const url = process.env.NEXT_PUBLIC_GET_USERS_URL;
+const getProfileWebhookUrl = () => {
+    const url = process.env.USER_PROFILE_WEBHOOK_URL;
     if (!url) {
-        console.warn('NEXT_PUBLIC_GET_USERS_URL is not configured. User management may not work correctly.');
+        console.warn('USER_PROFILE_WEBHOOK_URL is not configured in .env file. Using fallback data.');
         return null;
     }
     return url;
@@ -86,7 +87,7 @@ export async function getAllUsers(): Promise<User[]> {
 
 
 export async function getUserProfile(email: string): Promise<User | null> {
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = getProfileWebhookUrl();
 
     if (!webhookUrl) {
         return createDefaultUser(email);
@@ -131,33 +132,25 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
         return false;
     }
 
-    // Distinguish between create (no userId) and update (has userId)
     const isUpdate = !!profileData.userId;
-    const payload = { ...profileData };
+    let payload = { ...profileData };
+    let requestUrl = webhookUrl;
+    let method: 'post' | 'put' = 'post';
 
-    if (!isUpdate && payload.email) {
-        // This is a new user creation, generate userId
-        payload.userId = payload.email;
+    if (isUpdate) {
+        method = 'put';
+        // For updates, the identifier is part of the payload, but some APIs prefer it in the URL
+        // We'll keep it simple and send it in the body unless specified otherwise by the API.
+    } else {
+        // For creations, ensure userId is set from email
+        payload.userId = profileData.email;
     }
 
-    const params = isUpdate ? { userId: payload.userId } : {};
-
     try {
-        const response = await axios.post(webhookUrl, payload, { params });
-        return response.status === 200 || response.status === 201 || response.status === 204;
+        const response = await axios[method](requestUrl, payload);
+        return response.status === 200 || response.status === 201;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('Failed to update/create user profile via webhook:', {
-                message: error.message,
-                status: error.response?.status,
-                data: error.response?.data,
-                url: webhookUrl,
-                params: params,
-                sentData: payload
-            });
-        } else {
-            console.error('An unexpected error occurred during profile update:', error);
-        }
+        console.error('Failed to update/create user profile via webhook:', error);
         return false;
     }
 }

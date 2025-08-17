@@ -28,7 +28,7 @@ export function UserManagement() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState('All Roles');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState('All Roles');
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState<Partial<User>>({
@@ -63,15 +63,16 @@ export function UserManagement() {
     fetchInitialData();
   }, []);
 
-
   const filteredUsers = users.filter(user => {
     const name = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
     const matchesSearch = name.includes(searchTerm.toLowerCase()) ||
                          (user.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     const userRoles = user.roles && user.roles.length > 0 ? user.roles : [];
-    const matchesRole = selectedRole === 'All Roles' || userRoles.includes(selectedRole);
+    const matchesRole = selectedRoleFilter === 'All Roles' || userRoles.includes(selectedRoleFilter);
     return matchesSearch && matchesRole;
   });
+
+  const availableRoles = useMemo(() => roles, [roles]);
   
   const handleAddUser = async () => {
     if (!newUser.email) {
@@ -123,11 +124,13 @@ export function UserManagement() {
   const handleUpdateUser = async () => {
     if (!editingUser) return;
     
-    // Combine original user data with changes
-    const userToUpdate: User = { 
-        ...editingUser, 
-        ...newUser,
-        roles: newUser.roles || [] // Ensure roles is an array
+    // Construct a clean payload with only updatable fields
+    const userToUpdate: Partial<User> = {
+        userId: editingUser.userId,
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        email: newUser.email, // email is the unique identifier, but might be updatable in some systems
+        roles: newUser.roles || []
     };
     
     const success = await updateUserProfile(userToUpdate);
@@ -136,7 +139,7 @@ export function UserManagement() {
       // Optimistically update UI
       const updatedUsers = users.map(user => 
         user.userId === editingUser.userId 
-          ? userToUpdate
+          ? { ...user, ...userToUpdate } // Merge changes into existing user object
           : user
       );
       setUsers(updatedUsers);
@@ -217,13 +220,13 @@ export function UserManagement() {
                   className="pl-10 w-64"
                 />
               </div>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={selectedRoleFilter} onValueChange={setSelectedRoleFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Roles">All Roles</SelectItem>
-                  {roles.map((role) => (
+                  {availableRoles.map(role => (
                     <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -385,7 +388,7 @@ export function UserManagement() {
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <ScrollArea className="h-48">
                         <div className="p-2 space-y-1">
-                            {roles.map(role => (
+                            {availableRoles.map(role => (
                                 <div key={role.id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md">
                                     <Checkbox 
                                         id={`role-${role.id}`}
@@ -419,3 +422,4 @@ export function UserManagement() {
     </div>
   );
 }
+
