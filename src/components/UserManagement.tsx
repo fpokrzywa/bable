@@ -205,8 +205,8 @@ export function UserManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Roles">All Roles</SelectItem>
-                  {availableRoles.map((role, index) => (
-                    <SelectItem key={`${role}-${index}`} value={role}>{role}</SelectItem>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -345,8 +345,8 @@ export function UserManagement() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableRoles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                  {roles.map(role => (
+                    <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
