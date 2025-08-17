@@ -51,6 +51,16 @@ export function RoleManagement() {
       const rolesData = await roleService.getRoles();
       console.log('Roles data received in component:', rolesData);
       setRoles(rolesData);
+      
+      // Show info toast if using sample data (check if all roles have mock IDs)
+      const isUsingSampleData = rolesData.every(role => role.id.startsWith('sample-') || role.id.startsWith('mock-'));
+      if (isUsingSampleData && rolesData.length > 0) {
+        toast({
+          title: "Demo Mode",
+          description: "Showing sample role data. Connect to database for live data.",
+          variant: "default"
+        });
+      }
     } catch (error) {
       console.error('Error fetching roles:', error);
       toast({
@@ -64,8 +74,8 @@ export function RoleManagement() {
   };
 
   const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (role.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (role.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddRole = async () => {
@@ -312,7 +322,7 @@ export function RoleManagement() {
                   <div>
                     <p className="text-sm font-medium text-gray-700 mb-2">Permissions:</p>
                     <div className="flex flex-wrap gap-1">
-                      {role.permissions.map((permission) => (
+                      {(role.permissions || []).map((permission) => (
                         <Badge
                           key={permission}
                           variant="secondary"
@@ -321,7 +331,7 @@ export function RoleManagement() {
                           {permission}
                         </Badge>
                       ))}
-                      {role.permissions.length === 0 && (
+                      {(!role.permissions || role.permissions.length === 0) && (
                         <span className="text-xs text-gray-400">No permissions assigned</span>
                       )}
                     </div>
