@@ -25,9 +25,9 @@ const getUpdateWebhookUrl = () => {
 }
 
 const getUserApiUrl = () => {
-    const url = process.env.USER_API_URL;
+    const url = process.env.NEXT_PUBLIC_GET_USERS_URL;
     if (!url) {
-        console.warn('USER_API_URL is not configured. User management may not work correctly.');
+        console.warn('NEXT_PUBLIC_GET_USERS_URL is not configured. User management may not work correctly.');
         return null;
     }
     return url;
