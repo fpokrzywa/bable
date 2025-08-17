@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -33,12 +32,12 @@ export function UserManagement() {
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('All Roles');
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [newUser, setNewUser] = useState<Partial<User>>({
+  const [newUser, setNewUser] = useState<Partial<User> & { active: boolean }>({
     first_name: '',
     last_name: '',
     email: '',
     roles: [],
-    active: "true",
+    active: true,
     bio: '',
     avatar: '',
     password: '',
@@ -91,11 +90,9 @@ export function UserManagement() {
       return;
     }
     
-    // The service now handles generating userId if it's missing
     const userToCreate: Partial<User> = {
         ...newUser,
-        username: newUser.email,
-        userId: newUser.email,
+        active: newUser.active ? 'true' : 'false',
     };
 
     const success = await updateUserProfile(userToCreate);
@@ -107,7 +104,7 @@ export function UserManagement() {
           title: "Success",
           description: "User added successfully"
         });
-        fetchInitialData(); // Refresh list to get the new user with its database ID
+        fetchInitialData();
     } else {
          toast({
           title: "Error",
@@ -125,10 +122,10 @@ export function UserManagement() {
       email: user.email,
       roles: user.roles || [],
       userId: user.userId,
-      active: user.active || "true",
+      active: user.active === 'true',
       bio: user.bio || '',
       avatar: user.avatar || '',
-      password: user.password || '',
+      password: '', // Don't pre-fill password for security
       Company: user.Company || '',
     });
     setIsAddUserOpen(true);
@@ -137,27 +134,29 @@ export function UserManagement() {
   const handleUpdateUser = async () => {
     if (!editingUser) return;
     
-    // Construct a clean payload with only updatable fields
     const userToUpdate: Partial<User> = {
         userId: editingUser.userId,
         first_name: newUser.first_name,
         last_name: newUser.last_name,
         email: newUser.email,
         roles: newUser.roles || [],
-        active: newUser.active,
+        active: newUser.active ? 'true' : 'false',
         bio: newUser.bio,
         avatar: newUser.avatar,
-        password: newUser.password,
         Company: newUser.Company,
     };
     
+    // Only include password if it was changed
+    if (newUser.password) {
+        userToUpdate.password = newUser.password;
+    }
+
     const success = await updateUserProfile(userToUpdate);
 
     if (success) {
-      // Optimistically update UI
       const updatedUsers = users.map(user => 
         user.userId === editingUser.userId 
-          ? { ...user, ...userToUpdate } // Merge changes into existing user object
+          ? { ...user, ...userToUpdate, active: userToUpdate.active! }
           : user
       );
       setUsers(updatedUsers);
@@ -192,7 +191,7 @@ export function UserManagement() {
       last_name: '', 
       email: '', 
       roles: [],
-      active: "true",
+      active: true,
       bio: '',
       avatar: '',
       password: '',
@@ -406,7 +405,7 @@ export function UserManagement() {
                 value={newUser.password || ''}
                 onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                 className="col-span-3"
-                placeholder="Enter password"
+                placeholder={editingUser ? "Enter new password (optional)" : "Enter password"}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -490,8 +489,8 @@ export function UserManagement() {
               <div className="col-span-3">
                 <Switch
                     id="active"
-                    checked={newUser.active === 'true'}
-                    onCheckedChange={(checked) => setNewUser({ ...newUser, active: checked ? 'true' : 'false' })}
+                    checked={newUser.active}
+                    onCheckedChange={(checked) => setNewUser({ ...newUser, active: checked })}
                 />
               </div>
             </div>
