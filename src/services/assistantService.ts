@@ -62,21 +62,26 @@ export async function getAssistants(forceRefresh = false): Promise<Assistant[]> 
             },
         });
 
-        if (response.status === 200 && response.data && Array.isArray(response.data.data)) {
-            const assistants = response.data.data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                description: item.instructions,
-                version: item.model,
-                icon: item.tools.length > 0 ? 'zap' : 'bot',
-                addedDate: new Date(item.created_at * 1000).toISOString()
-            }));
+        if (response.status === 200 && response.data) {
+            // The API can return an object with a 'data' property or a direct array
+            const assistantList = Array.isArray(response.data) ? response.data : response.data.data;
 
-            cache = { timestamp: now, data: assistants };
-            return assistants;
+            if (Array.isArray(assistantList)) {
+                const assistants = assistantList.map((item: any) => ({
+                    id: item.id,
+                    name: item.name || 'Unnamed Assistant',
+                    description: item.instructions || 'No description provided.',
+                    version: item.model || 'N/A',
+                    icon: item.tools?.length > 0 ? 'zap' : 'bot',
+                    addedDate: item.created_at ? new Date(item.created_at * 1000).toISOString() : new Date().toISOString()
+                }));
+
+                cache = { timestamp: now, data: assistants };
+                return assistants;
+            }
         }
 
-        console.warn(`Webhook for assistants returned status ${response.status} or invalid data.`, response.data);
+        console.warn(`Webhook for assistants returned status ${response.status} or invalid data format.`, response.data);
         return getSampleAssistants();
 
     } catch (error) {
