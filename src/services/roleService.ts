@@ -157,21 +157,12 @@ class RoleService {
         method: 'GET',
       });
       
-      console.log('Raw API response:', response);
-      console.log('Response type:', typeof response);
-      console.log('Response keys:', Object.keys(response || {}));
-      
-      // Handle different response formats
       let roles: Role[] = [];
       
       if (Array.isArray(response)) {
-        // Response is directly an array
         roles = response;
       } else if (response && typeof response === 'object') {
-        // Response is an object, try different possible keys
         roles = response.roles || response.data || response.items || response.result || [];
-        
-        // If still empty, check if the response itself contains role-like objects
         if (roles.length === 0) {
           const values = Object.values(response);
           if (values.length > 0 && Array.isArray(values[0])) {
@@ -180,18 +171,12 @@ class RoleService {
         }
       }
       
-      console.log('Parsed roles:', roles);
-      console.log('Number of roles found:', roles.length);
-      
-      // Ensure all roles have required properties and handle your database structure
       const processedRoles = roles.map((role: any) => {
-        // Handle permissions - convert from JSON string if needed
         let permissions: string[] = [];
         if (typeof role.permissions === 'string') {
           try {
             permissions = JSON.parse(role.permissions);
           } catch (e) {
-            console.warn('Failed to parse permissions JSON:', role.permissions);
             permissions = [];
           }
         } else if (Array.isArray(role.permissions)) {
@@ -209,11 +194,11 @@ class RoleService {
         };
       });
       
-      console.log('Processed roles:', processedRoles);
       return processedRoles;
     } catch (error) {
-      console.error('Error fetching roles from webhook, falling back to sample data:', error);
-      return this.getSampleRoles();
+      console.error('Error fetching roles from webhook:', error);
+      // On error, return an empty array to avoid showing sample data
+      return [];
     }
   }
 
