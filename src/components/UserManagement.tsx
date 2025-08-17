@@ -15,13 +15,14 @@ import { Search, UserPlus, Edit2, Trash2, MoreHorizontal, Loader2 } from 'lucide
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { getAllUsers, updateUserProfile } from '@/services/userService';
+import { roleService, type Role } from '@/services/roleService';
 import type { User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
-const availableRoles = ['User', 'Admin', 'Manager', 'Editor'];
 
 export function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All Roles');
@@ -35,15 +36,19 @@ export function UserManagement() {
   });
   const { toast } = useToast();
   
-  const fetchUsers = async () => {
+  const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const fetchedUsers = await getAllUsers();
+      const [fetchedUsers, fetchedRoles] = await Promise.all([
+        getAllUsers(),
+        roleService.getRoles()
+      ]);
       setUsers(fetchedUsers);
+      setRoles(fetchedRoles);
     } catch (error) {
        toast({
         title: "Error",
-        description: "Failed to fetch users.",
+        description: "Failed to fetch users or roles.",
         variant: "destructive"
       });
     } finally {
@@ -52,7 +57,7 @@ export function UserManagement() {
   }
 
   useEffect(() => {
-    fetchUsers();
+    fetchInitialData();
   }, []);
 
 
@@ -64,6 +69,8 @@ export function UserManagement() {
     const matchesRole = selectedRole === 'All Roles' || userRole === selectedRole;
     return matchesSearch && matchesRole;
   });
+  
+  const availableRoles = useMemo(() => roles.map(r => r.name), [roles]);
 
   const handleAddUser = async () => {
     if (!newUser.email) {
@@ -96,7 +103,7 @@ export function UserManagement() {
           title: "Success",
           description: "User added successfully"
         });
-        fetchUsers(); // Refresh list
+        fetchInitialData(); // Refresh list
     } else {
          toast({
           title: "Error",
