@@ -10,14 +10,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Search, UserPlus, Edit2, Trash2, MoreHorizontal, Loader2 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Search, UserPlus, Edit2, Trash2, MoreHorizontal, Loader2, ChevronsUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAllUsers, updateUserProfile } from '@/services/userService';
 import { roleService, type Role } from '@/services/roleService';
 import type { User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Checkbox } from './ui/checkbox';
+import { ScrollArea } from './ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 
 export function UserManagement() {
@@ -32,7 +35,7 @@ export function UserManagement() {
     first_name: '',
     last_name: '',
     email: '',
-    roles: ['User'] // Default role
+    roles: []
   });
   const { toast } = useToast();
   
@@ -64,14 +67,12 @@ export function UserManagement() {
   const filteredUsers = users.filter(user => {
     const name = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
     const matchesSearch = name.includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const userRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'User';
-    const matchesRole = selectedRole === 'All Roles' || userRole === selectedRole;
+                         (user.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const userRoles = user.roles && user.roles.length > 0 ? user.roles : [];
+    const matchesRole = selectedRole === 'All Roles' || userRoles.includes(selectedRole);
     return matchesSearch && matchesRole;
   });
   
-  const availableRoles = useMemo(() => roles.map(r => r.name), [roles]);
-
   const handleAddUser = async () => {
     if (!newUser.email) {
       toast({
@@ -90,14 +91,14 @@ export function UserManagement() {
         email: newUser.email!,
         username: newUser.email!,
         ...newUser,
-        roles: newUser.roles || ['User']
+        roles: newUser.roles || []
     };
 
     const success = await updateUserProfile(userToCreate);
 
     if (success) {
         setUsers([...users, userToCreate]);
-        setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
+        resetForm();
         setIsAddUserOpen(false);
         toast({
           title: "Success",
@@ -119,7 +120,7 @@ export function UserManagement() {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      roles: user.roles || ['User']
+      roles: user.roles || []
     });
   };
 
@@ -137,7 +138,7 @@ export function UserManagement() {
       );
       setUsers(updatedUsers);
       setEditingUser(null);
-      setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
+      resetForm();
       toast({
         title: "Success",
         description: "User updated successfully"
@@ -161,8 +162,21 @@ export function UserManagement() {
   };
 
   const resetForm = () => {
-    setNewUser({ first_name: '', last_name: '', email: '', roles: ['User'] });
+    setNewUser({ first_name: '', last_name: '', email: '', roles: [] });
     setEditingUser(null);
+  };
+
+  const handleRoleSelection = (roleName: string) => {
+    setNewUser(prev => {
+        const roles = prev.roles ? [...prev.roles] : [];
+        const index = roles.indexOf(roleName);
+        if (index > -1) {
+            roles.splice(index, 1);
+        } else {
+            roles.push(roleName);
+        }
+        return {...prev, roles};
+    })
   };
   
   if (loading) {
@@ -226,7 +240,7 @@ export function UserManagement() {
             </TableHeader>
             <TableBody>
               {filteredUsers.map((user) => {
-                const userRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'User';
+                const userRoles = user.roles && user.roles.length > 0 ? user.roles : ['User'];
                 return (
                 <TableRow key={user.userId}>
                   <TableCell>
@@ -242,12 +256,20 @@ export function UserManagement() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge 
-                      variant="secondary" 
-                      className={userRole === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
-                    >
-                      {userRole}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {userRoles.map(role => (
+                          <Badge 
+                              key={role}
+                              variant="secondary" 
+                              className={cn(
+                                  "font-normal",
+                                  role === 'Admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                              )}
+                          >
+                          {role}
+                          </Badge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge 
@@ -263,7 +285,10 @@ export function UserManagement() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleEditUser(user)}
+                        onClick={() => {
+                          handleEditUser(user);
+                          setIsAddUserOpen(true);
+                        }}
                         className="text-orange-600 hover:text-orange-700"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -285,7 +310,7 @@ export function UserManagement() {
         </CardContent>
       </Card>
 
-      <Dialog open={isAddUserOpen || editingUser !== null} onOpenChange={(open) => {
+      <Dialog open={isAddUserOpen} onOpenChange={(open) => {
         if (!open) {
           setIsAddUserOpen(false);
           resetForm();
@@ -334,22 +359,45 @@ export function UserManagement() {
                 onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                 className="col-span-3"
                 placeholder="Enter email address"
+                disabled={!!editingUser}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="role" className="text-right">
-                Role
+                Roles
               </Label>
-              <Select value={newUser.roles ? newUser.roles[0] : 'User'} onValueChange={(value) => setNewUser({ ...newUser, roles: [value] })}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map(role => (
-                    <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        className="col-span-3 justify-between font-normal"
+                    >
+                        <span className="truncate">
+                            {newUser.roles && newUser.roles.length > 0 ? newUser.roles.join(', ') : "Select roles..."}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                    <ScrollArea className="h-48">
+                        <div className="p-2 space-y-1">
+                            {roles.map(role => (
+                                <div key={role.id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md">
+                                    <Checkbox 
+                                        id={`role-${role.id}`}
+                                        checked={newUser.roles?.includes(role.name)}
+                                        onCheckedChange={() => handleRoleSelection(role.name)}
+                                    />
+                                    <Label htmlFor={`role-${role.id}`} className="font-normal flex-1 cursor-pointer">
+                                        {role.name}
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           <DialogFooter>
@@ -368,3 +416,4 @@ export function UserManagement() {
     </div>
   );
 }
+
