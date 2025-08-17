@@ -205,8 +205,8 @@ export function UserManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Roles">All Roles</SelectItem>
-                  {availableRoles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                  {availableRoles.map((role, index) => (
+                    <SelectItem key={`${role}-${index}`} value={role}>{role}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
