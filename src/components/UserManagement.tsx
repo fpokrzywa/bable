@@ -21,6 +21,8 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Checkbox } from './ui/checkbox';
 import { ScrollArea } from './ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { Switch } from './ui/switch';
+import { Textarea } from './ui/textarea';
 
 
 export function UserManagement() {
@@ -35,7 +37,12 @@ export function UserManagement() {
     first_name: '',
     last_name: '',
     email: '',
-    roles: []
+    roles: [],
+    active: "true",
+    bio: '',
+    avatar: '',
+    password: '',
+    Company: '',
   });
   const { toast } = useToast();
   
@@ -117,7 +124,12 @@ export function UserManagement() {
       last_name: user.last_name,
       email: user.email,
       roles: user.roles || [],
-      userId: user.userId // Pass the userId for updates
+      userId: user.userId,
+      active: user.active || "true",
+      bio: user.bio || '',
+      avatar: user.avatar || '',
+      password: user.password || '',
+      Company: user.Company || '',
     });
     setIsAddUserOpen(true);
   };
@@ -131,7 +143,12 @@ export function UserManagement() {
         first_name: newUser.first_name,
         last_name: newUser.last_name,
         email: newUser.email,
-        roles: newUser.roles || []
+        roles: newUser.roles || [],
+        active: newUser.active,
+        bio: newUser.bio,
+        avatar: newUser.avatar,
+        password: newUser.password,
+        Company: newUser.Company,
     };
     
     const success = await updateUserProfile(userToUpdate);
@@ -170,7 +187,17 @@ export function UserManagement() {
   };
 
   const resetForm = () => {
-    setNewUser({ first_name: '', last_name: '', email: '', roles: [] });
+    setNewUser({ 
+      first_name: '', 
+      last_name: '', 
+      email: '', 
+      roles: [],
+      active: "true",
+      bio: '',
+      avatar: '',
+      password: '',
+      Company: '',
+    });
     setEditingUser(null);
   };
 
@@ -282,9 +309,9 @@ export function UserManagement() {
                   <TableCell>
                     <Badge 
                       variant={'default'}
-                      className={'bg-green-500'}
+                      className={cn(user.active === 'true' ? 'bg-green-500' : 'bg-gray-400')}
                     >
-                      Active
+                      {user.active === 'true' ? 'Active' : 'Inactive'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-gray-600">Never</TableCell>
@@ -323,15 +350,15 @@ export function UserManagement() {
           resetForm();
         }
       }}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
             <DialogDescription>
               {editingUser ? 'Update user information and permissions.' : 'Create a new user account with appropriate permissions.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-             <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-6">
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="first_name" className="text-right">
                 First Name
               </Label>
@@ -343,7 +370,7 @@ export function UserManagement() {
                 placeholder="Enter first name"
               />
             </div>
-             <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="last_name" className="text-right">
                 Last Name
               </Label>
@@ -369,8 +396,58 @@ export function UserManagement() {
                 disabled={!!editingUser}
               />
             </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={newUser.password || ''}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                className="col-span-3"
+                placeholder="Enter password"
+              />
+            </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="role" className="text-right">
+              <Label htmlFor="Company" className="text-right">
+                Company
+              </Label>
+              <Input
+                id="Company"
+                value={newUser.Company || ''}
+                onChange={(e) => setNewUser({ ...newUser, Company: e.target.value })}
+                className="col-span-3"
+                placeholder="Enter company name"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="avatar" className="text-right">
+                Avatar URL
+              </Label>
+              <Input
+                id="avatar"
+                value={newUser.avatar || ''}
+                onChange={(e) => setNewUser({ ...newUser, avatar: e.target.value })}
+                className="col-span-3"
+                placeholder="https://example.com/avatar.png"
+              />
+            </div>
+             <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="bio" className="text-right pt-2">
+                Bio
+              </Label>
+              <Textarea
+                id="bio"
+                value={newUser.bio || ''}
+                onChange={(e) => setNewUser({ ...newUser, bio: e.target.value })}
+                className="col-span-3"
+                placeholder="Tell us about the user"
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">
                 Roles
               </Label>
               <Popover>
@@ -406,6 +483,18 @@ export function UserManagement() {
                 </PopoverContent>
               </Popover>
             </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="active" className="text-right">
+                Active
+              </Label>
+              <div className="col-span-3">
+                <Switch
+                    id="active"
+                    checked={newUser.active === 'true'}
+                    onCheckedChange={(checked) => setNewUser({ ...newUser, active: checked ? 'true' : 'false' })}
+                />
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => {
@@ -423,3 +512,4 @@ export function UserManagement() {
     </div>
   );
 }
+

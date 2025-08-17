@@ -70,6 +70,9 @@ export interface User {
     bio?: string;
     avatar?: string;
     roles?: string[];
+    active?: string;
+    password?: string;
+    Company?: string;
 }
 
 export interface Workspace {
