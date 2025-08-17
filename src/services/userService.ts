@@ -16,9 +16,9 @@ const getWebhookUrl = () => {
 };
 
 const getUpdateWebhookUrl = () => {
-    const url = process.env.USER_PROFILE_UPDATE_WEBHOOK_URL;
+    const url = process.env.NEXT_PUBLIC_GET_USERS_URL;
     if (!url) {
-        console.warn('USER_PROFILE_UPDATE_WEBHOOK_URL is not configured in .env file.');
+        console.warn('USER_PROFILE_UPDATE_WEBHOOK_URL (or NEXT_PUBLIC_GET_USERS_URL) is not configured in .env file.');
         return null;
     }
     return url;
@@ -115,7 +115,7 @@ export async function getUserProfile(email: string): Promise<User | null> {
 export async function updateUserProfile(profileData: Partial<User>): Promise<boolean> {
     const webhookUrl = getUpdateWebhookUrl();
     if (!webhookUrl) {
-        console.error('Cannot update user profile: USER_PROFILE_UPDATE_WEBHOOK_URL is not configured.');
+        console.error('Cannot update user profile: NEXT_PUBLIC_GET_USERS_URL is not configured.');
         return false;
     }
 
