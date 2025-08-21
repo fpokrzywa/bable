@@ -764,7 +764,14 @@ export function Dashboard() {
 
         if (isCreating) {
             const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
-            const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({ id, x, y, width, height, zIndex }));
+            const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
+              id,
+              x: Math.round(x || 0),
+              y: Math.round(y || 0),
+              width,
+              height,
+              zIndex,
+            }));
             workspace_data = JSON.stringify(widgetContent);
             cordinates = JSON.stringify(widgetCoordinates);
         } else if (workspaceToEdit) {
