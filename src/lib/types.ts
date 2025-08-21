@@ -82,7 +82,8 @@ export interface Workspace {
     workspaceId: string;
     userId: string;
     workspace_name: string;
-    workspace_data: string; // JSON string of widgets
+    workspace_data: string; // JSON string of widgets' content
+    cordinates?: string; // JSON string of widgets' layout info
     active?: boolean;
     last_accessed?: string;
 }

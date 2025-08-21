@@ -22,7 +22,7 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
@@ -710,18 +710,24 @@ export function Dashboard() {
         }
         if (!user) return;
         
-        const workspaceData = JSON.stringify(widgets.map(w => ({
-            ...w,
-            x: Math.round(w.x || 0),
-            y: Math.round(w.y || 0),
-            width: w.width,
-            height: w.height
-        })));
+        const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
+        const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
+            id,
+            x: Math.round(x || 0),
+            y: Math.round(y || 0),
+            width,
+            height,
+            zIndex,
+        }));
+
+        const workspace_data = JSON.stringify(widgetContent);
+        const cordinates = JSON.stringify(widgetCoordinates);
         
         const result = await saveWorkspace({
             userId: user.userId,
             workspace_name: activeWorkspace.workspace_name,
-            workspace_data: workspaceData,
+            workspace_data,
+            cordinates,
             workspaceId: activeWorkspace.workspaceId
         });
 
@@ -753,13 +759,28 @@ export function Dashboard() {
         setLoading(true);
         const isCreating = workspaceAction === 'create';
         
-        const workspaceData = isCreating ? JSON.stringify(widgets) : (workspaceToEdit ? workspaceToEdit.workspace_data : JSON.stringify(widgets));
+        let workspace_data: string;
+        let cordinates: string | undefined;
+
+        if (isCreating) {
+            const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
+            const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({ id, x, y, width, height, zIndex }));
+            workspace_data = JSON.stringify(widgetContent);
+            cordinates = JSON.stringify(widgetCoordinates);
+        } else if (workspaceToEdit) {
+            workspace_data = workspaceToEdit.workspace_data;
+            cordinates = workspaceToEdit.cordinates;
+        } else {
+            workspace_data = JSON.stringify(widgets);
+        }
+
         const workspaceIdToSave = isCreating ? undefined : workspaceToEdit!.workspaceId;
         
         const result = await saveWorkspace({
             userId: user.userId,
             workspace_name: workspaceName,
-            workspace_data: workspaceData,
+            workspace_data,
+            cordinates,
             workspaceId: workspaceIdToSave
         });
         setLoading(false);
@@ -804,10 +825,21 @@ export function Dashboard() {
     const loadWorkspaceUI = (workspace: Workspace) => {
         try {
             if (workspace.workspace_data && workspace.workspace_data.trim() !== '') {
-              const loadedWidgets = JSON.parse(workspace.workspace_data);
-              setWidgets(loadedWidgets);
+                const contentData = JSON.parse(workspace.workspace_data);
+                if (workspace.cordinates) {
+                    const layoutData = JSON.parse(workspace.cordinates);
+                    const layoutMap = new Map(layoutData.map((l: any) => [l.id, l]));
+                    const mergedWidgets = contentData.map((widget: any) => ({
+                        ...widget,
+                        ...(layoutMap.get(widget.id) || {}),
+                    }));
+                    setWidgets(mergedWidgets);
+                } else {
+                    // Fallback for old format
+                    setWidgets(contentData);
+                }
             } else {
-              setWidgets([]);
+                setWidgets([]);
             }
         } catch (error) {
             console.error("Failed to parse workspace data", error);
