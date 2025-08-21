@@ -758,7 +758,7 @@ export function Dashboard() {
     
       setLoading(true);
       const isCreating = workspaceAction === 'create';
-      const isEditing = workspaceAction === 'edit';
+      const isEditing = workspaceAction === 'edit' && workspaceToEdit;
     
       let workspace_data: string;
       let cordinates: string | undefined;
@@ -775,11 +775,11 @@ export function Dashboard() {
         }));
         workspace_data = JSON.stringify(widgetContent);
         cordinates = JSON.stringify(widgetCoordinates);
-      } else if (workspaceToEdit) {
+      } else if (isEditing) {
         workspace_data = workspaceToEdit.workspace_data;
         cordinates = workspaceToEdit.cordinates;
       } else {
-        // Fallback for saving an unnamed workspace
+        // Fallback for saving an unnamed workspace (shouldn't happen with the new flow)
         const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
          const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
           id,
@@ -813,7 +813,7 @@ export function Dashboard() {
           const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
           setOpenWorkspaces(prev => [...prev, newWorkspace]);
           setCurrentWorkspaceId(newWorkspace.workspaceId);
-        } else if (isEditing && workspaceToEdit) {
+        } else if (isEditing) {
           // Update the open workspace tab with the new name
           setOpenWorkspaces(prev =>
             prev.map(ws =>
@@ -1148,11 +1148,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-    
-
-      
-
-    
-
-
