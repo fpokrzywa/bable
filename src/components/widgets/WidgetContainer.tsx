@@ -99,7 +99,7 @@ export function WidgetContainer({
     };
   }, [sidebarState, sidebarRef, chatInputRef, widgets, updateAllBounds]);
   
-  const handleStop = (id: string, data: DraggableData) => {
+  const handleDrag = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);
   };
   
@@ -122,7 +122,7 @@ export function WidgetContainer({
               handle=".drag-handle"
               onStart={() => bringToFront(widget.id)}
               position={{ x: widget.x ?? 0, y: widget.y ?? 0 }}
-              onStop={(e: DraggableEvent, data: DraggableData) => handleStop(widget.id, data)}
+              onDrag={(e: DraggableEvent, data: DraggableData) => handleDrag(widget.id, data)}
               bounds={bounds[widget.id]}
           >
               <div 
