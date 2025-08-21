@@ -47,6 +47,8 @@ export interface Widget {
   isFavorited: boolean;
   x?: number;
   y?: number;
+  width?: number;
+  height?: number;
   isExpanded?: boolean;
 }
 
@@ -70,9 +72,10 @@ export interface User {
     bio?: string;
     avatar?: string;
     roles?: string[];
-    active?: string;
+    active: boolean; // Changed to boolean for consistency
     password?: string;
     Company?: string;
+    _id?: any;
 }
 
 export interface Workspace {

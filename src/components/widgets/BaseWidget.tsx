@@ -163,6 +163,13 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     }
   };
 
+  const getWidgetWidth = () => {
+    if (isMobile) return '100%';
+    if (widget.width) return widget.width;
+    if (isChatOpen) return WIDGET_EXPANDED_WIDTH;
+    return WIDGET_INITIAL_WIDTH;
+  };
+
   return (
     <Card 
       className={cn(
@@ -171,7 +178,8 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
       )}
       ref={widgetRef}
       style={{ 
-        width: !isMobile ? (isChatOpen ? WIDGET_EXPANDED_WIDTH : WIDGET_INITIAL_WIDTH) : '100%',
+        width: getWidgetWidth(),
+        height: isMobile ? 'auto' : widget.height,
       }}
     >
       <div className={cn(!isMobile && "drag-handle cursor-move")} onDoubleClick={() => toggleMinimizeWidget(widget.id)}>

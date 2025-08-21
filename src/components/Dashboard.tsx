@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -9,7 +10,7 @@ import { saveQueryWithVoiceText } from '@/ai/flows/save-query-with-voice-text';
 import { generateOverviewSummary } from '@/ai/flows/generate-overview-summary';
 import { Sidebar, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { WidgetContainer, WIDGET_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/components/widgets/WidgetContainer';
+import { WidgetContainer, WIDGET_INITIAL_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/components/widgets/WidgetContainer';
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
@@ -43,10 +44,7 @@ export function Dashboard() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const [favorites, setFavorites] = useState<Widget[]>([]);
-  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([
-    { name: 'Open Incidents', query: 'show me the open incidents' },
-    { name: 'My High Priority Tasks', query: 'show my high priority tasks' },
-  ]);
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
   const { toast } = useToast();
@@ -108,7 +106,7 @@ export function Dashboard() {
     // First try to get cached data from login
     const cachedData = getCachedUserData();
     
-    if (cachedData.user && cachedData.workspaces.length > 0) {
+    if (cachedData.user && cachedData.workspaces.length >= 0) {
       // Use cached data immediately
       setUser(cachedData.user);
       setWorkspaces(cachedData.workspaces);
@@ -218,6 +216,7 @@ export function Dashboard() {
           toggleMinimizeWidget={toggleMinimizeWidget}
           toggleFavoriteWidget={toggleFavoriteWidget}
           updateWidgetPosition={updateWidgetPosition}
+          updateWidgetDimensions={updateWidgetDimensions}
           sidebarState={state}
           sidebarRef={sidebarRef}
           chatInputRef={chatInputRef}
@@ -386,6 +385,8 @@ export function Dashboard() {
             isFavorited: w.isFavorited,
             x: w.x,
             y: w.y,
+            width: w.width,
+            height: w.height,
             isExpanded: w.isExpanded,
           }));
           localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
@@ -418,7 +419,7 @@ export function Dashboard() {
     const randomOffsetY = Math.floor(Math.random() * 50) - 25;
 
     const initialX = sidebarWidth + (workspaceWidth / 2) - (WIDGET_INITIAL_WIDTH / 2) + randomOffsetX;
-    const initialY = (workspaceHeight / 2) - (WIDGET_HEIGHT / 2) + randomOffsetY;
+    const initialY = (workspaceHeight / 2) - (WIDGET_INITIAL_HEIGHT / 2) + randomOffsetY;
     
     const newWidget: Widget = {
       ...widgetDef,
@@ -426,6 +427,8 @@ export function Dashboard() {
       isMinimized: false,
       x: widgetDef.x ?? initialX,
       y: widgetDef.y ?? initialY,
+      width: widgetDef.width ?? WIDGET_INITIAL_WIDTH,
+      height: widgetDef.height ?? WIDGET_INITIAL_HEIGHT,
     };
     
     setWidgets((prev) => [...prev, newWidget]);
@@ -645,6 +648,14 @@ export function Dashboard() {
     );
   };
 
+  const updateWidgetDimensions = (id: string, width: number, height: number) => {
+    setWidgets(prevWidgets =>
+        prevWidgets.map(widget =>
+            widget.id === id ? { ...widget, width, height } : widget
+        )
+    );
+  };
+
 
   const updateEntity = (widgetId: string, entityNumber: string, updatedData: Partial<Problem | Incident | Change>) => {
     const updateInData = (data: any[]) =>
@@ -699,7 +710,14 @@ export function Dashboard() {
         }
         if (!user) return;
         
-        const workspaceData = JSON.stringify(widgets);
+        const workspaceData = JSON.stringify(widgets.map(w => ({
+            ...w,
+            x: Math.round(w.x || 0),
+            y: Math.round(w.y || 0),
+            width: w.width,
+            height: w.height
+        })));
+        
         const result = await saveWorkspace({
             userId: user.userId,
             workspace_name: activeWorkspace.workspace_name,
@@ -711,7 +729,14 @@ export function Dashboard() {
             if (!silent) {
                 toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
             }
-            if (user) fetchWorkspaces(user.userId, true); // Force refresh after save
+            // After saving, force a refresh of the workspace data from the server
+            if (user) {
+                await fetchWorkspaces(user.userId, true);
+                const updatedWs = workspaces.find(ws => ws.workspaceId === activeWorkspace.workspaceId);
+                if (updatedWs) {
+                    loadWorkspaceUI(updatedWs);
+                }
+            }
         } else {
             if (!silent) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });

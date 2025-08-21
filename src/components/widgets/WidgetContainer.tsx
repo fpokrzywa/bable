@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, createRef, useState, useEffect } from 'react';
+import { useRef, createRef, useState, useEffect, useCallback } from 'react';
 import Draggable, { type DraggableBounds, type DraggableData, type DraggableEvent } from 'react-draggable';
 import type { Widget, Problem, Incident, Change } from '@/lib/types';
 import { BaseWidget } from './BaseWidget';
@@ -14,6 +14,7 @@ interface WidgetContainerProps {
   toggleMinimizeWidget: (id: string) => void;
   toggleFavoriteWidget: (id: string) => void;
   updateWidgetPosition: (id: string, x: number, y: number) => void;
+  updateWidgetDimensions: (id: string, width: number, height: number) => void;
   sidebarState: 'expanded' | 'collapsed';
   sidebarRef: React.RefObject<HTMLDivElement>;
   chatInputRef: React.RefObject<HTMLDivElement>;
@@ -21,11 +22,25 @@ interface WidgetContainerProps {
 
 export const WIDGET_INITIAL_WIDTH = 450;
 export const WIDGET_EXPANDED_WIDTH = 750;
-export const WIDGET_HEIGHT = 400;
+export const WIDGET_INITIAL_HEIGHT = 400;
 
-export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, updateWidgetPosition, sidebarState, sidebarRef, chatInputRef }: WidgetContainerProps) {
+
+export function WidgetContainer({ 
+    widgets, 
+    removeWidget, 
+    updateEntity, 
+    bringToFront, 
+    toggleMinimizeWidget, 
+    toggleFavoriteWidget, 
+    updateWidgetPosition, 
+    updateWidgetDimensions,
+    sidebarState, 
+    sidebarRef, 
+    chatInputRef 
+}: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<{[key: string]: DraggableBounds}>({});
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   
   const nodeRefs = useRef(new Map<string, React.RefObject<HTMLDivElement>>());
 
@@ -35,51 +50,61 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
     }
   });
 
+  const updateAllBounds = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+
+    const newBounds: {[key: string]: DraggableBounds} = {};
+    widgets.forEach(widget => {
+      const node = nodeRefs.current.get(widget.id)?.current;
+      if (node) {
+          const currentWidth = node.offsetWidth;
+          const currentHeight = node.offsetHeight;
+          newBounds[widget.id] = {
+            left: 0,
+            top: 0,
+            right: containerWidth - currentWidth,
+            bottom: containerHeight - currentHeight,
+          };
+      }
+    });
+    setBounds(newBounds);
+  }, [widgets]);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const updateBounds = () => {
-      const sidebarWidth = sidebarState === 'expanded' ? (sidebarRef.current?.offsetWidth ?? 0) : 0;
-      
-      const containerWidth = container.offsetWidth;
-      const containerHeight = container.offsetHeight;
-
-      const newBounds: {[key: string]: DraggableBounds} = {};
-      widgets.forEach(widget => {
+    const resizeObserver = new ResizeObserver(updateAllBounds);
+    resizeObserver.observe(container);
+    if(sidebarRef.current) resizeObserver.observe(sidebarRef.current);
+    if(chatInputRef.current) resizeObserver.observe(chatInputRef.current);
+    
+    // Set up individual widget observers for resizing
+    widgets.forEach(widget => {
         const node = nodeRefs.current.get(widget.id)?.current;
         if (node) {
-            const currentWidth = node.offsetWidth;
-            const currentHeight = node.offsetHeight;
-            newBounds[widget.id] = {
-              left: 0,
-              top: 0,
-              right: containerWidth - currentWidth,
-              bottom: containerHeight - currentHeight,
-            };
+            resizeObserver.observe(node);
         }
-      });
-      setBounds(newBounds);
-    };
-
-    updateBounds();
-
-    const resizeObserver = new ResizeObserver(updateBounds);
-    resizeObserver.observe(container);
-    if(sidebarRef.current) {
-        resizeObserver.observe(sidebarRef.current)
-    }
-     if(chatInputRef.current) {
-        resizeObserver.observe(chatInputRef.current)
-    }
+    });
+    
+    // Store observer to disconnect it later
+    resizeObserverRef.current = resizeObserver;
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [sidebarState, sidebarRef, chatInputRef, widgets]);
+  }, [sidebarState, sidebarRef, chatInputRef, widgets, updateAllBounds]);
   
   const handleStop = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);
+  };
+  
+  const handleResizeStop = (id: string, node: HTMLDivElement) => {
+    updateWidgetDimensions(id, node.offsetWidth, node.offsetHeight);
   };
   
   if (widgets.length === 0) {
@@ -105,8 +130,10 @@ export function WidgetContainer({ widgets, removeWidget, updateEntity, bringToFr
                 ref={nodeRef}
                 style={{
                     zIndex: widget.zIndex,
-                    height: `${WIDGET_HEIGHT}px`,
+                    width: widget.width || WIDGET_INITIAL_WIDTH,
+                    height: widget.height || WIDGET_INITIAL_HEIGHT,
                 }}
+                onMouseUp={() => handleResizeStop(widget.id, nodeRef.current!)}
                 onMouseDown={() => bringToFront(widget.id)}
               >
                   <BaseWidget 
