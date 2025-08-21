@@ -39,6 +39,7 @@ export default function LandingPage() {
           <span className="text-foreground">I am </span>
           <span className="text-primary">BabelPhish</span>
         </h1>
+        <span>the intelligent experience</span><br></br>
 
         <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
           <DialogTrigger asChild>
