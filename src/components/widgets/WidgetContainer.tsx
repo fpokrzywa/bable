@@ -101,8 +101,9 @@ export function WidgetContainer({
     };
   }, [sidebarState, sidebarRef, chatInputRef, widgets, updateAllBounds]);
   
-  const handleDrag = (id: string, data: DraggableData) => {
+  const handleDragStop = (id: string, data: DraggableData) => {
     updateWidgetPosition(id, data.x, data.y);
+    setIsDragging(false);
   };
   
   const handleResizeStop = (id: string, node: HTMLDivElement) => {
@@ -126,9 +127,8 @@ export function WidgetContainer({
                 bringToFront(widget.id);
                 setIsDragging(true);
               }}
-              onStop={() => setIsDragging(false)}
+              onStop={(e: DraggableEvent, data: DraggableData) => handleDragStop(widget.id, data)}
               position={{ x: widget.x ?? 0, y: widget.y ?? 0 }}
-              onDrag={(e: DraggableEvent, data: DraggableData) => handleDrag(widget.id, data)}
               bounds={bounds[widget.id]}
           >
               <div 
