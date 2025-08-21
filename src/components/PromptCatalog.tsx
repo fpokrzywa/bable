@@ -131,7 +131,7 @@ export function PromptCatalog() {
             </CardContent>
             <CardFooter className="p-4 pt-0 flex justify-between items-end">
               <div className="flex-wrap gap-2 flex">
-                  {prompt.tags.map(tag => (
+                  {(prompt.tags || []).map(tag => (
                   <Badge key={tag} variant="secondary">{tag}</Badge>
                   ))}
               </div>
