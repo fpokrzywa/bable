@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -44,11 +45,12 @@ interface AppSidebarProps {
     isSyncingWorkspaces?: boolean;
     syncEnabled?: boolean;
     lastSyncTime?: Date | null;
+    activeWorkspaceId?: string | null;
 }
 
 const SIDEBAR_ACCORDION_STATE = 'sidebarAccordionState';
 
-export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, currentView = 'dashboard', onViewChange, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace, onWorkspaceAction, onMainWorkspace, onRefreshWorkspaces, isSyncingWorkspaces = false, syncEnabled = true, lastSyncTime }: AppSidebarProps) {
+export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspaces, currentView = 'dashboard', onViewChange, onRestoreWidget, onRestoreFavorite, onProfileUpdate, onLoadWorkspace, onWorkspaceAction, onMainWorkspace, onRefreshWorkspaces, isSyncingWorkspaces = false, syncEnabled = true, lastSyncTime, activeWorkspaceId }: AppSidebarProps) {
   const { state, setOpenMobile } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
@@ -118,7 +120,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 <SidebarMenuButton 
                     variant="ghost" 
                     className="w-full justify-start" 
-                    isActive={currentView === 'dashboard'}
+                    isActive={currentView === 'dashboard' && !activeWorkspaceId}
                     onClick={() => onMainWorkspace?.()}
                 >
                     <LayoutGrid />
@@ -127,7 +129,7 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 
                 
                 {workspaces.map((ws) => (
-                    <SidebarMenuButton key={ws.workspaceId} variant="ghost" className="w-full justify-start" onClick={() => handleWorkspaceClick(ws)}>
+                    <SidebarMenuButton key={ws.workspaceId} variant="ghost" className="w-full justify-start" isActive={ws.workspaceId === activeWorkspaceId} onClick={() => handleWorkspaceClick(ws)}>
                         <FolderKanban />
                         <span className="truncate">{ws.workspace_name}</span>
                     </SidebarMenuButton>

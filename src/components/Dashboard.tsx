@@ -715,8 +715,8 @@ export function Dashboard() {
             id,
             x: Math.round(x || 0),
             y: Math.round(y || 0),
-            width,
-            height,
+            width: width || WIDGET_INITIAL_WIDTH,
+            height: height || WIDGET_INITIAL_HEIGHT,
             zIndex,
         }));
 
@@ -965,6 +965,7 @@ export function Dashboard() {
       isSyncingWorkspaces={isSyncingWorkspaces}
       syncEnabled={syncEnabled}
       lastSyncTime={lastSyncTime}
+      activeWorkspaceId={currentWorkspaceId}
     />
   );
   
