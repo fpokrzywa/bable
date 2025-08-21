@@ -751,63 +751,84 @@ export function Dashboard() {
     };
 
     const handleSaveWorkspace = async () => {
-        if (!user || !workspaceName.trim()) {
-            toast({ variant: 'destructive', title: 'Error', description: 'User not found or workspace name is empty.' });
-            return;
-        }
-
-        setLoading(true);
-        const isCreating = workspaceAction === 'create';
+      if (!user || !workspaceName.trim()) {
+        toast({ variant: 'destructive', title: 'Error', description: 'User not found or workspace name is empty.' });
+        return;
+      }
+    
+      setLoading(true);
+      const isCreating = workspaceAction === 'create';
+      const isEditing = workspaceAction === 'edit';
+    
+      let workspace_data: string;
+      let cordinates: string | undefined;
+    
+      if (isCreating) {
+        const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
+        const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
+          id,
+          x: Math.round(x || 0),
+          y: Math.round(y || 0),
+          width: width || WIDGET_INITIAL_WIDTH,
+          height: height || WIDGET_INITIAL_HEIGHT,
+          zIndex,
+        }));
+        workspace_data = JSON.stringify(widgetContent);
+        cordinates = JSON.stringify(widgetCoordinates);
+      } else if (workspaceToEdit) {
+        workspace_data = workspaceToEdit.workspace_data;
+        cordinates = workspaceToEdit.cordinates;
+      } else {
+        // Fallback for saving an unnamed workspace
+        const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
+         const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
+          id,
+          x: Math.round(x || 0),
+          y: Math.round(y || 0),
+          width: width || WIDGET_INITIAL_WIDTH,
+          height: height || WIDGET_INITIAL_HEIGHT,
+          zIndex,
+        }));
+        workspace_data = JSON.stringify(widgetContent);
+        cordinates = JSON.stringify(widgetCoordinates);
+      }
+    
+      const workspaceIdToSave = isCreating ? undefined : workspaceToEdit!.workspaceId;
+    
+      const result = await saveWorkspace({
+        userId: user.userId,
+        workspace_name: workspaceName,
+        workspace_data,
+        cordinates,
+        workspaceId: workspaceIdToSave,
+      });
+      setLoading(false);
+    
+      if (result) {
+        toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
         
-        let workspace_data: string;
-        let cordinates: string | undefined;
-
+        await fetchWorkspaces(user.userId, true);
+    
         if (isCreating) {
-            const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
-            const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
-              id,
-              x: Math.round(x || 0),
-              y: Math.round(y || 0),
-              width,
-              height,
-              zIndex,
-            }));
-            workspace_data = JSON.stringify(widgetContent);
-            cordinates = JSON.stringify(widgetCoordinates);
-        } else if (workspaceToEdit) {
-            workspace_data = workspaceToEdit.workspace_data;
-            cordinates = workspaceToEdit.cordinates;
-        } else {
-            workspace_data = JSON.stringify(widgets);
+          const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
+          setOpenWorkspaces(prev => [...prev, newWorkspace]);
+          setCurrentWorkspaceId(newWorkspace.workspaceId);
+        } else if (isEditing && workspaceToEdit) {
+          // Update the open workspace tab with the new name
+          setOpenWorkspaces(prev =>
+            prev.map(ws =>
+              ws.workspaceId === workspaceToEdit.workspaceId
+                ? { ...ws, workspace_name: workspaceName }
+                : ws
+            )
+          );
         }
-
-        const workspaceIdToSave = isCreating ? undefined : workspaceToEdit!.workspaceId;
-        
-        const result = await saveWorkspace({
-            userId: user.userId,
-            workspace_name: workspaceName,
-            workspace_data,
-            cordinates,
-            workspaceId: workspaceIdToSave
-        });
-        setLoading(false);
-
-        if (result) {
-            toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
-            if (user) fetchWorkspaces(user.userId, true);
-            if (isCreating) {
-                const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
-                setOpenWorkspaces(prev => [...prev, newWorkspace]);
-                setCurrentWorkspaceId(newWorkspace.workspaceId);
-            } else {
-                 setOpenWorkspaces(prev => prev.map(ws => ws.workspaceId === result.workspaceId ? {...ws, workspace_name: workspaceName} : ws));
-            }
-        } else {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
-        }
-        setIsWorkspaceModalOpen(false);
-        setWorkspaceName('');
-        setWorkspaceToEdit(null);
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
+      }
+      setIsWorkspaceModalOpen(false);
+      setWorkspaceName('');
+      setWorkspaceToEdit(null);
     };
     
     const handleDeleteWorkspace = async () => {
@@ -1133,4 +1154,5 @@ export function Dashboard() {
       
 
     
+
 
