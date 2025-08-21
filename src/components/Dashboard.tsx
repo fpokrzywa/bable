@@ -22,7 +22,7 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { useIsMobile } from '@/hooks/use-is-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { BaseWidget } from './widgets/BaseWidget';
 import { ScrollArea } from './ui/scroll-area';
@@ -1123,3 +1123,5 @@ export function Dashboard() {
     
 
       
+
+    
