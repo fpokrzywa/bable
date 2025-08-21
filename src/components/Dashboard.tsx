@@ -66,6 +66,8 @@ export function Dashboard() {
   const [workspaceAction, setWorkspaceAction] = useState<'create' | 'edit' | 'load' | 'forget' | 'save' | null>(null);
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
   
+  const [isDraggingWidget, setIsDraggingWidget] = useState(false);
+
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
   
@@ -160,10 +162,10 @@ export function Dashboard() {
     
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
-      if (activeWorkspace && user && !loading && !isWorkspaceModalOpen) {
+      if (activeWorkspace && user && !loading && !isWorkspaceModalOpen && !isDraggingWidget) {
         handleQuickSaveWorkspace(true);
       }
-  }, [widgets, activeWorkspace, user], 1000);
+  }, [widgets, activeWorkspace, user, isDraggingWidget], 1000);
   
   const handleProfileUpdate = () => {
     // Refresh user data from server and update cache
@@ -220,6 +222,7 @@ export function Dashboard() {
           sidebarState={state}
           sidebarRef={sidebarRef}
           chatInputRef={chatInputRef}
+          setIsDragging={setIsDraggingWidget}
         />
       )}
       

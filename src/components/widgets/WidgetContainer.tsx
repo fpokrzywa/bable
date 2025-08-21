@@ -18,6 +18,7 @@ interface WidgetContainerProps {
   sidebarState: 'expanded' | 'collapsed';
   sidebarRef: React.RefObject<HTMLDivElement>;
   chatInputRef: React.RefObject<HTMLDivElement>;
+  setIsDragging: (isDragging: boolean) => void;
 }
 
 export const WIDGET_INITIAL_WIDTH = 450;
@@ -36,7 +37,8 @@ export function WidgetContainer({
     updateWidgetDimensions,
     sidebarState, 
     sidebarRef, 
-    chatInputRef 
+    chatInputRef,
+    setIsDragging
 }: WidgetContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<{[key: string]: DraggableBounds}>({});
@@ -120,7 +122,11 @@ export function WidgetContainer({
               key={widget.id}
               nodeRef={nodeRef}
               handle=".drag-handle"
-              onStart={() => bringToFront(widget.id)}
+              onStart={() => {
+                bringToFront(widget.id);
+                setIsDragging(true);
+              }}
+              onStop={() => setIsDragging(false)}
               position={{ x: widget.x ?? 0, y: widget.y ?? 0 }}
               onDrag={(e: DraggableEvent, data: DraggableData) => handleDrag(widget.id, data)}
               bounds={bounds[widget.id]}
