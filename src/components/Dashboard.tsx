@@ -360,46 +360,10 @@ export function Dashboard() {
 
   useEffect(() => {
     if (!activeWorkspace) {
-        try {
-          const savedWidgets = localStorage.getItem('dashboard-widgets');
-          if (savedWidgets) {
-            const parsedWidgets: Widget[] = JSON.parse(savedWidgets);
-            setWidgets(parsedWidgets);
-            const maxZIndex = parsedWidgets.reduce((max, w) => Math.max(max, w.zIndex || 0), 0);
-            setNextZIndex(maxZIndex + 1);
-          }
-        } catch (error) {
-          console.error("Could not load widgets from localStorage", error);
-        }
+      setWidgets([]);
     }
   }, [activeWorkspace]);
-
-  useEffect(() => {
-     if (!activeWorkspace) {
-        try {
-          const widgetsToSave = widgets.map(w => ({
-            id: w.id,
-            query: w.query,
-            data: w.data,
-            agent: w.agent,
-            type: w.type,
-            zIndex: w.zIndex,
-            isMinimized: w.isMinimized,
-            isFavorited: w.isFavorited,
-            x: w.x,
-            y: w.y,
-            width: w.width,
-            height: w.height,
-            isExpanded: w.isExpanded,
-          }));
-          localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
-        } catch (error) {
-            console.error("Could not save widgets to localStorage", error);
-        }
-     }
-  }, [widgets, activeWorkspace]);
-
-
+  
   const bringToFront = (id: string, isSummaryOrChat?: boolean) => {
     setWidgets(prevWidgets => {
       const currentMaxZ = prevWidgets.reduce((max, w) => Math.max(max, w.zIndex), 0) || 1;
