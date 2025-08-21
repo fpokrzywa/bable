@@ -75,6 +75,9 @@ export interface User {
     active: boolean; // Changed to boolean for consistency
     password?: string;
     Company?: string;
+    company_id?: {
+        $oid: string;
+    } | string;
     _id?: any;
 }
 
@@ -112,4 +115,19 @@ export interface Assistant {
   version: string;
   icon: string;
   addedDate: string;
+}
+
+export interface Company {
+  _id?: {
+    $oid: string;
+  };
+  id: string;
+  company_name: string;
+  chat_bot_name: string;
+  "OpenAI API Key": string;
+  user_count: number;
+  token_allotment: number;
+  max_workspace_sessions: number;
+  demo_environment: boolean;
+  llm_config: string;
 }

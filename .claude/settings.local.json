@@ -5,7 +5,8 @@
       "Bash(npm run dev:*)",
       "Bash(npm run typecheck:*)",
       "Bash(grep:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

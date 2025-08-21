@@ -491,6 +491,7 @@ export function UserManagement() {
                     id="active"
                     checked={newUser.active}
                     onCheckedChange={(checked) => setNewUser({ ...newUser, active: checked })}
+                    className={cn('transition-opacity', !newUser.active && 'opacity-50')}
                 />
               </div>
             </div>

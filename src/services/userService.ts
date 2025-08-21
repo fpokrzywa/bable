@@ -23,9 +23,9 @@ const getUpdateWebhookUrl = () => {
 }
 
 const getProfileWebhookUrl = () => {
-    const url = process.env.USER_PROFILE_WEBHOOK_URL;
+    const url = process.env.NEXT_PUBLIC_USER_PROFILE_WEBHOOK_URL;
     if (!url) {
-        console.warn('USER_PROFILE_WEBHOOK_URL is not configured in .env file. Using fallback data.');
+        console.warn('NEXT_PUBLIC_USER_PROFILE_WEBHOOK_URL is not configured in .env file. Using fallback data.');
         return null;
     }
     return url;
@@ -42,6 +42,45 @@ const createDefaultUser = (email: string): User => ({
     avatar: `https://i.pravatar.cc/150?u=${email}`,
     roles: ['User'],
 });
+
+export async function getUserById(userId: string): Promise<User | null> {
+    const webhookUrl = getUserApiUrl();
+    if (!webhookUrl) {
+        console.warn('NEXT_PUBLIC_GET_USERS_URL is not configured. Falling back to default user.');
+        return createDefaultUser(userId);
+    }
+
+    try {
+        const response = await axios.get(webhookUrl, { params: { userId } });
+        
+        if (response.status === 200 && response.data) {
+            // Handle both direct user object and wrapped responses
+            const userData = Array.isArray(response.data) ? response.data[0] : response.data;
+            if (userData) {
+                return {
+                    ...userData,
+                    userId: userData.userId || userData._id,
+                    roles: userData.roles || ['User']
+                };
+            }
+        }
+        
+        console.warn(`No user found for userId: ${userId}`);
+        return null;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 404) {
+                console.warn(`User not found (userId: ${userId})`);
+                return null;
+            } else {
+                console.error(`Failed to fetch user by ID ${userId}:`, error.message);
+            }
+        } else {
+            console.error('An unexpected error occurred:', error);
+        }
+        return null;
+    }
+}
 
 export async function getAllUsers(): Promise<User[]> {
     const webhookUrl = getUserApiUrl();
@@ -129,16 +168,55 @@ export async function updateUserProfile(profileData: Partial<User>): Promise<boo
         return false;
     }
 
-    // Always use POST for both create and update to avoid CORS issues with PUT
-    const method: 'post' = 'post';
-    const requestUrl = webhookUrl;
-    const payload = { ...profileData };
+    // Ensure we have an email for the userId
+    if (!profileData.email) {
+        console.error('Cannot update user profile: No email provided');
+        return false;
+    }
+
+    // Filter out null, undefined, and empty string values to preserve existing data
+    const cleanData: Partial<User> = {};
+    Object.keys(profileData).forEach(key => {
+        const value = profileData[key as keyof User];
+        // Skip username field - we'll generate it properly below
+        if (key === 'username') {
+            return;
+        }
+        // Only include values that are truthy and not empty strings
+        if (value !== null && value !== undefined && value !== '' && value !== 'null') {
+            cleanData[key as keyof User] = value;
+        }
+    });
+
+    // If we don't have any meaningful data to update, don't proceed
+    const hasValidData = Object.keys(cleanData).some(key => 
+        key !== 'userId' && cleanData[key as keyof User] !== null && cleanData[key as keyof User] !== undefined
+    );
+
+    if (!hasValidData) {
+        console.error('No valid data to update profile with');
+        return false;
+    }
+
+    // Always generate clean username if we have first_name and last_name
+    if (cleanData.first_name && cleanData.last_name) {
+        // Clean the names of any special characters and generate proper username
+        const cleanFirstName = cleanData.first_name.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        const cleanLastName = cleanData.last_name.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        cleanData.username = `${cleanFirstName}.${cleanLastName}`;
+    }
+
+    // Always include email as userId to identify the record to update
+    cleanData.userId = profileData.email;
+
+    // Send the data directly (same as User Management does)
+    const payload = cleanData;
 
     try {
-        const response = await axios[method](requestUrl, payload);
+        const response = await axios.post(webhookUrl, payload);
         return response.status === 200 || response.status === 201;
     } catch (error) {
-        console.error('Failed to update/create user profile via webhook:', error);
+        console.error('Failed to update user profile via webhook:', error);
         return false;
     }
 }

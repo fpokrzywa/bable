@@ -14,19 +14,21 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, Store, Library, Bot, Briefcase, Users, ChevronRight } from 'lucide-react';
+import { Settings, User, PanelLeft, LayoutGrid, Heart, LogOut, FolderKanban, Store, Library, Bot, Briefcase, Users, ChevronRight, Building, Headphones, BookOpen, FileText, HelpCircle, Home } from 'lucide-react';
 import type { Widget, User as UserType, Workspace } from '@/lib/types';
 import { useRouter, usePathname } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getFindAnswersItems, type FindAnswersItem } from '@/services/findAnswersService';
+import { useFindAnswersSync } from '@/hooks/use-find-answers-sync';
 import Image from 'next/image';
 import { clearUserData } from '@/services/userService';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings' | 'user-management' | 'role-management';
+type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'user-management' | 'role-management' | 'company-management' | 'company-edit' | string;
 
 interface AppSidebarProps {
     user: UserType | null;
@@ -56,6 +58,8 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const [openAccordionItem, setOpenAccordionItem] = useState('');
+  const [findAnswersItems, setFindAnswersItems] = useState<FindAnswersItem[]>([]);
+  const [findAnswersLoading, setFindAnswersLoading] = useState(true);
 
   useEffect(() => {
     const savedState = sessionStorage.getItem(SIDEBAR_ACCORDION_STATE);
@@ -68,9 +72,58 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
     }
   }, [pathname]);
 
+  // Initial fetch of Find Answers items
+  useEffect(() => {
+    const fetchFindAnswersItems = async () => {
+      setFindAnswersLoading(true);
+      try {
+        const items = await getFindAnswersItems();
+        setFindAnswersItems(items);
+      } catch (error) {
+        console.error('Failed to fetch Find Answers items:', error);
+        setFindAnswersItems([]);
+      } finally {
+        setFindAnswersLoading(false);
+      }
+    };
+
+    fetchFindAnswersItems();
+  }, []);
+
+  // Set up periodic sync for Find Answers
+  const {
+    isChecking: isSyncingFindAnswers,
+    lastSyncTime: findAnswersLastSync,
+    syncNow: syncFindAnswersNow
+  } = useFindAnswersSync({
+    user,
+    findAnswersItems,
+    onFindAnswersChanged: (updatedItems) => {
+      setFindAnswersItems(updatedItems);
+    },
+    enabled: process.env.NEXT_PUBLIC_FIND_ANSWERS_SYNC_ENABLED !== 'false',
+    intervalMs: parseInt(process.env.NEXT_PUBLIC_FIND_ANSWERS_SYNC_INTERVAL || '60000'),
+    showNotifications: process.env.NEXT_PUBLIC_FIND_ANSWERS_SYNC_NOTIFICATIONS !== 'false'
+  });
+
   const handleAccordionChange = (value: string) => {
     setOpenAccordionItem(value);
     sessionStorage.setItem(SIDEBAR_ACCORDION_STATE, value);
+  };
+
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'headphones': <Headphones />,
+      'users': <Users />,
+      'file-text': <FileText />,
+      'book-open': <BookOpen />,
+      'help-circle': <HelpCircle />,
+      'settings': <Settings />,
+      'user': <User />,
+      'building': <Building />
+    };
+    
+    return iconMap[iconName] || <HelpCircle />;
   };
 
   const handleLogout = () => {
@@ -149,17 +202,39 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                     onClick={() => onViewChange?.('profile')}
                 >
                    <User />
-                   <span>Profile</span>
+                   <span>Profile & Settings</span>
                 </SidebarMenuButton>
-                <SidebarMenuButton 
-                    variant="ghost" 
-                    className="w-full justify-start" 
-                    isActive={currentView === 'settings'}
-                    onClick={() => onViewChange?.('settings')}
-                >
-                    <Settings />
-                    <span>Settings</span>
-                </SidebarMenuButton>
+            </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="find-answers">
+            <AccordionTrigger className="w-full justify-start rounded-md px-2 hover:bg-sidebar-accent">
+                <div className="flex items-center gap-2">
+                    <HelpCircle />
+                    <span>Find Answers</span>
+                    {isSyncingFindAnswers && (
+                        <div className="animate-spin h-3 w-3 border border-gray-300 border-t-blue-500 rounded-full" />
+                    )}
+                </div>
+            </AccordionTrigger>
+            <AccordionContent>
+                {findAnswersLoading ? (
+                    <div className="px-2 py-1 text-sm text-muted-foreground">Loading...</div>
+                ) : findAnswersItems.length === 0 ? (
+                    <div className="px-2 py-1 text-sm text-muted-foreground">No items available</div>
+                ) : (
+                    findAnswersItems.map((item) => (
+                        <SidebarMenuButton 
+                            key={`expanded-${item.id}`}
+                            variant="ghost" 
+                            className="w-full justify-start"
+                            isActive={currentView === item.id}
+                            onClick={() => onViewChange?.(item.id as any)}
+                        >
+                            {getIconComponent(item.icon || 'help-circle')}
+                            <span>{item.title}</span>
+                        </SidebarMenuButton>
+                    ))
+                )}
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="admin">
@@ -185,6 +260,15 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 >
                     <Settings />
                     <span>Role Management</span>
+                </SidebarMenuButton>
+                <SidebarMenuButton 
+                    variant="ghost" 
+                    className="w-full justify-start"
+                    isActive={currentView === 'company-management'}
+                    onClick={() => onViewChange?.('company-management')}
+                >
+                    <Building />
+                    <span>Company Management</span>
                 </SidebarMenuButton>
             </AccordionContent>
         </AccordionItem>
@@ -240,28 +324,48 @@ export function AppSidebar({ user, minimizedWidgets, favoritedWidgets, workspace
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-        <SidebarMenuItem>
-            <SidebarMenuButton 
-                tooltip="Profile" 
-                variant="ghost" 
-                isActive={currentView === 'profile'}
-                onClick={() => onViewChange?.('profile')}
-                className="w-12 h-12 p-0 flex items-center justify-center"
-            >
-                <User />
-            </SidebarMenuButton>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-            <SidebarMenuButton 
-                tooltip="Settings" 
-                variant="ghost" 
-                isActive={currentView === 'settings'}
-                onClick={() => onViewChange?.('settings')}
-                className="w-12 h-12 p-0 flex items-center justify-center"
-            >
-                <Settings />
-            </SidebarMenuButton>
-        </SidebarMenuItem>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <SidebarMenuItem>
+                    <SidebarMenuButton 
+                        tooltip="Find Answers" 
+                        variant="ghost"
+                        className="w-12 h-12 p-0 flex items-center justify-center"
+                    >
+                        <div className="relative flex items-center justify-center">
+                            <HelpCircle />
+                            {isSyncingFindAnswers && (
+                                <div className="absolute -top-1 -right-1 animate-spin h-2 w-2 border border-gray-300 border-t-blue-500 rounded-full" />
+                            )}
+                        </div>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start" className="ml-2">
+                {findAnswersLoading ? (
+                    <DropdownMenuItem disabled>
+                        <span className="text-muted-foreground">Loading...</span>
+                    </DropdownMenuItem>
+                ) : findAnswersItems.length === 0 ? (
+                    <DropdownMenuItem disabled>
+                        <span className="text-muted-foreground">No items available</span>
+                    </DropdownMenuItem>
+                ) : (
+                    findAnswersItems.map((item) => (
+                        <DropdownMenuItem 
+                            key={`collapsed-${item.id}`}
+                            onClick={() => onViewChange?.(item.id as any)}
+                            className="cursor-pointer"
+                        >
+                            <div className="mr-2 h-4 w-4 flex items-center justify-center">
+                                {getIconComponent(item.icon || 'help-circle')}
+                            </div>
+                            <span>{item.title}</span>
+                        </DropdownMenuItem>
+                    ))
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
     </div>
   );
 

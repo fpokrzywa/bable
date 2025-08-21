@@ -31,17 +31,20 @@ import { Label } from './ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 import { Profile } from './Profile';
-import { Settings } from './Settings';
 import { AIStore } from './AIStore';
 import { PromptCatalog } from './PromptCatalog';
 import { UserManagement } from './UserManagement';
 import { RoleManagement } from './RoleManagement';
+import { CompanyManagement } from './CompanyManagement';
+import { CompanyEdit } from './CompanyEdit';
+import { FindAnswersPanel } from './FindAnswersPanel';
 
 
-type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'settings' | 'user-management' | 'role-management';
+type ViewType = 'dashboard' | 'ai-store' | 'prompt-catalog' | 'profile' | 'user-management' | 'role-management' | 'company-management' | 'company-edit' | string;
 
 export function Dashboard() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [selectedFindAnswersId, setSelectedFindAnswersId] = useState<string | null>(null);
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const [favorites, setFavorites] = useState<Widget[]>([]);
   const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([]);
@@ -55,6 +58,7 @@ export function Dashboard() {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [openWorkspaces, setOpenWorkspaces] = useState<Workspace[]>([]);
@@ -174,6 +178,29 @@ export function Dashboard() {
 
   const handleViewChange = (view: ViewType) => {
     setCurrentView(view);
+    
+    // Check if this is a Find Answers item
+    const findAnswersItems = ['it-support-guides', 'my-support-guides', 'hr-policies', 'niea-guides', 'adept-guides'];
+    if (findAnswersItems.includes(view)) {
+      setSelectedFindAnswersId(view);
+    } else {
+      setSelectedFindAnswersId(null);
+    }
+    
+    // Refresh user data when switching to profile view to get latest changes
+    if (view === 'profile') {
+      fetchUserDataFallback();
+    }
+  };
+
+  const handleEditCompany = (company: any) => {
+    setSelectedCompany(company);
+    setCurrentView('company-edit');
+  };
+
+  const handleBackToCompanyList = () => {
+    setSelectedCompany(null);
+    setCurrentView('company-management');
   };
 
   const handleMainWorkspace = () => {
@@ -297,14 +324,6 @@ export function Dashboard() {
             </div>
           </div>
         );
-      case 'settings':
-        return (
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-4xl mx-auto">
-              <Settings isPage={true} />
-            </div>
-          </div>
-        );
       case 'user-management':
         return (
           <div className="flex-1 overflow-y-auto p-6">
@@ -321,7 +340,165 @@ export function Dashboard() {
             </div>
           </div>
         );
+      case 'company-management':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-6xl mx-auto">
+              <CompanyManagement onEditCompany={handleEditCompany} />
+            </div>
+          </div>
+        );
+      case 'company-edit':
+        return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <CompanyEdit 
+              company={selectedCompany} 
+              onBack={handleBackToCompanyList}
+              onSave={handleBackToCompanyList}
+            />
+          </div>
+        );
       default:
+        // Check if this is a Find Answers item
+        if (selectedFindAnswersId) {
+          return (
+            <div className="flex-1 flex">
+              <FindAnswersPanel 
+                findAnswersId={selectedFindAnswersId}
+                onClose={() => {
+                  setSelectedFindAnswersId(null);
+                  setCurrentView('dashboard');
+                }}
+              />
+              <div className="flex-1 flex">
+                <div className="flex flex-1 bg-gray-50">
+                  <div className="flex flex-col transition-all duration-300 ease-in-out flex-1">
+                    {/* Chat Header */}
+                    <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600">
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                          </div>
+                          <span className="font-medium text-gray-900 text-sm sm:text-base truncate">ODIN</span>
+                        </div>
+                        <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                          <select className="px-2 py-1 sm:px-3 sm:py-2 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
+                            <option>GPT-4o</option>
+                            <option>GPT-4</option>
+                            <option>Claude-3.5</option>
+                            <option>Gemini Pro</option>
+                          </select>
+                          <button className="px-2 py-1 sm:px-4 sm:py-1 bg-orange-600 text-white rounded text-xs sm:text-sm hover:bg-orange-700 transition-colors">
+                            Prompts
+                          </button>
+                          <button className="px-2 py-1 sm:px-3 sm:py-1 border border-gray-300 text-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 transition-colors">
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Chat Content */}
+                    <div className="flex-1 flex flex-col px-3 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-hidden">
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="max-w-4xl w-full mx-auto">
+                          <h2 className="text-base sm:text-lg lg:text-xl font-medium text-gray-800 mb-4 sm:mb-6 lg:mb-8 text-center">
+                            Please ask ODIN your questions
+                          </h2>
+                          <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6 text-center px-2">
+                            Ask a question or add files to the conversation using the paperclip icon.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Chat Input */}
+                      <div className="flex-shrink-0">
+                        <div className="relative">
+                          <div className="flex items-center space-x-2 sm:space-x-3 bg-white rounded-lg p-2 sm:p-3 border border-gray-200 shadow-sm">
+                            <button className="p-1 sm:p-2 text-gray-400 hover:text-orange-600 transition-colors flex-shrink-0 relative" title="Upload files">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 sm:w-5 sm:h-5">
+                                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                              </svg>
+                            </button>
+                            <input 
+                              type="text" 
+                              placeholder="Ask a question..." 
+                              className="flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base min-w-0" 
+                            />
+                            <button className="p-1 sm:p-2 text-gray-400 hover:text-orange-600 transition-colors flex-shrink-0">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 sm:w-5 sm:h-5">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" x2="12" y1="19" y2="22"></line>
+                              </svg>
+                            </button>
+                            <button className="p-2 sm:p-3 transition-colors flex-shrink-0 rounded-lg text-gray-400 hover:text-orange-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 sm:w-5 sm:h-5">
+                                <path d="m22 2-7 20-4-9-9-4Z"></path>
+                                <path d="M22 2 11 13"></path>
+                              </svg>
+                            </button>
+                          </div>
+                          <div className="flex flex-wrap gap-1 sm:gap-2 mt-2 sm:mt-3 justify-start">
+                            <button className="flex items-center space-x-1 px-2 py-1 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 transition-colors text-xs">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-gray-400">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                              </svg>
+                              <span className="hidden sm:inline">Web Search</span>
+                              <span className="sm:hidden">Web</span>
+                            </button>
+                            <button className="flex items-center space-x-1 px-2 py-1 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 transition-colors text-xs">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-gray-400">
+                                <path d="M3 3v18h18"></path>
+                                <path d="M18 17V9"></path>
+                                <path d="M13 17V5"></path>
+                                <path d="M8 17v-3"></path>
+                              </svg>
+                              <span>Research</span>
+                            </button>
+                            <button className="flex items-center space-x-1 px-2 py-1 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 transition-colors text-xs">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-gray-400">
+                                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                                <circle cx="9" cy="9" r="2"></circle>
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                              </svg>
+                              <span className="hidden sm:inline">Help me with this</span>
+                              <span className="sm:hidden">Image</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        
+        // Handle other dynamic views
+        if (currentView !== 'dashboard' && currentView !== 'ai-store' && currentView !== 'prompt-catalog' && 
+            currentView !== 'profile' && currentView !== 'user-management' && currentView !== 'role-management' && 
+            currentView !== 'company-management' && currentView !== 'company-edit') {
+          const title = currentView.split('-').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ');
+          
+          return (
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center py-12">
+                  <h1 className="text-2xl font-semibold mb-4">{title}</h1>
+                  <p className="text-muted-foreground">Content for {title.toLowerCase()} will be available here.</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
         return renderDashboardView();
     }
   };
