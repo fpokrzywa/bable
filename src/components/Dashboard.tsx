@@ -794,7 +794,7 @@ export function Dashboard() {
 
         if (result) {
             toast({ title: 'Success', description: `Workspace "${workspaceName}" saved.`, duration: 2000 });
-            if (user) fetchWorkspaces(user.userId, true); // Force refresh after save
+            if (user) fetchWorkspaces(user.userId, true);
             if (isCreating) {
                 const newWorkspace = { ...result, last_accessed: new Date().toISOString() };
                 setOpenWorkspaces(prev => [...prev, newWorkspace]);
@@ -1133,3 +1133,4 @@ export function Dashboard() {
       
 
     
+
