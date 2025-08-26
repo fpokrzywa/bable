@@ -14,6 +14,7 @@ import { Search, UserPlus, Edit2, Trash2, MoreHorizontal, Loader2, ChevronsUpDow
 import { useToast } from '@/hooks/use-toast';
 import { getAllUsers, updateUserProfile } from '@/services/userService';
 import { roleService, type Role } from '@/services/roleService';
+import { getCompanyById } from '@/services/companyService';
 import type { User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -32,6 +33,7 @@ export function UserManagement() {
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('All Roles');
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [companyNames, setCompanyNames] = useState<{[userId: string]: string}>({});
   const [newUser, setNewUser] = useState<Partial<User> & { active: boolean }>({
     first_name: '',
     last_name: '',
@@ -45,6 +47,30 @@ export function UserManagement() {
   });
   const { toast } = useToast();
   
+  // Fetch company names for users
+  const fetchCompanyNames = async (usersList: User[]) => {
+    const companyNamesMap: {[userId: string]: string} = {};
+    
+    for (const user of usersList) {
+      if (user.company_id) {
+        try {
+          const companyId = typeof user.company_id === 'object' 
+            ? user.company_id.$oid 
+            : user.company_id;
+          
+          const company = await getCompanyById(companyId);
+          if (company?.company_name) {
+            companyNamesMap[user.userId] = company.company_name;
+          }
+        } catch (error) {
+          console.error(`Failed to fetch company for user ${user.userId}:`, error);
+        }
+      }
+    }
+    
+    setCompanyNames(companyNamesMap);
+  };
+
   const fetchInitialData = async () => {
     setLoading(true);
     try {
@@ -54,6 +80,9 @@ export function UserManagement() {
       ]);
       setUsers(fetchedUsers);
       setRoles(fetchedRoles);
+      
+      // Fetch company names for the users
+      await fetchCompanyNames(fetchedUsers);
     } catch (error) {
        toast({
         title: "Error",
@@ -414,10 +443,12 @@ export function UserManagement() {
               </Label>
               <Input
                 id="Company"
-                value={newUser.Company || ''}
+                value={editingUser ? (companyNames[editingUser.userId] || 'No Company') : newUser.Company || ''}
                 onChange={(e) => setNewUser({ ...newUser, Company: e.target.value })}
                 className="col-span-3"
                 placeholder="Enter company name"
+                disabled={!!editingUser}
+                title={editingUser ? 'Company is managed through company assignments' : ''}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">

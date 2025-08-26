@@ -4,10 +4,13 @@
 import axios from 'axios';
 import type { Incident } from '@/lib/types';
 
-export async function getIncidents(): Promise<Incident[]> {
+export async function getIncidents(serviceNowUrl?: string): Promise<Incident[]> {
   const appClient = 'ai_browser';
   const appSecret = 'Appdev2025!';
-  const requestUrl = 'https://dev309119.service-now.com/api/now/table/incident?sysparm_limit=10';
+  
+  // Use provided URL or fallback to hardcoded default
+  const baseUrl = serviceNowUrl || 'https://dev309119.service-now.com';
+  const requestUrl = `${baseUrl}/api/now/table/incident?sysparm_limit=10`;
 
   // Create Basic Auth header
   const auth = Buffer.from(`${appClient}:${appSecret}`).toString('base64');

@@ -109,7 +109,8 @@ export async function updateCompany(companyData: Partial<Company>): Promise<bool
             max_workspace_sessions: [companyData.max_workspace_sessions], // Convert to array as expected by n8n flow
             demo_environment: companyData.demo_environment ? 'true' : 'false', // Convert boolean to string
             llm_config: companyData.llm_config,
-            openai_key: companyData["OpenAI API Key"] // Map the OpenAI API Key field
+            openai_key: companyData["OpenAI API Key"], // Map the OpenAI API Key field
+            url: companyData.url // ServiceNow Instance URL
         };
 
         console.log('Sending mapped company data to webhook:', mappedData);

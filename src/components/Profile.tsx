@@ -13,6 +13,7 @@ import { Textarea } from './ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { cn } from '@/lib/utils';
 import { updateUserProfile, getUserById } from '@/services/userService';
+import { getCompanyById } from '@/services/companyService';
 import type { User } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +29,7 @@ interface ProfileProps {
 export function Profile({ user, userId, onProfileUpdate, isPage = false }: ProfileProps) {
   const [profile, setProfile] = useState<User | null>(user || null);
   const [loading, setLoading] = useState(!user);
+  const [companyName, setCompanyName] = useState<string>('');
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
@@ -68,6 +70,40 @@ export function Profile({ user, userId, onProfileUpdate, isPage = false }: Profi
 
     fetchUserData();
   }, [user, userId, toast]);
+
+  // Fetch company name when profile is loaded
+  useEffect(() => {
+    const fetchCompanyName = async () => {
+      console.log('Profile fetchCompanyName - profile:', profile);
+      console.log('Profile fetchCompanyName - company_id:', profile?.company_id);
+      
+      if (profile?.company_id) {
+        try {
+          const companyId = typeof profile.company_id === 'object' 
+            ? profile.company_id.$oid 
+            : profile.company_id;
+          
+          console.log('Profile fetchCompanyName - extracted companyId:', companyId);
+          
+          const company = await getCompanyById(companyId);
+          console.log('Profile fetchCompanyName - company result:', company);
+          
+          if (company?.company_name) {
+            console.log('Profile fetchCompanyName - setting company name:', company.company_name);
+            setCompanyName(company.company_name);
+          } else {
+            console.log('Profile fetchCompanyName - no company name found');
+          }
+        } catch (error) {
+          console.error('Failed to fetch company name:', error);
+        }
+      } else {
+        console.log('Profile fetchCompanyName - no company_id found');
+      }
+    };
+
+    fetchCompanyName();
+  }, [profile?.company_id]);
 
   const handleSaveChanges = async () => {
     if (!profile) {
@@ -273,7 +309,7 @@ export function Profile({ user, userId, onProfileUpdate, isPage = false }: Profi
               <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" />
             </div>
             <div className="grid gap-1.5">
-              <p className="text-sm text-muted-foreground">{profile.Company || 'Company Name'}</p>
+              <p className="text-sm text-muted-foreground">{companyName || 'No Company'}</p>
               <h2 className="text-2xl font-bold">{(profile.first_name && profile.last_name) ? `${profile.first_name} ${profile.last_name}` : (profile.username || 'User')}</h2>
               <p className="text-sm text-muted-foreground">{profile.email}</p>
             </div>

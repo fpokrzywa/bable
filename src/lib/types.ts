@@ -130,4 +130,5 @@ export interface Company {
   max_workspace_sessions: number;
   demo_environment: boolean;
   llm_config: string;
+  url?: string;
 }

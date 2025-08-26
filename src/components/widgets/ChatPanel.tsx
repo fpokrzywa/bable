@@ -5,7 +5,7 @@ import { useState, type FormEvent, useRef, useEffect } from 'react';
 import type { ChatMessage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2, Bot, User, PanelLeft } from 'lucide-react';
+import { Send, Loader2, Bot, User, PanelLeft, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
@@ -15,9 +15,10 @@ interface ChatPanelProps {
   onSubmit: (query: string) => void;
   agentType: string;
   onClose: () => void;
+  onClear: () => void;
 }
 
-export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: ChatPanelProps) {
+export function ChatPanel({ messages, loading, onSubmit, agentType, onClose, onClear }: ChatPanelProps) {
   const [query, setQuery] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,9 +46,21 @@ export function ChatPanel({ messages, loading, onSubmit, agentType, onClose }: C
     <div className="h-full flex flex-col bg-background/50">
       <div className="p-3 flex items-center justify-between">
         <h4 className="font-semibold text-sm">Chat with {agentType}</h4>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-          <PanelLeft size={18} />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-7 w-7" 
+            onClick={onClear}
+            title="Clear chat history"
+            disabled={messages.length === 0}
+          >
+            <Trash2 size={16} />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+            <PanelLeft size={18} />
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 p-4 overflow-auto no-scrollbar" ref={scrollAreaRef}>

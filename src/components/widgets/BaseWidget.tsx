@@ -13,7 +13,7 @@ import { contextAwareWidgetChat } from '@/ai/flows/context-aware-widget-chat';
 import { EntityWidget } from './EntityWidget';
 import { cn } from '@/lib/utils';
 import { ChatPanel } from './ChatPanel';
-import { WIDGET_EXPANDED_WIDTH, WIDGET_INITIAL_WIDTH } from './WidgetContainer';
+import { WIDGET_EXPANDED_WIDTH, WIDGET_INITIAL_WIDTH, WIDGET_INITIAL_HEIGHT } from './WidgetContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BaseWidgetProps {
@@ -23,9 +23,11 @@ interface BaseWidgetProps {
   bringToFront: (id: string, isSummaryOrChat?: boolean) => void;
   toggleMinimizeWidget: (id: string) => void;
   toggleFavoriteWidget: (id: string) => void;
+  onResize?: (id: string, width: number, height: number) => void;
+  onPositionChange?: (id: string, x: number, y: number) => void;
 }
 
-export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget }: BaseWidgetProps) {
+export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, toggleMinimizeWidget, toggleFavoriteWidget, onResize, onPositionChange }: BaseWidgetProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(widget.type === 'generic');
   const [loading, setLoading] = useState(false);
@@ -34,13 +36,147 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
   const [isResizing, setIsResizing] = useState(false);
   const [selectedEntityForChat, setSelectedEntityForChat] = useState<Incident | Problem | Change | null>(null);
   const isMobile = useIsMobile();
+  
+  // Track the last reported size to prevent infinite loops
+  const lastReportedSize = useRef<{width: number, height: number} | null>(null);
+  
+  // Resize state
+  const [isCustomResizing, setIsCustomResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState<string | null>(null);
+  const [initialMousePos, setInitialMousePos] = useState({ x: 0, y: 0 });
+  const [initialWidgetSize, setInitialWidgetSize] = useState({ width: 0, height: 0 });
+  const [initialWidgetPos, setInitialWidgetPos] = useState({ x: 0, y: 0 });
+  
+  // ResizeObserver to detect when the card is resized via CSS resize handle
+  useEffect(() => {
+    if (!widgetRef.current || !onResize || isMobile) return;
+    
+    let timeoutId: NodeJS.Timeout;
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          
+          // Only trigger if size actually changed significantly
+          const currentWidget = widget;
+          const currentWidth = currentWidget.width || WIDGET_INITIAL_WIDTH;
+          const currentHeight = currentWidget.height || WIDGET_INITIAL_HEIGHT;
+          
+          const widthChanged = Math.abs(width - currentWidth) > 5;
+          const heightChanged = Math.abs(height - currentHeight) > 5;
+          
+          // Also check against last reported size to prevent loops
+          const lastSize = lastReportedSize.current;
+          const differentFromLast = !lastSize || 
+            Math.abs(width - lastSize.width) > 5 || 
+            Math.abs(height - lastSize.height) > 5;
+          
+          if ((widthChanged || heightChanged) && differentFromLast) {
+            lastReportedSize.current = { width: Math.round(width), height: Math.round(height) };
+            onResize(widget.id, Math.round(width), Math.round(height));
+          }
+        }
+      }, 100); // Debounce by 100ms
+    });
+    
+    resizeObserver.observe(widgetRef.current);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [widget.id, widget.width, widget.height, onResize, isMobile]);
+
+  // Custom resize handling
+  const handleResizeStart = (direction: string, e: React.MouseEvent) => {
+    if (isMobile || !widgetRef.current || !onResize) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsCustomResizing(true);
+    setResizeDirection(direction);
+    setInitialMousePos({ x: e.clientX, y: e.clientY });
+    
+    const rect = widgetRef.current.getBoundingClientRect();
+    setInitialWidgetSize({ width: rect.width, height: rect.height });
+    setInitialWidgetPos({ x: widget.x || 0, y: widget.y || 0 });
+    
+    bringToFront(widget.id);
+  };
+
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!isCustomResizing || !resizeDirection || !onResize || !widgetRef.current) return;
+    
+    const deltaX = e.clientX - initialMousePos.x;
+    const deltaY = e.clientY - initialMousePos.y;
+    
+    let newWidth = initialWidgetSize.width;
+    let newHeight = initialWidgetSize.height;
+    let newX = initialWidgetPos.x;
+    let newY = initialWidgetPos.y;
+    
+    const minWidth = 350;
+    const minHeight = 250;
+    
+    // Handle different resize directions
+    if (resizeDirection.includes('e')) { // East (right)
+      newWidth = Math.max(minWidth, initialWidgetSize.width + deltaX);
+    }
+    if (resizeDirection.includes('w')) { // West (left)
+      const widthChange = Math.min(deltaX, initialWidgetSize.width - minWidth);
+      newWidth = initialWidgetSize.width - widthChange;
+      newX = initialWidgetPos.x + widthChange;
+    }
+    if (resizeDirection.includes('s')) { // South (bottom)
+      newHeight = Math.max(minHeight, initialWidgetSize.height + deltaY);
+    }
+    if (resizeDirection.includes('n')) { // North (top)
+      const heightChange = Math.min(deltaY, initialWidgetSize.height - minHeight);
+      newHeight = initialWidgetSize.height - heightChange;
+      newY = initialWidgetPos.y + heightChange;
+    }
+    
+    // Apply the changes
+    if (onResize && (newWidth !== initialWidgetSize.width || newHeight !== initialWidgetSize.height)) {
+      onResize(widget.id, Math.round(newWidth), Math.round(newHeight));
+    }
+    
+    if (onPositionChange && (newX !== initialWidgetPos.x || newY !== initialWidgetPos.y)) {
+      onPositionChange(widget.id, Math.round(newX), Math.round(newY));
+    }
+  }, [isCustomResizing, resizeDirection, initialMousePos, initialWidgetSize, initialWidgetPos, onResize, onPositionChange, widget.id]);
+
+  const handleCustomResizeEnd = useCallback(() => {
+    setIsCustomResizing(false);
+    setResizeDirection(null);
+  }, []);
+
+  // Mouse event listeners for resizing
+  useEffect(() => {
+    if (isCustomResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleCustomResizeEnd);
+      document.body.style.cursor = resizeDirection ? `${resizeDirection}-resize` : 'default';
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleCustomResizeEnd);
+        document.body.style.cursor = 'default';
+      };
+    }
+  }, [isCustomResizing, handleResizeMove, handleCustomResizeEnd, resizeDirection]);
 
 
+  // Set chat panel to exactly half the widget width for equal split (50/50)
   useEffect(() => {
     if (isChatOpen && widgetRef.current) {
-        setChatPanelWidth(widgetRef.current.offsetWidth / 2);
+        const halfWidth = widgetRef.current.offsetWidth / 2;
+        setChatPanelWidth(halfWidth);
     }
-  }, [isChatOpen]);
+  }, [isChatOpen, widget.width]);
 
 
   const handleResize = useCallback((e: MouseEvent) => {
@@ -76,6 +212,10 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
     };
   }, [isResizing, handleResize, handleResizeEnd]);
   
+  const clearChatMessages = () => {
+    setChatMessages([]);
+  };
+
   const toggleChat = () => {
     if (!isChatOpen) {
       bringToFront(widget.id, true);
@@ -224,6 +364,23 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
 
 
       <CardContent className="flex-1 min-h-0 relative p-0">
+        {/* Resize handles - only show on desktop */}
+        {!isMobile && (
+          <>
+            {/* Corner handles */}
+            <div className="resize-handle resize-nw" onMouseDown={(e) => handleResizeStart('nw', e)} />
+            <div className="resize-handle resize-ne" onMouseDown={(e) => handleResizeStart('ne', e)} />
+            <div className="resize-handle resize-sw" onMouseDown={(e) => handleResizeStart('sw', e)} />
+            <div className="resize-handle resize-se" onMouseDown={(e) => handleResizeStart('se', e)} />
+            
+            {/* Edge handles */}
+            <div className="resize-handle resize-n" onMouseDown={(e) => handleResizeStart('n', e)} />
+            <div className="resize-handle resize-s" onMouseDown={(e) => handleResizeStart('s', e)} />
+            <div className="resize-handle resize-w" onMouseDown={(e) => handleResizeStart('w', e)} />
+            <div className="resize-handle resize-e" onMouseDown={(e) => handleResizeStart('e', e)} />
+          </>
+        )}
+        
         <div className={cn("flex h-full", isResizing ? 'cursor-col-resize select-none' : '')}>
             <div className="h-full flex-1 overflow-auto no-scrollbar" style={{ width: isChatOpen ? `calc(100% - ${chatPanelWidth}px)` : '100%' }}>
               <div className="p-4 h-full">
@@ -244,6 +401,7 @@ export function BaseWidget({ widget, removeWidget, updateEntity, bringToFront, t
                         onSubmit={handleChatSubmit}
                         agentType={widget.agent.agentType}
                         onClose={toggleChat}
+                        onClear={clearChatMessages}
                     />
                 </div>
               </>

@@ -365,20 +365,33 @@ export function CompanyEdit({ companyId, company: initialCompany, onBack, onSave
             </CardHeader>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <CardContent className="pt-0">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <div className="text-base font-medium">Demo Environment</div>
-              <div className="text-sm text-muted-foreground">
-                Enable demo mode for testing and development
+            <CardContent className="pt-0 space-y-6">
+              <div className="grid gap-2">
+                <Label htmlFor="servicenow_url">ServiceNow Instance URL</Label>
+                <Input 
+                  id="servicenow_url" 
+                  value={company.url || ''} 
+                  onChange={(e) => handleInputChange('url', e.target.value)} 
+                  placeholder="https://your-instance.service-now.com"
+                />
+                <div className="text-sm text-muted-foreground">
+                  The URL of your ServiceNow instance for API integration
+                </div>
               </div>
-            </div>
-            <Switch
-              checked={company.demo_environment || false}
-              onCheckedChange={(checked) => handleInputChange('demo_environment', checked)}
-              className={cn('transition-opacity', !company.demo_environment && 'opacity-50')}
-            />
-          </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-base font-medium">Demo Environment</div>
+                  <div className="text-sm text-muted-foreground">
+                    Enable demo mode for testing and development
+                  </div>
+                </div>
+                <Switch
+                  checked={company.demo_environment || false}
+                  onCheckedChange={(checked) => handleInputChange('demo_environment', checked)}
+                  className={cn('transition-opacity', !company.demo_environment && 'opacity-50')}
+                />
+              </div>
             </CardContent>
           </CollapsibleContent>
         </Collapsible>

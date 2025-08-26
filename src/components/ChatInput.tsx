@@ -17,7 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import type { Widget } from '@/lib/types';
+import type { Widget, User } from '@/lib/types';
 
 
 interface ChatInputProps {
@@ -26,6 +26,7 @@ interface ChatInputProps {
   loading: boolean;
   widgets: Widget[];
   onWorkspaceAction: (action: 'create' | 'edit' | 'forget' | 'load' | 'save') => void;
+  user?: User | null;
 }
 
 const commands = [
@@ -43,7 +44,7 @@ const workspaceCommands = [
   { name: 'Forget workspace', action: 'forget', description: 'Clear the saved workspace from memory', icon: Trash2 },
 ];
 
-export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceAction }: ChatInputProps) {
+export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceAction, user }: ChatInputProps) {
   const [query, setQuery] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -53,6 +54,15 @@ export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceActio
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [thinkingDots, setThinkingDots] = useState('.');
+
+  // Filter commands based on user's company association
+  const availableCommands = commands.filter(command => {
+    // Hide @servicenow command if user has no company
+    if (command.query === '@servicenow' && !user?.company_id) {
+      return false;
+    }
+    return true;
+  });
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -193,7 +203,7 @@ export function ChatInput({ onSubmit, onSave, loading, widgets, onWorkspaceActio
               >
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground px-2">Commands</p>
-                  {commands.map((command) => {
+                  {availableCommands.map((command) => {
                     const Icon = command.icon;
                     const isDisabled = command.query === '@summary' && isSummaryDisabled;
                     return (

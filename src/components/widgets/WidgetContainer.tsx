@@ -85,14 +85,6 @@ export function WidgetContainer({
     if(sidebarRef.current) resizeObserver.observe(sidebarRef.current);
     if(chatInputRef.current) resizeObserver.observe(chatInputRef.current);
     
-    // Set up individual widget observers for resizing
-    widgets.forEach(widget => {
-        const node = nodeRefs.current.get(widget.id)?.current;
-        if (node) {
-            resizeObserver.observe(node);
-        }
-    });
-    
     // Store observer to disconnect it later
     resizeObserverRef.current = resizeObserver;
 
@@ -106,9 +98,6 @@ export function WidgetContainer({
     setIsDragging(false);
   };
   
-  const handleResizeStop = (id: string, node: HTMLDivElement) => {
-    updateWidgetDimensions(id, node.offsetWidth, node.offsetHeight);
-  };
   
   if (widgets.length === 0) {
     return null;
@@ -139,7 +128,6 @@ export function WidgetContainer({
                     width: widget.width || WIDGET_INITIAL_WIDTH,
                     height: widget.height || WIDGET_INITIAL_HEIGHT,
                 }}
-                onMouseUp={() => handleResizeStop(widget.id, nodeRef.current!)}
                 onMouseDown={() => bringToFront(widget.id)}
               >
                   <BaseWidget 
@@ -149,6 +137,8 @@ export function WidgetContainer({
                       bringToFront={bringToFront}
                       toggleMinimizeWidget={toggleMinimizeWidget}
                       toggleFavoriteWidget={toggleFavoriteWidget}
+                      onResize={updateWidgetDimensions}
+                      onPositionChange={updateWidgetPosition}
                   />
               </div>
           </Draggable>

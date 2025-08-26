@@ -14,6 +14,7 @@ import { WidgetContainer, WIDGET_INITIAL_HEIGHT, WIDGET_INITIAL_WIDTH } from '@/
 import { ChatInput } from '@/components/ChatInput';
 import { useToast } from '@/hooks/use-toast';
 import { getIncidents } from '@/services/servicenow';
+import { getCompanyById } from '@/services/companyService';
 import { getUserProfile, getCachedUserData, updateCachedWorkspaces, getCachedWorkspace } from '@/services/userService';
 import { getSampleData } from '@/services/sampleDataService';
 import { getWorkspaces, saveWorkspace, deleteWorkspace } from '@/services/workspaceService';
@@ -71,6 +72,7 @@ export function Dashboard() {
   const [isWorkspaceListOpen, setIsWorkspaceListOpen] = useState(false);
   
   const [isDraggingWidget, setIsDraggingWidget] = useState(false);
+  const [isManualSaving, setIsManualSaving] = useState(false);
 
   const activeWorkspace = openWorkspaces.find(ws => ws.workspaceId === currentWorkspaceId) || null;
   const MAX_OPEN_SESSIONS = parseInt(process.env.NEXT_PUBLIC_WORKSPACE_OPEN_SESSIONS || '3', 10);
@@ -166,10 +168,10 @@ export function Dashboard() {
     
   // Debounced auto-save for workspace changes
   useDebouncedEffect(() => {
-      if (activeWorkspace && user && !loading && !isWorkspaceModalOpen && !isDraggingWidget) {
+      if (activeWorkspace && user && !loading && !isWorkspaceModalOpen && !isDraggingWidget && !isManualSaving) {
         handleQuickSaveWorkspace(true);
       }
-  }, [widgets, activeWorkspace, user, isDraggingWidget], 1000);
+  }, [widgets, activeWorkspace, user, isDraggingWidget, isManualSaving], 1000);
   
   const handleProfileUpdate = () => {
     // Refresh user data from server and update cache
@@ -587,9 +589,35 @@ export function Dashboard() {
     
     try {
       if (lowerCaseQuery.includes('@servicenow')) {
-        const incidentData = await getIncidents();
+        // Get the user's company URL for ServiceNow integration
+        let serviceNowUrl: string | undefined;
+        if (user?.company_id) {
+          try {
+            const companyId = typeof user.company_id === 'object' ? user.company_id.$oid : user.company_id;
+            const company = await getCompanyById(companyId);
+            serviceNowUrl = company?.url;
+            
+            if (!serviceNowUrl) {
+              toast({
+                variant: 'destructive',
+                title: 'Configuration Required',
+                description: 'ServiceNow Instance URL is not configured for your company. Please contact your administrator.',
+              });
+              return;
+            }
+          } catch (error) {
+            console.error('Failed to get company ServiceNow URL:', error);
+            toast({
+              variant: 'destructive',
+              title: 'Error',
+              description: 'Could not retrieve company configuration. Using default ServiceNow instance.',
+            });
+          }
+        }
+        
+        const incidentData = await getIncidents(serviceNowUrl);
         newWidgetDef = {
-          query: 'ServiceNow Records',
+          query: serviceNowUrl ? `ServiceNow Records (${new URL(serviceNowUrl).hostname})` : 'ServiceNow Records',
           data: incidentData,
           agent: { agentType: 'Incident Agent', agentBehavior: 'Manages and resolves incidents.' },
           type: 'incident',
@@ -848,11 +876,16 @@ export function Dashboard() {
   };
     
     const handleQuickSaveWorkspace = async (silent = false) => {
-        if (!activeWorkspace) {
+        if (!activeWorkspace || !activeWorkspace.workspace_name) {
             if (!silent) handleWorkspaceAction('create');
             return;
         }
         if (!user) return;
+        
+        // If this is a manual save (not silent), set the flag
+        if (!silent) {
+            setIsManualSaving(true);
+        }
         
         const widgetContent = widgets.map(({ x, y, width, height, zIndex, ...rest }) => rest);
         const widgetCoordinates = widgets.map(({ id, x, y, width, height, zIndex }) => ({
@@ -863,6 +896,8 @@ export function Dashboard() {
             height: height || WIDGET_INITIAL_HEIGHT,
             zIndex,
         }));
+
+
 
         const workspace_data = JSON.stringify(widgetContent);
         const cordinates = JSON.stringify(widgetCoordinates);
@@ -879,18 +914,21 @@ export function Dashboard() {
             if (!silent) {
                 toast({ title: 'Success', description: `Workspace "${activeWorkspace.workspace_name}" saved.`, duration: 2000 });
             }
-            // After saving, force a refresh of the workspace data from the server
+            // After saving, only refresh workspaces list but don't reload UI to avoid position conflicts
             if (user) {
                 await fetchWorkspaces(user.userId, true);
-                const updatedWs = workspaces.find(ws => ws.workspaceId === activeWorkspace.workspaceId);
-                if (updatedWs) {
-                    loadWorkspaceUI(updatedWs);
-                }
             }
         } else {
             if (!silent) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
             }
+        }
+        
+        // Clear manual saving flag after a delay for manual saves
+        if (!silent) {
+            setTimeout(() => {
+                setIsManualSaving(false);
+            }, 2000);
         }
     };
 
@@ -901,6 +939,7 @@ export function Dashboard() {
       }
     
       setLoading(true);
+      setIsManualSaving(true);
       const isCreating = workspaceAction === 'create';
       const isEditing = workspaceAction === 'edit' && workspaceToEdit;
     
@@ -970,6 +1009,12 @@ export function Dashboard() {
       } else {
         toast({ variant: 'destructive', title: 'Error', description: 'Failed to save workspace.' });
       }
+      
+      // Clear manual saving flag after a delay to allow auto-save to resume
+      setTimeout(() => {
+        setIsManualSaving(false);
+      }, 2000);
+      
       setIsWorkspaceModalOpen(false);
       setWorkspaceName('');
       setWorkspaceToEdit(null);
@@ -1000,11 +1045,19 @@ export function Dashboard() {
                 const contentData = JSON.parse(workspace.workspace_data);
                 if (workspace.cordinates) {
                     const layoutData = JSON.parse(workspace.cordinates);
+                    console.log('Loading coordinates from workspace:', layoutData);
                     const layoutMap = new Map(layoutData.map((l: any) => [l.id, l]));
                     const mergedWidgets = contentData.map((widget: any) => ({
                         ...widget,
                         ...(layoutMap.get(widget.id) || {}),
                     }));
+                    console.log('Final merged widgets being set:', mergedWidgets.map(w => ({
+                        id: w.id,
+                        x: w.x,
+                        y: w.y, 
+                        width: w.width,
+                        height: w.height
+                    })));
                     setWidgets(mergedWidgets);
                 } else {
                     // Fallback for old format
@@ -1228,7 +1281,7 @@ export function Dashboard() {
         {currentView === 'dashboard' && (
             <div ref={chatInputRef} className={cn("z-40 transition-transform duration-300 ease-in-out absolute bottom-0 left-0 right-0")} style={{ paddingLeft: !isMobile && sidebarRef.current && state === 'expanded' ? `${sidebarRef.current.offsetWidth}px`: '0' }}>
                 <div className="p-4 bg-transparent w-full max-w-xl mx-auto">
-                    <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} />
+                    <ChatInput onSubmit={handleCreateWidget} onSave={handleSaveQuery} loading={loading} widgets={widgets} onWorkspaceAction={handleWorkspaceAction} user={user} />
                 </div>
             </div>
         )}
