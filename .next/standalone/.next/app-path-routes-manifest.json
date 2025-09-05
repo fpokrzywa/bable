@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/dashboard/page": "/dashboard",
+  "/page": "/",
+  "/profile/page": "/profile",
+  "/ai-store/page": "/ai-store",
+  "/prompt-catalog/page": "/prompt-catalog",
+  "/home/page": "/home",
+  "/settings/page": "/settings"
+}

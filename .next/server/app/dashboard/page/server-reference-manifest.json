@@ -1,0 +1,148 @@
+{
+  "node": {
+    "403af59851ea14b08b48a241fb7d2ae749341591a1": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "400d15e0b4424299bcd0f5377bb47cfc276ad48a5f": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "4064d9c2cdb2f59705e0a52d5f92ee92ca8d708bb8": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "40c5823eaafb39dbda8f28b48e02c4b3b7e2d17140": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "407b349ba13262084cf53236e25e7f4d80dc7485fb": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "60f50edc5d12f180707cfea8977e737848a9737e18": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "400809f3dbc890cd1b65b747a9e4787dc80a6d40b4": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "40acb204cd4c38bfec9788563c8b11c2d8c36b9149": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "407b0a035874e368eab9c68298e726056d66bd8cd7": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "60e1d523ec930282172222333dfb25c1d742c5d1a0": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "40896f7852fe2943210ea3525aac2a9ddc94644536": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "40b74fb771eb797167a382eb9b61b856c789d444af": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    },
+    "008ee5a612ece7ecc966cef85c977efda74a90a51f": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-widget-from-query.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/agent-specific-widget.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/src/ai/flows/save-query-with-voice-text.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/src/ai/flows/generate-overview-summary.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/src/services/servicenow.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/src/services/sampleDataService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/src/services/workspaceService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/src/ai/flows/context-aware-widget-chat.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/src/services/assistantService.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE9 => \"[project]/src/services/promptService.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

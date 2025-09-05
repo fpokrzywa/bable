@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/ai-store/page": "app/ai-store/page.js",
+  "/prompt-catalog/page": "app/prompt-catalog/page.js",
+  "/home/page": "app/home/page.js",
+  "/settings/page": "app/settings/page.js"
+}

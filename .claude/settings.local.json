@@ -6,9 +6,15 @@
       "Bash(npm run typecheck:*)",
       "Bash(grep:*)",
       "Bash(npx tsc:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "WebFetch(domain:agenticweaver.com)",
+      "Bash(rd:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "S:\\"
+    ]
   }
 }
